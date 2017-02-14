@@ -1,37 +1,21 @@
-Pixel Dungeon
-=============
+Pixel Spacebase
+===============
 
-This is a fork of Watabou's Pixel Dungeon. This repo adds no new features,
-but aims to make setting up Pixel Dungeon a much easier process which everyone
-can easilly build off.
+This is a fork of Watabou's Pixel Dungeon, using mdsimmo's fork -
+https://github.com/mdsimmo/pixel-dungeon.
 
-To setup Pixel Dungeon:
+## What's Different?
 
-1. Fork this repo
-2. Clone the forked repo: `git clone --recursive https://github.com/your-name/pixel-dungeon`
-3. Start Intellij/Android Studio
-4. Go to File->Open and select the cloned repo
-5. You're done :)
+The aim is to convert Pixel Dungeon into a fully fledged Space Station RPG.
 
-Note that the PD-classes library is included as a submodule in the 'game-engine' directory. 
-If you want to make changes to that library, you'll need to fork the PD-classes library
-found here: https://github.com/mdsimmo/PD-classes
+Changes in progress:
 
-## What's different?
+* Complete Reskin of all characters, NPCs, textures and items
+* Smoother gameplay - less interrupts
 
-Primarilly, this repo has all the gradle build files included so you can easilly start using
-the project with an IDE.
+Changes planned:
 
-This project also fixes several small compile issues and several oddities in the code.
-
-## Common prolems
-
-### Opening the project in Android Studio results in "Configuration with name 'default' not found"
-That's probably because you cloned the repo without the '--recursive' part. To fix it, run the 
-following from the projects root directory:
-```
-git submodule init
-git submodule update
-cd game-engine
-git checkout master
-```
+* Oxygen
+* Armor Enhancements
+* Story elements
+* Items and usability
