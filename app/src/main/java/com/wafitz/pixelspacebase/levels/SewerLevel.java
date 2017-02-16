@@ -18,15 +18,26 @@
 package com.wafitz.pixelspacebase.levels;
 
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Ghost;
+import com.wafitz.pixelspacebase.items.ArmorKit;
+import com.wafitz.pixelspacebase.items.DewVial;
+import com.wafitz.pixelspacebase.items.Generator;
+import com.wafitz.pixelspacebase.items.Heap;
+import com.wafitz.pixelspacebase.items.armor.ClothArmor;
+import com.wafitz.pixelspacebase.items.armor.LeatherArmor;
+import com.wafitz.pixelspacebase.items.armor.MailArmor;
+import com.wafitz.pixelspacebase.items.armor.PlateArmor;
+import com.wafitz.pixelspacebase.items.armor.ScaleArmor;
+import com.wafitz.pixelspacebase.items.bags.Keyring;
+import com.wafitz.pixelspacebase.items.food.Food;
+import com.wafitz.pixelspacebase.items.scrolls.ScrollOfMagicMapping;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.particles.PixelParticle;
-import com.wafitz.pixelspacebase.Dungeon;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Ghost;
-import com.wafitz.pixelspacebase.items.DewVial;
 import com.watabou.utils.ColorMath;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
@@ -97,10 +108,30 @@ public class SewerLevel extends RegularLevel {
 			int pos = roomEntrance.random();
 			if (pos != entrance) {
 				map[pos] = Terrain.SIGN;
-				break;
-			}
-		}
-	}
+
+                if (Dungeon.depth <= 1) {
+                    int belongings = roomEntrance.random();
+                    if (belongings != Terrain.SIGN) {
+                        //pos+1 == Terrain.WALL ? pos-1 : pos+1
+                        drop(Generator.random(), belongings).type = Heap.Type.CHEST;
+                        drop(new ClothArmor().identify(), belongings);
+                        drop(new Food().identify(), belongings);
+                        drop(new Keyring(), belongings);
+                        // Testing
+                        drop(new ArmorKit().identify(), belongings);
+                        drop(new LeatherArmor().identify(), belongings);
+                        drop(new MailArmor().identify(), belongings);
+                        drop(new PlateArmor().identify(), belongings);
+                        drop(new ScaleArmor().identify(), belongings);
+                        drop(new ScrollOfMagicMapping().identify(), belongings);
+                        break;
+                    }
+                    break;
+                }
+                break;
+            }
+        }
+    }
 	
 	@Override
 	protected void createMobs() {

@@ -19,15 +19,7 @@ package com.wafitz.pixelspacebase.actors.hero;
 
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.items.ArmorKit;
 import com.wafitz.pixelspacebase.items.TomeOfMastery;
-import com.wafitz.pixelspacebase.items.armor.ClothArmor;
-import com.wafitz.pixelspacebase.items.armor.LeatherArmor;
-import com.wafitz.pixelspacebase.items.armor.MailArmor;
-import com.wafitz.pixelspacebase.items.armor.PlateArmor;
-import com.wafitz.pixelspacebase.items.armor.ScaleArmor;
-import com.wafitz.pixelspacebase.items.bags.Keyring;
-import com.wafitz.pixelspacebase.items.food.Food;
 import com.wafitz.pixelspacebase.items.potions.PotionOfStrength;
 import com.wafitz.pixelspacebase.items.rings.RingOfShadows;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfIdentify;
@@ -49,7 +41,7 @@ public enum HeroClass {
 	
 	private String title;
 	
-	private HeroClass( String title ) {
+	HeroClass(String title) {
 		this.title = title;
 	}
 	
@@ -118,8 +110,8 @@ public enum HeroClass {
 	}
 	
 	private static void initCommon( Hero hero ) {
-		(hero.belongings.armor = new ClothArmor()).identify();
-		new Food().identify().collect();
+		//(hero.belongings.armor = new ClothArmor()).identify();
+		/*new Food().identify().collect();
 		new Keyring().collect();
 		// Testing
 		new ArmorKit().identify().collect();
@@ -127,6 +119,7 @@ public enum HeroClass {
 		new MailArmor().identify().collect();
 		new PlateArmor().identify().collect();
 		new ScaleArmor().identify().collect();
+		new ScrollOfMagicMapping().identify().collect();*/
 	}
 	
 	public Badges.Badge masteryBadge() {

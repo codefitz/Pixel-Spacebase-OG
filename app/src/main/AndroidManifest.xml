@@ -2,13 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.wafitz.pixelspacebase"
 	android:versionCode="74"
-	android:versionName="0.0.2"
+	android:versionName="0.0.3"
 	android:installLocation="auto">
 
     <uses-permission android:name="android.permission.VIBRATE"/>
     
-	<uses-sdk
-	    android:targetSdkVersion="20"/>
+	<!--<uses-sdk
+	    android:targetSdkVersion="20"/>-->
 	
 	<uses-feature 
 	    android:glEsVersion="0x00020000"/>

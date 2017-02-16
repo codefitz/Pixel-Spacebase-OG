@@ -17,37 +17,43 @@
  */
 package com.wafitz.pixelspacebase.levels;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Challenges;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.Statistics;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.blobs.Alchemy;
 import com.wafitz.pixelspacebase.actors.blobs.Blob;
+import com.wafitz.pixelspacebase.actors.blobs.WellWater;
 import com.wafitz.pixelspacebase.actors.buffs.Awareness;
 import com.wafitz.pixelspacebase.actors.buffs.Blindness;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.MindVision;
 import com.wafitz.pixelspacebase.actors.buffs.Shadows;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
+import com.wafitz.pixelspacebase.actors.hero.HeroClass;
 import com.wafitz.pixelspacebase.actors.mobs.Bestiary;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.effects.particles.FlowParticle;
 import com.wafitz.pixelspacebase.effects.particles.WindParticle;
 import com.wafitz.pixelspacebase.items.Generator;
+import com.wafitz.pixelspacebase.items.Gold;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.armor.Armor;
+import com.wafitz.pixelspacebase.items.bags.ScrollHolder;
+import com.wafitz.pixelspacebase.items.bags.SeedPouch;
 import com.wafitz.pixelspacebase.items.food.Food;
 import com.wafitz.pixelspacebase.items.potions.PotionOfHealing;
+import com.wafitz.pixelspacebase.items.potions.PotionOfStrength;
 import com.wafitz.pixelspacebase.items.scrolls.Scroll;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfEnchantment;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfUpgrade;
+import com.wafitz.pixelspacebase.levels.features.Chasm;
+import com.wafitz.pixelspacebase.levels.features.Door;
 import com.wafitz.pixelspacebase.levels.features.HighGrass;
+import com.wafitz.pixelspacebase.levels.painters.Painter;
 import com.wafitz.pixelspacebase.levels.traps.AlarmTrap;
 import com.wafitz.pixelspacebase.levels.traps.FireTrap;
 import com.wafitz.pixelspacebase.levels.traps.GrippingTrap;
@@ -56,56 +62,36 @@ import com.wafitz.pixelspacebase.levels.traps.ParalyticTrap;
 import com.wafitz.pixelspacebase.levels.traps.PoisonTrap;
 import com.wafitz.pixelspacebase.levels.traps.SummoningTrap;
 import com.wafitz.pixelspacebase.levels.traps.ToxicTrap;
+import com.wafitz.pixelspacebase.mechanics.ShadowCaster;
 import com.wafitz.pixelspacebase.plants.Plant;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.utils.GLog;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.blobs.Alchemy;
-import com.wafitz.pixelspacebase.actors.blobs.WellWater;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
-import com.wafitz.pixelspacebase.actors.hero.HeroClass;
-import com.wafitz.pixelspacebase.items.Gold;
-import com.wafitz.pixelspacebase.items.bags.ScrollHolder;
-import com.wafitz.pixelspacebase.items.bags.SeedPouch;
-import com.wafitz.pixelspacebase.items.potions.PotionOfStrength;
-import com.wafitz.pixelspacebase.levels.features.Chasm;
-import com.wafitz.pixelspacebase.levels.features.Door;
-import com.wafitz.pixelspacebase.levels.painters.Painter;
-import com.wafitz.pixelspacebase.mechanics.ShadowCaster;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 import com.watabou.utils.SparseArray;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+
 public abstract class Level implements Bundlable {
 	
-	public static enum Feeling {
+	public enum Feeling {
 		NONE,
 		CHASM,
 		WATER,
 		GRASS
-	};
+	}
 
-    // Mix up dungeon creation a little bit - throw the player off
-   /* static int X;
-    static int Y;
+	// Mix up dungeon creation a little bit - throw the player off
 
-    public void rand( int X, int Y ) {
-        int r = Random.Int(20);
-
-        if ((r % 2) == 0) {
-            this.X = 18;
-            this.Y = 52;
-        } else {
-            this.X = 18;
-            this.Y = 52;
-        };
-    }*/
-
-    public static final int WIDTH = Random.Int(20,40);
-    public static final int HEIGHT = Random.Int(20,40);
+    public static final int WIDTH = Random.Int(16,52);
+    public static final int HEIGHT = WIDTH >= 44 ? Random.Int(16,36) : Random.Int(30,52);
 
     public static final int LENGTH = WIDTH * HEIGHT;
 	
@@ -113,7 +99,7 @@ public abstract class Level implements Bundlable {
 	public static final int[] NEIGHBOURS8 = {+1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
 	public static final int[] NEIGHBOURS9 = {0, +1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
 	
-	protected static final float TIME_TO_RESPAWN	= 50;
+	private static final float TIME_TO_RESPAWN	= 50;
 	
 	private static final String TXT_HIDDEN_PLATE_CLICKS = "A hidden pressure plate clicks!";
 	
@@ -149,7 +135,7 @@ public abstract class Level implements Bundlable {
 	public HashMap<Class<? extends Blob>,Blob> blobs;
 	public SparseArray<Plant> plants;
 	
-	protected ArrayList<Item> itemsToSpawn = new ArrayList<Item>();
+	protected ArrayList<Item> itemsToSpawn = new ArrayList<>();
 	
 	public int color1 = 0x004400;
 	public int color2 = 0x88CC44;
@@ -177,10 +163,10 @@ public abstract class Level implements Bundlable {
 		mapped = new boolean[LENGTH];
 		Arrays.fill( mapped, false );
 		
-		mobs = new HashSet<Mob>();
-		heaps = new SparseArray<Heap>();
+		mobs = new HashSet<>();
+		heaps = new SparseArray<>();
 		blobs = new HashMap<Class<? extends Blob>,Blob>();
-		plants = new SparseArray<Plant>();
+		plants = new SparseArray<>();
 		
 		if (!Dungeon.bossLevel()) {
 			addItemToSpawn( Generator.random( Generator.Category.FOOD ) );
@@ -245,10 +231,10 @@ public abstract class Level implements Bundlable {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		
-		mobs = new HashSet<Mob>();
-		heaps = new SparseArray<Heap>();
+		mobs = new HashSet<>();
+		heaps = new SparseArray<>();
 		blobs = new HashMap<Class<? extends Blob>, Blob>();
-		plants = new SparseArray<Plant>();
+		plants = new SparseArray<>();
 		
 		map		= bundle.getIntArray( MAP );
 		visited	= bundle.getBooleanArray( VISITED );
@@ -828,7 +814,7 @@ public abstract class Level implements Bundlable {
 			}
 		}
 		
-		if ((sighted && sense > 1) || !sighted) {
+		if (!sighted || sense > 1) {
 			
 			int ax = Math.max( 0, cx - sense );
 			int bx = Math.min( cx + sense, WIDTH - 1 );
