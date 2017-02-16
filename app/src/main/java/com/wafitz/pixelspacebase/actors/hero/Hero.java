@@ -817,8 +817,9 @@ public class Hero extends Char {
 				if (wep instanceof Wand) {
 					Wand wand = (Wand)wep;
 					if (wand.curCharges >= wand.maxCharges) {
-						
-						wand.use();
+
+						//Quickfix degredation removal
+						//wand.use();
 						
 					} else if (damage > 0) {
 						

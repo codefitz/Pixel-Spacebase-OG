@@ -446,9 +446,10 @@ public class Item implements Bundlable {
 	}
 	
 	public int considerState( int price ) {
-		if (cursed && cursedKnown) {
-			price /= 2;
-		}
+		// How is a shopkeeper going to know a weapon is cursed till he wields it?
+		//if (cursed && cursedKnown) {
+		//	price /= 2;
+		//}
 		if (levelKnown) {
 			if (level > 0) {
 				price *= (level + 1);

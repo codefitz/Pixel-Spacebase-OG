@@ -87,10 +87,27 @@ public abstract class Level implements Bundlable {
 		WATER,
 		GRASS
 	};
-	
-	public static final int WIDTH = 16;
-	public static final int HEIGHT = 48;
-	public static final int LENGTH = WIDTH * HEIGHT;
+
+    // Mix up dungeon creation a little bit - throw the player off
+   /* static int X;
+    static int Y;
+
+    public void rand( int X, int Y ) {
+        int r = Random.Int(20);
+
+        if ((r % 2) == 0) {
+            this.X = 18;
+            this.Y = 52;
+        } else {
+            this.X = 18;
+            this.Y = 52;
+        };
+    }*/
+
+    public static final int WIDTH = Random.Int(20,40);
+    public static final int HEIGHT = Random.Int(20,40);
+
+    public static final int LENGTH = WIDTH * HEIGHT;
 	
 	public static final int[] NEIGHBOURS4 = {-WIDTH, +1, +WIDTH, -1}; 
 	public static final int[] NEIGHBOURS8 = {+1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
@@ -153,9 +170,9 @@ public abstract class Level implements Bundlable {
 	public void create() {
 		
 		resizingNeeded = false;
-		
-		map = new int[LENGTH];
-		visited = new boolean[LENGTH];
+
+        map = new int[LENGTH];
+        visited = new boolean[LENGTH];
 		Arrays.fill( visited, false );
 		mapped = new boolean[LENGTH];
 		Arrays.fill( mapped, false );

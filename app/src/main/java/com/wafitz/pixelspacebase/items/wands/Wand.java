@@ -48,8 +48,8 @@ import com.watabou.utils.Random;
 public abstract class Wand extends KindOfWeapon {
 
 	private static final int USAGES_TO_KNOW	= 10;
-	
-	public static final String AC_ZAP	= "ZAP";
+
+	private static final String AC_ZAP	= "ZAP";
 	
 	private static final String TXT_WOOD	= "This thin %s wand is warm to the touch. Who knows what it will do when used?";
 	private static final String TXT_DAMAGE	= "When this wand is used as a melee weapon, its average damage is %d points per hit.";
@@ -65,7 +65,7 @@ public abstract class Wand extends KindOfWeapon {
 	public int maxCharges = initialCharges();
 	public int curCharges = maxCharges;
 	
-	protected Charger charger;
+	private Charger charger;
 	
 	private boolean curChargeKnown = false;
 	
@@ -356,7 +356,7 @@ public abstract class Wand extends KindOfWeapon {
 			updateQuickslot();
 		}
 		
-		use();
+		//use();
 		
 		curUser.spendAndNext( TIME_TO_ZAP );
 	}

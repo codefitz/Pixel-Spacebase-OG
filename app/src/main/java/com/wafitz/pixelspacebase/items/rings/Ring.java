@@ -374,7 +374,7 @@ public class Ring extends EquipableItem {
 				Badges.validateItemLevelAquired( Ring.this );
 			}
 			
-			use();
+			//use();
 			
 			spend( TICK );
 			

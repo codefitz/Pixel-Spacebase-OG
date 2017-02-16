@@ -1,3 +1,0 @@
-[submodule "game-engine"]
-	path = game-engine
-	url = https://github.com/mdsimmo/PD-classes

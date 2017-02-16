@@ -208,7 +208,7 @@ public class Armor extends EquipableItem {
 			}
 		}
 		
-		use();
+		//use();
 		
 		return damage;
 	}

@@ -82,7 +82,7 @@ abstract public class Weapon extends KindOfWeapon {
 			}
 		}
 		
-		use();
+		//use();
 	}
 	
 	private static final String UNFAMILIRIARITY	= "unfamiliarity";
