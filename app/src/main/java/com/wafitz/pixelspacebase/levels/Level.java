@@ -20,6 +20,7 @@ package com.wafitz.pixelspacebase.levels;
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Challenges;
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.Statistics;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
@@ -77,7 +78,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+
+import static com.wafitz.pixelspacebase.Dungeon.bossLevel;
+import static com.wafitz.pixelspacebase.Dungeon.depth;
+import static com.wafitz.pixelspacebase.Dungeon.level;
 
 public abstract class Level implements Bundlable {
 	
@@ -88,13 +92,10 @@ public abstract class Level implements Bundlable {
 		GRASS
 	}
 
-	// Mix up dungeon creation a little bit - throw the player off
-
-    public static final int WIDTH = Random.Int(16,52);
-    public static final int HEIGHT = WIDTH >= 44 ? Random.Int(16,36) : Random.Int(30,52);
-
+    public static final int WIDTH = PixelSpacebase.lvl_width();
+    public static final int HEIGHT = PixelSpacebase.lvl_height();
     public static final int LENGTH = WIDTH * HEIGHT;
-	
+
 	public static final int[] NEIGHBOURS4 = {-WIDTH, +1, +WIDTH, -1}; 
 	public static final int[] NEIGHBOURS8 = {+1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
 	public static final int[] NEIGHBOURS9 = {0, +1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
@@ -129,19 +130,22 @@ public abstract class Level implements Bundlable {
 	
 	public int entrance;
 	public int exit;
+    public int width;
+    public int height;
+    public int length;
 	
-	public HashSet<Mob> mobs;
+	public ArrayList<Mob> mobs;
 	public SparseArray<Heap> heaps;
 	public HashMap<Class<? extends Blob>,Blob> blobs;
 	public SparseArray<Plant> plants;
 	
-	protected ArrayList<Item> itemsToSpawn = new ArrayList<>();
+	ArrayList<Item> itemsToSpawn = new ArrayList<>();
 	
 	public int color1 = 0x004400;
 	public int color2 = 0x88CC44;
 	
-	protected static boolean pitRoomNeeded = false;
-	protected static boolean weakFloorCreated = false;
+	static boolean pitRoomNeeded = false;
+	static boolean weakFloorCreated = false;
 	
 	private static final String MAP			= "map";
 	private static final String VISITED		= "visited";
@@ -152,6 +156,9 @@ public abstract class Level implements Bundlable {
 	private static final String PLANTS		= "plants";
 	private static final String MOBS		= "mobs";
 	private static final String BLOBS		= "blobs";
+    private static final String W		    = "width";
+    private static final String H		    = "height";
+    private static final String L		    = "length";
 	
 	public void create() {
 		
@@ -163,12 +170,13 @@ public abstract class Level implements Bundlable {
 		mapped = new boolean[LENGTH];
 		Arrays.fill( mapped, false );
 		
-		mobs = new HashSet<>();
+		mobs = new ArrayList<>();
+        mobs.remove(null);
 		heaps = new SparseArray<>();
-		blobs = new HashMap<Class<? extends Blob>,Blob>();
+		blobs = new HashMap<>();
 		plants = new SparseArray<>();
 		
-		if (!Dungeon.bossLevel()) {
+		if (!bossLevel()) {
 			addItemToSpawn( Generator.random( Generator.Category.FOOD ) );
 			if (Dungeon.posNeeded()) {
 				addItemToSpawn( new PotionOfStrength() );
@@ -183,10 +191,10 @@ public abstract class Level implements Bundlable {
 				Dungeon.scrollsOfEnchantment++;
 			}
 			
-			if (Dungeon.depth > 1) {
+			if (depth > 1) {
 				switch (Random.Int( 10 )) {
 				case 0:
-					if (!Dungeon.bossLevel( Dungeon.depth + 1 )) {
+					if (!bossLevel( depth + 1 )) {
 						feeling = Feeling.CHASM;
 					}
 					break;
@@ -200,7 +208,7 @@ public abstract class Level implements Bundlable {
 			}
 		}
 		
-		boolean pitNeeded = Dungeon.depth > 1 && weakFloorCreated;
+		boolean pitNeeded = depth > 1 && weakFloorCreated;
 		
 		do {
 			Arrays.fill( map, feeling == Feeling.CHASM ? Terrain.CHASM : Terrain.WALL );
@@ -216,7 +224,8 @@ public abstract class Level implements Bundlable {
 		
 		createMobs();
 		createItems();
-	}
+
+    }
 	
 	public void reset() {	
 		
@@ -231,9 +240,10 @@ public abstract class Level implements Bundlable {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		
-		mobs = new HashSet<>();
+		mobs = new ArrayList<>();
+        mobs.remove(null);
 		heaps = new SparseArray<>();
-		blobs = new HashMap<Class<? extends Blob>, Blob>();
+		blobs = new HashMap<>();
 		plants = new SparseArray<>();
 		
 		map		= bundle.getIntArray( MAP );
@@ -242,6 +252,11 @@ public abstract class Level implements Bundlable {
 		
 		entrance	= bundle.getInt( ENTRANCE );
 		exit		= bundle.getInt( EXIT );
+
+        width		= bundle.getInt( W );
+        height		= bundle.getInt( H );
+        length		= bundle.getInt( L );
+
 		
 		weakFloorCreated = false;
 		
@@ -297,46 +312,48 @@ public abstract class Level implements Bundlable {
 		bundle.put( PLANTS, plants.values() );
 		bundle.put( MOBS, mobs );
 		bundle.put( BLOBS, blobs.values() );
+        bundle.put( W, WIDTH );
+        bundle.put( H, HEIGHT );
+        bundle.put( L, LENGTH );
 	}
 	
 	public int tunnelTile() {
 		return feeling == Feeling.CHASM ? Terrain.EMPTY_SP : Terrain.EMPTY;
 	}
-	
-	private void adjustMapSize() {
+
+	// Not needed as Spacebase was created past 1.6.3
+	private Level adjustMapSize() {
 		// For levels saved before 1.6.3
-		if (map.length < LENGTH) {
-			
-			resizingNeeded = true;
-			loadedMapSize = (int)Math.sqrt( map.length );
-			
-			int[] map = new int[LENGTH];
-			Arrays.fill( map, Terrain.WALL );
-			
-			boolean[] visited = new boolean[LENGTH];
-			Arrays.fill( visited, false );
-			
-			boolean[] mapped = new boolean[LENGTH];
-			Arrays.fill( mapped, false );
-			
-			for (int i=0; i < loadedMapSize; i++) {
-				System.arraycopy( this.map, i * loadedMapSize, map, i * WIDTH, loadedMapSize );
-				System.arraycopy( this.visited, i * loadedMapSize, visited, i * WIDTH, loadedMapSize );
-				System.arraycopy( this.mapped, i * loadedMapSize, mapped, i * WIDTH, loadedMapSize );
-			}
-			
-			this.map = map;
-			this.visited = visited;
-			this.mapped = mapped;
-			
-			entrance = adjustPos( entrance );
-			exit = adjustPos( exit ); 
-		} else {
-			resizingNeeded = false;
-		}
-	}
+		/*loadedMapSize = (int)Math.sqrt( map.length );
+
+        int[] map = new int[LENGTH];
+
+//Arrays.fill( map, Terrain.WALL );
+Arrays.fill( map, feeling == Feeling.CHASM ? Terrain.CHASM : Terrain.WALL );
+
+boolean[] visited = new boolean[LENGTH];
+        Arrays.fill( visited, false );
+
+        boolean[] mapped = new boolean[LENGTH];
+        Arrays.fill( mapped, false );
+
+        for (int i=0; i < loadedMapSize; i++) {
+            System.arraycopy( this.map, i * loadedMapSize, map, i * WIDTH, loadedMapSize );
+            System.arraycopy( this.visited, i * loadedMapSize, visited, i * WIDTH, loadedMapSize );
+            System.arraycopy( this.mapped, i * loadedMapSize, mapped, i * WIDTH, loadedMapSize );
+        }
+
+        this.map = map;
+        this.visited = visited;
+        this.mapped = mapped;
+
+        entrance = adjustPos( entrance );
+        exit = adjustPos( exit );*/
+        resizingNeeded = map.length < LENGTH;
+        return null;
+    }
 	
-	public int adjustPos( int pos ) {
+	private int adjustPos(int pos) {
 		return (pos / loadedMapSize) * WIDTH + (pos % loadedMapSize);
 	}
 	
@@ -377,7 +394,7 @@ public abstract class Level implements Bundlable {
 			protected boolean act() {
 				if (mobs.size() < nMobs()) {
 
-					Mob mob = Bestiary.mutable( Dungeon.depth );
+					Mob mob = Bestiary.mutable( depth );
 					mob.state = mob.WANDERING;
 					mob.pos = randomRespawnCell();
 					if (Dungeon.hero.isAlive() && mob.pos != -1) {
@@ -489,7 +506,7 @@ public abstract class Level implements Bundlable {
 			
 		} else {
 			boolean flood = false;
-			for (int j=0; j < NEIGHBOURS4.length; j++) {
+			for (int j : NEIGHBOURS4 ) {
 				if (water[pos + NEIGHBOURS4[j]]) {
 					flood = true;
 					break;
@@ -533,7 +550,7 @@ public abstract class Level implements Bundlable {
 	}
 	
 	public static void set( int cell, int terrain ) {
-		Painter.set( Dungeon.level, cell, terrain );
+		Painter.set( level, cell, terrain );
 
 		int flags = Terrain.flags[terrain];
 		passable[cell]		= (flags & Terrain.PASSABLE) != 0;
@@ -581,7 +598,7 @@ public abstract class Level implements Bundlable {
 			
 			heap = new Heap();
 			heap.pos = cell;
-			if (map[cell] == Terrain.CHASM || (Dungeon.level != null && pit[cell])) {
+			if (map[cell] == Terrain.CHASM || (level != null && pit[cell])) {
 				Dungeon.dropToChasm( item );
 				GameScene.discard( heap );
 			} else {
@@ -600,7 +617,7 @@ public abstract class Level implements Bundlable {
 		}
 		heap.drop( item );
 		
-		if (Dungeon.level != null) {
+		if (level != null) {
 			press( cell, null );
 		}
 				

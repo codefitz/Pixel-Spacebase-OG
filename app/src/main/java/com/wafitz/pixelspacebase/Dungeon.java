@@ -17,6 +17,51 @@
  */
 package com.wafitz.pixelspacebase;
 
+import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.buffs.Amok;
+import com.wafitz.pixelspacebase.actors.buffs.Light;
+import com.wafitz.pixelspacebase.actors.buffs.Rage;
+import com.wafitz.pixelspacebase.actors.hero.Hero;
+import com.wafitz.pixelspacebase.actors.hero.HeroClass;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Blacksmith;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Ghost;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Imp;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Wandmaker;
+import com.wafitz.pixelspacebase.items.Ankh;
+import com.wafitz.pixelspacebase.items.Item;
+import com.wafitz.pixelspacebase.items.potions.Potion;
+import com.wafitz.pixelspacebase.items.rings.Ring;
+import com.wafitz.pixelspacebase.items.scrolls.Scroll;
+import com.wafitz.pixelspacebase.items.wands.Wand;
+import com.wafitz.pixelspacebase.levels.CavesBossLevel;
+import com.wafitz.pixelspacebase.levels.CavesLevel;
+import com.wafitz.pixelspacebase.levels.CityBossLevel;
+import com.wafitz.pixelspacebase.levels.CityLevel;
+import com.wafitz.pixelspacebase.levels.DeadEndLevel;
+import com.wafitz.pixelspacebase.levels.HallsBossLevel;
+import com.wafitz.pixelspacebase.levels.HallsLevel;
+import com.wafitz.pixelspacebase.levels.LastLevel;
+import com.wafitz.pixelspacebase.levels.LastShopLevel;
+import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.PrisonBossLevel;
+import com.wafitz.pixelspacebase.levels.PrisonLevel;
+import com.wafitz.pixelspacebase.levels.Room;
+import com.wafitz.pixelspacebase.levels.SewerBossLevel;
+import com.wafitz.pixelspacebase.levels.SewerLevel;
+import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.wafitz.pixelspacebase.scenes.StartScene;
+import com.wafitz.pixelspacebase.ui.QuickSlot;
+import com.wafitz.pixelspacebase.utils.BArray;
+import com.wafitz.pixelspacebase.utils.Utils;
+import com.wafitz.pixelspacebase.windows.WndResurrect;
+import com.watabou.noosa.Game;
+import com.watabou.utils.Bundlable;
+import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
+import com.watabou.utils.Random;
+import com.watabou.utils.SparseArray;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,51 +69,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 
-import com.wafitz.pixelspacebase.actors.Actor;
-import com.wafitz.pixelspacebase.actors.buffs.Light;
-import com.wafitz.pixelspacebase.actors.buffs.Rage;
-import com.wafitz.pixelspacebase.actors.hero.Hero;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Wandmaker;
-import com.wafitz.pixelspacebase.items.Item;
-import com.wafitz.pixelspacebase.items.rings.Ring;
-import com.wafitz.pixelspacebase.items.scrolls.Scroll;
-import com.wafitz.pixelspacebase.items.wands.Wand;
-import com.wafitz.pixelspacebase.levels.CityBossLevel;
-import com.wafitz.pixelspacebase.levels.CityLevel;
-import com.wafitz.pixelspacebase.levels.DeadEndLevel;
-import com.wafitz.pixelspacebase.levels.HallsBossLevel;
-import com.wafitz.pixelspacebase.levels.PrisonLevel;
-import com.wafitz.pixelspacebase.levels.Room;
-import com.wafitz.pixelspacebase.levels.SewerLevel;
-import com.wafitz.pixelspacebase.scenes.GameScene;
-import com.wafitz.pixelspacebase.ui.QuickSlot;
-import com.wafitz.pixelspacebase.utils.BArray;
-import com.watabou.noosa.Game;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.buffs.Amok;
-import com.wafitz.pixelspacebase.actors.hero.HeroClass;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Blacksmith;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Imp;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Ghost;
-import com.wafitz.pixelspacebase.items.Ankh;
-import com.wafitz.pixelspacebase.items.potions.Potion;
-import com.wafitz.pixelspacebase.levels.CavesBossLevel;
-import com.wafitz.pixelspacebase.levels.CavesLevel;
-import com.wafitz.pixelspacebase.levels.HallsLevel;
-import com.wafitz.pixelspacebase.levels.LastLevel;
-import com.wafitz.pixelspacebase.levels.LastShopLevel;
-import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.levels.PrisonBossLevel;
-import com.wafitz.pixelspacebase.levels.SewerBossLevel;
-import com.wafitz.pixelspacebase.scenes.StartScene;
-import com.wafitz.pixelspacebase.utils.Utils;
-import com.wafitz.pixelspacebase.windows.WndResurrect;
-import com.watabou.utils.Bundlable;
-import com.watabou.utils.Bundle;
-import com.watabou.utils.PathFinder;
-import com.watabou.utils.Random;
-import com.watabou.utils.SparseArray;
+import static com.wafitz.pixelspacebase.levels.Level.HEIGHT;
+import static com.wafitz.pixelspacebase.levels.Level.WIDTH;
 
 public class Dungeon {
 	
@@ -102,7 +106,7 @@ public class Dungeon {
 		
 		Actor.clear();
 		
-		PathFinder.setMapSize( Level.WIDTH, Level.HEIGHT );
+		PathFinder.setMapSize( WIDTH, HEIGHT );
 		
 		Scroll.initLabels();
 		Potion.initColors();
@@ -115,14 +119,14 @@ public class Dungeon {
 		depth = 0;
 		gold = 0;
 		
-		droppedItems = new SparseArray<ArrayList<Item>>();
+		droppedItems = new SparseArray<>();
 		
 		potionOfStrength = 0;
 		scrollsOfUpgrade = 0;
 		scrollsOfEnchantment = 0;
 		dewVial = true;
 		
-		chapters = new HashSet<Integer>();
+		chapters = new HashSet<>();
 		
 		Ghost.Quest.reset();
 		Wandmaker.Quest.reset();
@@ -154,12 +158,8 @@ public class Dungeon {
 		depth++;
 		if (depth > Statistics.deepestFloor) {
 			Statistics.deepestFloor = depth;
-			
-			if (Statistics.qualifiedForNoKilling) {
-				Statistics.completedWithNoKilling = true;
-			} else {
-				Statistics.completedWithNoKilling = false;
-			}
+
+            Statistics.completedWithNoKilling = Statistics.qualifiedForNoKilling;
 		}
 		
 		Arrays.fill( visible, false );
@@ -273,9 +273,9 @@ public class Dungeon {
 	
 	public static void dropToChasm( Item item ) {
 		int depth = Dungeon.depth + 1;
-		ArrayList<Item> dropped = (ArrayList<Item>)Dungeon.droppedItems.get( depth );
+		ArrayList<Item> dropped = Dungeon.droppedItems.get( depth );
 		if (dropped == null) {
-			Dungeon.droppedItems.put( depth, dropped = new ArrayList<Item>() ); 
+			Dungeon.droppedItems.put( depth, dropped = new ArrayList<>() );
 		}
 		dropped.add( item );
 	}
@@ -333,6 +333,8 @@ public class Dungeon {
 	private static final String CHAPTERS	= "chapters";
 	private static final String QUESTS		= "quests";
 	private static final String BADGES		= "badges";
+	private static final String W			= "width";
+	private static final String H			= "height";
 	
 	public static String gameFile( HeroClass cl ) {
 		switch (cl) {
@@ -369,9 +371,11 @@ public class Dungeon {
 			bundle.put( HERO, hero );
 			bundle.put( GOLD, gold );
 			bundle.put( DEPTH, depth );
+			bundle.put( W, WIDTH );
+			bundle.put( H, HEIGHT );
 			
 			for (int d : droppedItems.keyArray()) {
-				bundle.put( String.format( DROPPED, d ), droppedItems.get( d ) );
+				bundle.put( String.format(Locale.getDefault(), DROPPED, d ), droppedItems.get( d ) );
 			}
 			
 			bundle.put( POS, potionOfStrength );
@@ -463,7 +467,7 @@ public class Dungeon {
 		Dungeon.depth = -1;
 		
 		if (fullLoad) {
-			PathFinder.setMapSize( Level.WIDTH, Level.HEIGHT );
+			PathFinder.setMapSize( PixelSpacebase.lvl_width(), PixelSpacebase.lvl_height() );
 		}
 		
 		Scroll.restore( bundle );
@@ -477,7 +481,7 @@ public class Dungeon {
 		dewVial = bundle.getBoolean( DV );
 		
 		if (fullLoad) {
-			chapters = new HashSet<Integer>();
+			chapters = new HashSet<>();
 			int ids[] = bundle.getIntArray( CHAPTERS );
 			if (ids != null) {
 				for (int id : ids) {
@@ -524,10 +528,10 @@ public class Dungeon {
 		Statistics.restoreFromBundle( bundle );
 		Journal.restoreFromBundle( bundle );
 		
-		droppedItems = new SparseArray<ArrayList<Item>>();
+		droppedItems = new SparseArray<>();
 		for (int i=2; i <= Statistics.deepestFloor + 1; i++) {
-			ArrayList<Item> dropped = new ArrayList<Item>();
-			for (Bundlable b : bundle.getCollection( String.format( DROPPED, i ) ) ) {
+			ArrayList<Item> dropped = new ArrayList<>();
+			for (Bundlable b : bundle.getCollection( String.format( Locale.getDefault(), DROPPED, i ) ) ) {
 				dropped.add( (Item)b );
 			}
 			if (!dropped.isEmpty()) {
@@ -562,7 +566,7 @@ public class Dungeon {
 		GamesInProgress.delete( cl );
 	}
 	
-	public static Bundle gameBundle( String fileName ) throws IOException {
+	static Bundle gameBundle(String fileName) throws IOException {
 		
 		InputStream input = Game.instance.openFileInput( fileName );
 		Bundle bundle = Bundle.read( input );
@@ -571,7 +575,7 @@ public class Dungeon {
 		return bundle;
 	}
 	
-	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
+	static void preview(GamesInProgress.Info info, Bundle bundle) {
 		info.depth = bundle.getInt( DEPTH );
 		info.challenges = (bundle.getInt( CHALLENGES ) != 0);
 		if (info.depth == -1) {

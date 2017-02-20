@@ -17,19 +17,19 @@
  */
 package com.wafitz.pixelspacebase.actors;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import android.util.SparseArray;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.Statistics;
 import com.wafitz.pixelspacebase.actors.blobs.Blob;
-import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 public abstract class Actor implements Bundlable {
 	
@@ -95,10 +95,10 @@ public abstract class Actor implements Bundlable {
 	// **********************
 	// *** Static members ***
 	
-	private static HashSet<Actor> all = new HashSet<Actor>();
+	private static HashSet<Actor> all = new HashSet<>();
 	private static Actor current;
 	
-	private static SparseArray<Actor> ids = new SparseArray<Actor>();
+	private static SparseArray<Actor> ids = new SparseArray<>();
 	
 	private static float now = 0;
 	
@@ -256,7 +256,7 @@ public abstract class Actor implements Bundlable {
 		return chars[pos];
 	}
 	
-	public static Actor findById( int id ) {
+	protected static Actor findById(int id) {
 		return ids.get( id );
 	}
 	

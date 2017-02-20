@@ -17,9 +17,9 @@
  */
 package com.wafitz.pixelspacebase;
 
-import com.watabou.noosa.Game;
-
 import android.content.SharedPreferences;
+
+import com.watabou.noosa.Game;
 
 enum Preferences {
 
@@ -37,6 +37,8 @@ enum Preferences {
 	public static final String KEY_DONATED		= "donated";
 	public static final String KEY_INTRO		= "intro";
 	public static final String KEY_BRIGHTNESS	= "brightness";
+	public static final String KEY_WIDTH		= "level_width";
+	public static final String KEY_HEIGHT		= "level_height";
 	
 	private SharedPreferences prefs;
 	

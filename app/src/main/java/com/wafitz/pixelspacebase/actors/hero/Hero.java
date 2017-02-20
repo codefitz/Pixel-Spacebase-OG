@@ -17,23 +17,6 @@
  */
 package com.wafitz.pixelspacebase.actors.hero;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-
-import com.wafitz.pixelspacebase.actors.buffs.Bleeding;
-import com.wafitz.pixelspacebase.effects.Flare;
-import com.wafitz.pixelspacebase.items.rings.RingOfEvasion;
-import com.wafitz.pixelspacebase.items.rings.RingOfShadows;
-import com.wafitz.pixelspacebase.items.rings.RingOfThorns;
-import com.wafitz.pixelspacebase.items.scrolls.ScrollOfRecharging;
-import com.wafitz.pixelspacebase.items.wands.Wand;
-import com.wafitz.pixelspacebase.items.weapon.melee.MeleeWeapon;
-import com.wafitz.pixelspacebase.levels.features.AlchemyPot;
-import com.wafitz.pixelspacebase.windows.WndTradeItem;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Bones;
@@ -43,9 +26,11 @@ import com.wafitz.pixelspacebase.ResultDescriptions;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Barkskin;
+import com.wafitz.pixelspacebase.actors.buffs.Bleeding;
 import com.wafitz.pixelspacebase.actors.buffs.Blindness;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Burning;
+import com.wafitz.pixelspacebase.actors.buffs.Charm;
 import com.wafitz.pixelspacebase.actors.buffs.Combo;
 import com.wafitz.pixelspacebase.actors.buffs.Cripple;
 import com.wafitz.pixelspacebase.actors.buffs.Fury;
@@ -58,13 +43,13 @@ import com.wafitz.pixelspacebase.actors.buffs.Paralysis;
 import com.wafitz.pixelspacebase.actors.buffs.Poison;
 import com.wafitz.pixelspacebase.actors.buffs.Regeneration;
 import com.wafitz.pixelspacebase.actors.buffs.Roots;
-import com.wafitz.pixelspacebase.actors.buffs.Charm;
 import com.wafitz.pixelspacebase.actors.buffs.SnipersMark;
 import com.wafitz.pixelspacebase.actors.buffs.Vertigo;
 import com.wafitz.pixelspacebase.actors.buffs.Weakness;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.NPC;
 import com.wafitz.pixelspacebase.effects.CheckedCell;
+import com.wafitz.pixelspacebase.effects.Flare;
 import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.items.Amulet;
 import com.wafitz.pixelspacebase.items.Ankh;
@@ -76,23 +61,30 @@ import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.KindOfWeapon;
 import com.wafitz.pixelspacebase.items.armor.Armor;
 import com.wafitz.pixelspacebase.items.keys.GoldenKey;
+import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.items.keys.Key;
 import com.wafitz.pixelspacebase.items.keys.SkeletonKey;
-import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.items.potions.Potion;
 import com.wafitz.pixelspacebase.items.potions.PotionOfMight;
 import com.wafitz.pixelspacebase.items.potions.PotionOfStrength;
 import com.wafitz.pixelspacebase.items.rings.RingOfAccuracy;
 import com.wafitz.pixelspacebase.items.rings.RingOfDetection;
 import com.wafitz.pixelspacebase.items.rings.RingOfElements;
+import com.wafitz.pixelspacebase.items.rings.RingOfEvasion;
 import com.wafitz.pixelspacebase.items.rings.RingOfHaste;
+import com.wafitz.pixelspacebase.items.rings.RingOfShadows;
+import com.wafitz.pixelspacebase.items.rings.RingOfThorns;
 import com.wafitz.pixelspacebase.items.scrolls.Scroll;
-import com.wafitz.pixelspacebase.items.scrolls.ScrollOfMagicMapping;
-import com.wafitz.pixelspacebase.items.scrolls.ScrollOfUpgrade;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfEnchantment;
+import com.wafitz.pixelspacebase.items.scrolls.ScrollOfMagicMapping;
+import com.wafitz.pixelspacebase.items.scrolls.ScrollOfRecharging;
+import com.wafitz.pixelspacebase.items.scrolls.ScrollOfUpgrade;
+import com.wafitz.pixelspacebase.items.wands.Wand;
+import com.wafitz.pixelspacebase.items.weapon.melee.MeleeWeapon;
 import com.wafitz.pixelspacebase.items.weapon.missiles.MissileWeapon;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Terrain;
+import com.wafitz.pixelspacebase.levels.features.AlchemyPot;
 import com.wafitz.pixelspacebase.levels.features.Chasm;
 import com.wafitz.pixelspacebase.levels.features.Sign;
 import com.wafitz.pixelspacebase.plants.Earthroot;
@@ -106,8 +98,16 @@ import com.wafitz.pixelspacebase.ui.BuffIndicator;
 import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.windows.WndMessage;
 import com.wafitz.pixelspacebase.windows.WndResurrect;
+import com.wafitz.pixelspacebase.windows.WndTradeItem;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 
 public class Hero extends Char {
 	
@@ -159,7 +159,7 @@ public class Hero extends Char {
 	public int STR;
 	public boolean weakened = false;
 	
-	public float awareness;
+	private float awareness;
 	
 	public int lvl = 1;
 	public int exp = 0;
@@ -176,7 +176,7 @@ public class Hero extends Char {
 		
 		belongings = new Belongings( this );
 		
-		visibleEnemies = new ArrayList<Mob>();
+		visibleEnemies = new ArrayList<>();
 	}
 
 	public int STR() {
@@ -381,10 +381,6 @@ public class Hero extends Char {
 		}
 
 		AttackIndicator.updateState();
-		// Moved PickUp Action here to ensure Hero always grabs item
-		if (curAction instanceof HeroAction.PickUp) {
-			return actPickUp( (HeroAction.PickUp)curAction );
-		}
 		checkVisibleMobs();
 		
 		if (curAction == null) {
@@ -416,7 +412,10 @@ public class Hero extends Char {
 				
 				return actInteract( (HeroAction.Interact)curAction );
 				
-			} else 
+			} else
+			if (curAction instanceof HeroAction.PickUp) {
+					return actPickUp( (HeroAction.PickUp)curAction );
+			} else
 			if (curAction instanceof HeroAction.Buy) {
 				
 				return actBuy( (HeroAction.Buy)curAction );
@@ -876,9 +875,15 @@ public class Hero extends Char {
 	}
 	
 	private void checkVisibleMobs() {
-		ArrayList<Mob> visible = new ArrayList<Mob>();
-		
-		boolean newMob = false;
+        ArrayList<Mob> visible = new ArrayList<>();
+
+        boolean newMob = false;
+        // Added PickUp Action here to ensure Hero always grabs item
+        if (curAction != null) {
+            if (curAction instanceof HeroAction.PickUp) {
+                actPickUp((HeroAction.PickUp) curAction);
+            }
+        }
 		
 		for (Mob m : Dungeon.level.mobs) {
 			if (Level.fieldOfView[ m.pos ] && m.hostile) {
@@ -1054,7 +1059,7 @@ public class Hero extends Char {
 				sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
 			}
 			
-			((Hunger)buff( Hunger.class )).satisfy( 10 );
+			buff( Hunger.class ).satisfy( 10 );
 		}
 	}
 	
@@ -1070,7 +1075,7 @@ public class Hero extends Char {
 	}
 	
 	public boolean isStarving() {
-		return ((Hunger)buff( Hunger.class )).isStarving();
+		return buff( Hunger.class ).isStarving();
 	}
 	
 	@Override
@@ -1151,7 +1156,7 @@ public class Hero extends Char {
 		Actor.fixTime();
 		super.die( cause );
 		
-		Ankh ankh = (Ankh)belongings.getItem( Ankh.class );
+		Ankh ankh = belongings.getItem( Ankh.class );
 		if (ankh == null) {
 			
 			reallyDie( cause );
@@ -1193,7 +1198,7 @@ public class Hero extends Char {
 		
 		int pos = Dungeon.hero.pos;
 		
-		ArrayList<Integer> passable = new ArrayList<Integer>();
+		ArrayList<Integer> passable = new ArrayList<>();
 		for (Integer ofs : Level.NEIGHBOURS8) {
 			int cell = pos + ofs;
 			if ((Level.passable[cell] || Level.avoid[cell]) && Dungeon.level.heaps.get( cell ) == null) {
@@ -1202,7 +1207,7 @@ public class Hero extends Char {
 		}
 		Collections.shuffle( passable );
 		
-		ArrayList<Item> items = new ArrayList<Item>( Dungeon.hero.belongings.backpack.items );
+		ArrayList<Item> items = new ArrayList<>(Dungeon.hero.belongings.backpack.items);
 		for (Integer cell : passable) {
 			if (items.isEmpty()) {
 				break;
@@ -1417,7 +1422,7 @@ public class Hero extends Char {
 		super.next();
 	}
 	
-	public static interface Doom {
-		public void onDeath();
+	public interface Doom {
+		void onDeath();
 	}
 }

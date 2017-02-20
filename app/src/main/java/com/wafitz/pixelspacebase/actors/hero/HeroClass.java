@@ -19,6 +19,7 @@ package com.wafitz.pixelspacebase.actors.hero;
 
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Badges;
+import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.items.TomeOfMastery;
 import com.wafitz.pixelspacebase.items.potions.PotionOfStrength;
 import com.wafitz.pixelspacebase.items.rings.RingOfShadows;
@@ -32,6 +33,7 @@ import com.wafitz.pixelspacebase.items.weapon.missiles.Boomerang;
 import com.wafitz.pixelspacebase.items.weapon.missiles.Dart;
 import com.wafitz.pixelspacebase.ui.QuickSlot;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Random;
 // Adding armor kit for testing
 
 
@@ -110,6 +112,14 @@ public enum HeroClass {
 	}
 	
 	private static void initCommon( Hero hero ) {
+		// No idea if this will break something later...
+
+		int width = Random.Int(16,52);
+		int height = width >= 44 ? Random.Int(16,36) : Random.Int(30,52);
+		//PixelSpacebase.level_width( 50 );
+		//PixelSpacebase.level_height( 16 );
+		PixelSpacebase.level_width( width );
+		PixelSpacebase.level_height( height );
 		//(hero.belongings.armor = new ClothArmor()).identify();
 		/*new Food().identify().collect();
 		new Keyring().collect();

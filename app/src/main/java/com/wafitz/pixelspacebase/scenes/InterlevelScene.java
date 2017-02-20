@@ -17,14 +17,14 @@
  */
 package com.wafitz.pixelspacebase.scenes;
 
-import java.io.FileNotFoundException;
-
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.Statistics;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Terrain;
+import com.wafitz.pixelspacebase.ui.GameLog;
 import com.wafitz.pixelspacebase.windows.WndError;
 import com.wafitz.pixelspacebase.windows.WndStory;
 import com.watabou.noosa.BitmapText;
@@ -32,7 +32,10 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.ui.GameLog;
+
+import java.io.FileNotFoundException;
+
+import static com.wafitz.pixelspacebase.Dungeon.chapters;
 
 public class InterlevelScene extends PixelScene {
 
@@ -48,10 +51,11 @@ public class InterlevelScene extends PixelScene {
 	private static final String ERR_FILE_NOT_FOUND	= "File not found. For some reason.";
 	private static final String ERR_GENERIC			= "Something went wrong..."	;	
 	
-	public static enum Mode {
+	public enum Mode {
 		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, NONE
-	};
-	public static Mode mode;
+	}
+
+    public static Mode mode;
 	
 	public static int returnDepth;
 	public static int returnPos;
@@ -62,8 +66,9 @@ public class InterlevelScene extends PixelScene {
 	
 	private enum Phase {
 		FADE_IN, STATIC, FADE_OUT
-	};
-	private Phase phase;
+	}
+
+    private Phase phase;
 	private float timeLeft;
 	
 	private BitmapText message;
@@ -147,10 +152,15 @@ public class InterlevelScene extends PixelScene {
 					
 				} catch (Exception e ) {
 					
-					error = ERR_GENERIC;
-					
-				}
-				
+					//error = ERR_GENERIC;
+                    //error = e.toString();
+                    try {
+                        messed_up();
+                    } catch (Exception e1) {
+                        error = e1.toString();
+                    }
+                }
+
 				if (phase == Phase.STATIC && error == null) {
 					phase = Phase.FADE_OUT;
 					timeLeft = TIME_TO_FADE;
@@ -196,8 +206,8 @@ public class InterlevelScene extends PixelScene {
 					public void onBackPressed() {
 						super.onBackPressed();
 						Game.switchScene( StartScene.class );
-					};
-				} );
+					}
+                } );
 				error = null;
 			}
 			break;
@@ -210,7 +220,7 @@ public class InterlevelScene extends PixelScene {
 		if (Dungeon.hero == null) {
 			Dungeon.init();
 			if (noStory) {
-				Dungeon.chapters.add( WndStory.ID_SEWERS );
+				chapters.add( WndStory.ID_SEWERS );
 				noStory = false;
 			}
 			GameLog.wipe();
@@ -259,7 +269,8 @@ public class InterlevelScene extends PixelScene {
 		Dungeon.saveLevel();
 		Dungeon.depth = returnDepth;
 		Level level = Dungeon.loadLevel( Dungeon.hero.heroClass );
-		Dungeon.switchLevel( level, Level.resizingNeeded ? level.adjustPos( returnPos ) : returnPos );
+		//Dungeon.switchLevel( level, returnPos );
+		Dungeon.switchLevel( level, Dungeon.hero.pos );
 	}
 	
 	private void restore() throws Exception {
@@ -274,7 +285,7 @@ public class InterlevelScene extends PixelScene {
 			Dungeon.switchLevel( Dungeon.loadLevel( StartScene.curClass ), -1 );
 		} else {
 			Level level = Dungeon.loadLevel( StartScene.curClass );
-			Dungeon.switchLevel( level, Level.resizingNeeded ? level.adjustPos( Dungeon.hero.pos ) : Dungeon.hero.pos );
+			Dungeon.switchLevel( level, Dungeon.hero.pos );
 		}
 	}
 	
@@ -292,6 +303,68 @@ public class InterlevelScene extends PixelScene {
 			Dungeon.resetLevel();
 		}
 	}
+
+    private void messed_up() throws Exception {
+
+        // This is an attempt to do full dungeon recreation on app crash
+        // due to the random w*h regenerating on new app instance that I can't get to
+        // permanently store.
+
+        // DESCEND inits and rebuilds the level we crashed on - but ignores the previous levels
+        // causing a new crash/init which drops us back on a new level at the same depth
+        // ASCEND essentially inits and re-builds the level below when the hero attempts to ascend
+        // So we lose all dungeon maps, but not progress hopefully.
+
+        // This is because I have a habit of force closing background apps when my phone slows down.
+        // I'm sure others will do this too.
+        // messed_up() is only invoked in a force-close scenario. Clean exits will function as normal.
+
+        Level level;
+
+        switch (mode) {
+            case ASCEND:
+                Actor.fixTime();
+
+                Dungeon.init();
+                GameLog.wipe();
+
+                level = Dungeon.newLevel();
+
+                Dungeon.loadGame( Dungeon.gameFile(Dungeon.hero.heroClass), true );
+                Dungeon.depth--;
+
+                Dungeon.switchLevel( level, level.exit );
+                break;
+            case CONTINUE:
+                Actor.fixTime();
+
+                Dungeon.init();
+                GameLog.wipe();
+
+                level = Dungeon.newLevel();
+
+                Dungeon.loadGame( Dungeon.gameFile(Dungeon.hero.heroClass), true );
+
+                Dungeon.switchLevel( level, Terrain.EMPTY != Dungeon.hero.pos ? level.randomRespawnCell() : Dungeon.hero.pos );
+
+            default:
+                Actor.fixTime();
+
+                Dungeon.init();
+                GameLog.wipe();
+
+                level = Dungeon.newLevel();
+
+                Dungeon.loadGame( Dungeon.gameFile(Dungeon.hero.heroClass), true );
+
+                Dungeon.switchLevel( level, Terrain.EMPTY != Dungeon.hero.pos ? level.randomRespawnCell() : Dungeon.hero.pos );
+        }
+
+        /*String MESSED_UP = "Something messed up somewhere...";
+        GameScene.show( new WndMessage( MESSED_UP ) );
+        GameScene.ready();*/
+
+    }
 	
 	@Override
 	protected void onBackPressed() {

@@ -17,14 +17,22 @@
  */
 package com.wafitz.pixelspacebase.scenes;
 
-import java.util.HashMap;
-
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.GamesInProgress;
+import com.wafitz.pixelspacebase.PixelSpacebase;
+import com.wafitz.pixelspacebase.actors.hero.HeroClass;
 import com.wafitz.pixelspacebase.effects.BannerSprites;
+import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.ui.Archs;
 import com.wafitz.pixelspacebase.ui.ExitButton;
+import com.wafitz.pixelspacebase.ui.Icons;
+import com.wafitz.pixelspacebase.ui.RedButton;
+import com.wafitz.pixelspacebase.utils.Utils;
+import com.wafitz.pixelspacebase.windows.WndChallenges;
 import com.wafitz.pixelspacebase.windows.WndClass;
+import com.wafitz.pixelspacebase.windows.WndMessage;
 import com.wafitz.pixelspacebase.windows.WndOptions;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.BitmapTextMultiline;
@@ -36,17 +44,9 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.BitmaskEmitter;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.ui.Button;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.GamesInProgress;
-import com.wafitz.pixelspacebase.PixelSpacebase;
-import com.wafitz.pixelspacebase.actors.hero.HeroClass;
-import com.wafitz.pixelspacebase.effects.Speck;
-import com.wafitz.pixelspacebase.ui.Icons;
-import com.wafitz.pixelspacebase.ui.RedButton;
-import com.wafitz.pixelspacebase.utils.Utils;
-import com.wafitz.pixelspacebase.windows.WndChallenges;
-import com.wafitz.pixelspacebase.windows.WndMessage;
 import com.watabou.utils.Callback;
+
+import java.util.HashMap;
 
 public class StartScene extends PixelScene {
 
@@ -75,7 +75,7 @@ public class StartScene extends PixelScene {
 	private static final float WIDTH_L	= 224;
 	private static final float HEIGHT_L	= 124;
 	
-	private static HashMap<HeroClass, ClassShield> shields = new HashMap<HeroClass, ClassShield>();
+	private static HashMap<HeroClass, ClassShield> shields = new HashMap<>();
 	
 	private float buttonX;
 	private float buttonY;
@@ -128,6 +128,7 @@ public class StartScene extends PixelScene {
 		btnNewGame = new GameButton( TXT_NEW ) {
 			@Override
 			protected void onClick() {
+
 				if (GamesInProgress.check( curClass ) != null) {
 					StartScene.this.add( new WndOptions( TXT_REALLY, TXT_WARNING, TXT_YES, TXT_NO ) {
 						@Override
@@ -511,8 +512,8 @@ public class StartScene extends PixelScene {
 						super.onBackPressed();
 						image.copy( Icons.get( PixelSpacebase.challenges() > 0 ?
 							Icons.CHALLENGE_ON :Icons.CHALLENGE_OFF ) );
-					};
-				} );
+					}
+                } );
 			} else {
 				StartScene.this.add( new WndMessage( TXT_WIN_THE_GAME ) );
 			}

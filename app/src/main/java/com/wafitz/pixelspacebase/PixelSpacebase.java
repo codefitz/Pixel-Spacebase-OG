@@ -17,8 +17,6 @@
  */
 package com.wafitz.pixelspacebase;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -47,10 +45,12 @@ import com.wafitz.pixelspacebase.plants.Dreamweed;
 import com.wafitz.pixelspacebase.plants.Rotberry;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.scenes.PixelScene;
+import com.wafitz.pixelspacebase.scenes.TitleScene;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.scenes.TitleScene;
+
+import javax.microedition.khronos.opengles.GL10;
 
 public class PixelSpacebase extends Game {
 	
@@ -146,7 +146,7 @@ public class PixelSpacebase extends Game {
 		super.onCreate( savedInstanceState );
 		
 		updateImmersiveMode();
-		
+
 		DisplayMetrics metrics = new DisplayMetrics();
 		instance.getWindowManager().getDefaultDisplay().getMetrics( metrics );
 		boolean landscape = metrics.widthPixels > metrics.heightPixels;
@@ -224,7 +224,7 @@ public class PixelSpacebase extends Game {
 	}
 	
 	/*
-	 * ---> Prefernces
+	 * ---> Preferences
 	 */
 	
 	public static void landscape( boolean value ) {
@@ -236,6 +236,25 @@ public class PixelSpacebase extends Game {
 	
 	public static boolean landscape() {
 		return width > height;
+	}
+
+	// *** Set Dynamic Width and Height ***
+
+	public static void level_width( int value ) {
+		Preferences.INSTANCE.put( Preferences.KEY_WIDTH, value );
+	}
+
+	public static int lvl_width() {
+		return Preferences.INSTANCE.getInt( Preferences.KEY_WIDTH, 0 );
+	}
+
+	public static int level_height(int value ) {
+		Preferences.INSTANCE.put( Preferences.KEY_HEIGHT, value );
+        return value;
+    }
+
+	public static int lvl_height() {
+		return Preferences.INSTANCE.getInt( Preferences.KEY_HEIGHT, 0 );
 	}
 	
 	// *** IMMERSIVE MODE ****

@@ -17,8 +17,6 @@
  */
 package com.wafitz.pixelspacebase.actors.blobs;
 
-import java.util.Arrays;
-
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.actors.Actor;
@@ -26,6 +24,8 @@ import com.wafitz.pixelspacebase.effects.BlobEmitter;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.utils.BArray;
 import com.watabou.utils.Bundle;
+
+import java.util.Arrays;
 
 public class Blob extends Actor {
 	

@@ -21,11 +21,11 @@ import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.scenes.PixelScene;
 import com.wafitz.pixelspacebase.ui.CheckBox;
+import com.wafitz.pixelspacebase.ui.RedButton;
 import com.wafitz.pixelspacebase.ui.Toolbar;
 import com.wafitz.pixelspacebase.ui.Window;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.ui.RedButton;
 
 public class WndSettings extends Window {
 	
@@ -196,4 +196,5 @@ public class WndSettings extends Window {
 	private String orientationText() {
 		return PixelSpacebase.landscape() ? TXT_SWITCH_PORT : TXT_SWITCH_LAND;
 	}
+
 }
