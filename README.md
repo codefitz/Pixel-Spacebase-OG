@@ -6,7 +6,7 @@ This is a fork of Watabou's Pixel Dungeon, using mdsimmo's fork.
 Original by Watabou: https://github.com/watabou/pixel-dungeon
 mdsimmo: https://github.com/mdsimmo/pixel-dungeon.
 
-![alt tag](https://github.com/codefitz/Pixel-Spacebase/tree/master/app/src/main/assets/loader1.png)
+![alt tag](https://github.com/codefitz/Pixel-Spacebase/blob/master/app/src/main/assets/Loader1.png)
 
 ## What's Different?
 
