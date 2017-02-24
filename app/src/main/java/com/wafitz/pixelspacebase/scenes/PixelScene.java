@@ -17,11 +17,11 @@
  */
 package com.wafitz.pixelspacebase.scenes;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import android.opengl.GLES20;
 
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Badges;
+import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.effects.BadgeBanner;
 import com.watabou.input.Touchscreen;
 import com.watabou.noosa.BitmapText;
@@ -32,9 +32,9 @@ import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.Visual;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.watabou.utils.BitmapCache;
+
+import javax.microedition.khronos.opengles.GL10;
 
 public class PixelScene extends Scene {
 	
@@ -53,10 +53,10 @@ public class PixelScene extends Scene {
 	public static Camera uiCamera;
 	
 	public static BitmapText.Font font1x;
-	public static BitmapText.Font font15x;
-	public static BitmapText.Font font2x;
-	public static BitmapText.Font font25x;
-	public static BitmapText.Font font3x;
+	private static BitmapText.Font font15x;
+	private static BitmapText.Font font2x;
+	private static BitmapText.Font font25x;
+	private static BitmapText.Font font3x;
 	
 	@Override
 	public void create() {
@@ -143,7 +143,7 @@ public class PixelScene extends Scene {
 	public static BitmapText.Font font;
 	public static float scale;
 	
-	public static void chooseFont( float size ) {
+	private static void chooseFont(float size) {
 		chooseFont( size, defaultZoom );
 	}
 
@@ -269,7 +269,7 @@ public class PixelScene extends Scene {
 		Game.scene().add( banner );
 	}
 	
-	protected static class Fader extends ColorBlock {
+	private static class Fader extends ColorBlock {
 		
 		private static float FADE_TIME = 1f;
 		

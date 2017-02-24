@@ -17,7 +17,6 @@
  */
 package com.wafitz.pixelspacebase.windows;
 
-import com.watabou.noosa.BitmapTextMultiline;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Heap.Type;
 import com.wafitz.pixelspacebase.items.Item;
@@ -26,17 +25,18 @@ import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.ui.ItemSlot;
 import com.wafitz.pixelspacebase.ui.Window;
 import com.wafitz.pixelspacebase.utils.Utils;
+import com.watabou.noosa.BitmapTextMultiline;
 
 public class WndInfoItem extends Window {
 	
-	private static final String TXT_CHEST			= "Chest";
-	private static final String TXT_LOCKED_CHEST	= "Locked chest";
-	private static final String TXT_CRYSTAL_CHEST	= "Crystal chest";
+	private static final String TXT_CHEST			= "Container";
+	private static final String TXT_LOCKED_CHEST	= "Locked Container";
+	private static final String TXT_CRYSTAL_CHEST	= "Crystal Container";
 	private static final String TXT_TOMB			= "Tomb";
 	private static final String TXT_SKELETON		= "Skeletal remains";
 	private static final String TXT_WONT_KNOW		= "You won't know what's inside until you open it!";
-	private static final String TXT_NEED_KEY		= TXT_WONT_KNOW + " But to open it you need a golden key.";
-	private static final String TXT_INSIDE			= "You can see %s inside, but to open the chest you need a golden key.";
+	private static final String TXT_NEED_KEY		= TXT_WONT_KNOW + " But to open it you need a keycard.";
+	private static final String TXT_INSIDE			= "You can see %s inside, but to open the chest you need a keycard.";
 	private static final String TXT_OWNER	= 
 		"This ancient tomb may contain something useful, " +
 		"but its owner will most certainly object to checking.";

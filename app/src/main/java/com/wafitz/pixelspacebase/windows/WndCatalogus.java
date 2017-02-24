@@ -17,10 +17,6 @@
  */
 package com.wafitz.pixelspacebase.windows;
 
-import java.util.ArrayList;
-
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.ui.Component;
 import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.potions.Potion;
@@ -31,6 +27,10 @@ import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.ui.ScrollPane;
 import com.wafitz.pixelspacebase.ui.Window;
 import com.wafitz.pixelspacebase.utils.Utils;
+import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.ui.Component;
+
+import java.util.ArrayList;
 
 public class WndCatalogus extends WndTabbed {
 	
@@ -44,14 +44,14 @@ public class WndCatalogus extends WndTabbed {
 	
 	private static final int TAB_WIDTH		= 50;
 	
-	private static final String TXT_POTIONS	= "Potions";
-	private static final String TXT_SCROLLS	= "Scrolls";
-	private static final String TXT_TITLE	= "Catalogus";
+	private static final String TXT_POTIONS	= "Modules";
+	private static final String TXT_SCROLLS	= "Upgrades";
+	private static final String TXT_TITLE	= "Entries";
 	
 	private BitmapText txtTitle;
 	private ScrollPane list;
 	
-	private ArrayList<ListItem> items = new ArrayList<WndCatalogus.ListItem>();
+	private ArrayList<ListItem> items = new ArrayList<>();
 	
 	private static boolean showPotions = true;
 	
@@ -91,14 +91,14 @@ public class WndCatalogus extends WndTabbed {
 					super.select( value );
 					WndCatalogus.showPotions = value;
 					updateList();
-				};
+				}
 			},
 			new LabeledTab( TXT_SCROLLS ) {
 				protected void select( boolean value ) {
 					super.select( value );
 					WndCatalogus.showPotions = !value;
 					updateList();
-				};
+				}
 			}
 		};
 		for (Tab tab : tabs) {

@@ -109,11 +109,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
+import static com.wafitz.pixelspacebase.Dungeon.hero;
+import static com.wafitz.pixelspacebase.items.potions.PotionOfHealing.heal;
+
 public class Hero extends Char {
 	
-	private static final String TXT_LEAVE = "One does not simply leave Pixel Spacebase without a plan.";
+	private static final String TXT_LEAVE = "The door to the hangar bay is locked.";
 	
-	private static final String TXT_LEVEL_UP = "level up!";
+	private static final String TXT_LEVEL_UP = "Level up!";
 	private static final String TXT_NEW_LEVEL = 
 		"Welcome to level %d! Now you are healthier and more focused. " +
 		"It's easier for you to hit enemies and dodge their attacks.";
@@ -121,12 +124,12 @@ public class Hero extends Char {
 	public static final String TXT_YOU_NOW_HAVE	= "You now have %s";
 	
 	private static final String TXT_SOMETHING_ELSE	= "There is something else here";
-	private static final String TXT_LOCKED_CHEST	= "This chest is locked and you don't have matching key";
+	private static final String TXT_LOCKED_CHEST	= "This container is locked and you don't have a matching key";
 	private static final String TXT_LOCKED_DOOR		= "You don't have a matching key";
 	private static final String TXT_NOTICED_SMTH	= "You noticed something";
 	
 	private static final String TXT_WAIT	= "...";
-	private static final String TXT_SEARCH	= "search";
+	private static final String TXT_SEARCH	= "scanning...";
 	
 	public static final int STARTING_STR = 10;
 	
@@ -737,7 +740,7 @@ public class Hero extends Char {
 					ready();
 				} else {
 					Dungeon.win( ResultDescriptions.WIN );
-					Dungeon.deleteGame( Dungeon.hero.heroClass, true );
+					Dungeon.deleteGame( hero.heroClass, true );
 					Game.switchScene( SurfaceScene.class );
 				}
 				
@@ -1093,7 +1096,7 @@ public class Hero extends Char {
 				GLog.w( "You are poisoned!" );
 				interrupt();
 			} else if (buff instanceof Ooze) {
-				GLog.w( "Caustic ooze eats your flesh. Wash away it!" );
+				GLog.w( "Caustic ooze eats your armor!" );
 			} else if (buff instanceof Roots) {
 				GLog.w( "You can't move!" );
 			} else if (buff instanceof Weakness) {
@@ -1146,6 +1149,9 @@ public class Hero extends Char {
 	public void die( Object cause  ) {
 		
 		curAction = null;
+
+		// Cheat for Testing Purposes
+		heal( Dungeon.hero );
 		
 		DewVial.autoDrink( this );
 		if (isAlive()) {
@@ -1163,7 +1169,7 @@ public class Hero extends Char {
 			
 		} else {
 			
-			Dungeon.deleteGame( Dungeon.hero.heroClass, false );
+			Dungeon.deleteGame( hero.heroClass, false );
 			GameScene.show( new WndResurrect( ankh, cause ) );
 			
 		}
@@ -1194,9 +1200,9 @@ public class Hero extends Char {
 		
 		Dungeon.observe();
 				
-		Dungeon.hero.belongings.identify();
+		hero.belongings.identify();
 		
-		int pos = Dungeon.hero.pos;
+		int pos = hero.pos;
 		
 		ArrayList<Integer> passable = new ArrayList<>();
 		for (Integer ofs : Level.NEIGHBOURS8) {
@@ -1207,7 +1213,7 @@ public class Hero extends Char {
 		}
 		Collections.shuffle( passable );
 		
-		ArrayList<Item> items = new ArrayList<>(Dungeon.hero.belongings.backpack.items);
+		ArrayList<Item> items = new ArrayList<>(hero.belongings.backpack.items);
 		for (Integer cell : passable) {
 			if (items.isEmpty()) {
 				break;
@@ -1224,7 +1230,7 @@ public class Hero extends Char {
 			((Hero.Doom)cause).onDeath();
 		}
 		
-		Dungeon.deleteGame( Dungeon.hero.heroClass, true );
+		Dungeon.deleteGame( hero.heroClass, true );
 	}
 	
 	@Override

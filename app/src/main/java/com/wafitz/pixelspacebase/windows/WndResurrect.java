@@ -17,23 +17,23 @@
  */
 package com.wafitz.pixelspacebase.windows;
 
+import com.wafitz.pixelspacebase.Rankings;
 import com.wafitz.pixelspacebase.Statistics;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.items.Ankh;
+import com.wafitz.pixelspacebase.scenes.InterlevelScene;
 import com.wafitz.pixelspacebase.scenes.PixelScene;
+import com.wafitz.pixelspacebase.sprites.ItemSprite;
+import com.wafitz.pixelspacebase.ui.RedButton;
 import com.wafitz.pixelspacebase.ui.Window;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Game;
-import com.wafitz.pixelspacebase.Rankings;
-import com.wafitz.pixelspacebase.scenes.InterlevelScene;
-import com.wafitz.pixelspacebase.sprites.ItemSprite;
-import com.wafitz.pixelspacebase.ui.RedButton;
 
 public class WndResurrect extends Window {
 	
-	private static final String TXT_MESSAGE	= "You died, but you were given another chance to win this dungeon. Will you take it?";
-	private static final String TXT_YES		= "Yes, I will fight!";
-	private static final String TXT_NO		= "No, I give up";
+	private static final String TXT_MESSAGE	= "You died, but a clone has been prepared - transfer to the clone body?";
+	private static final String TXT_YES		= "Yes, clone me!";
+	private static final String TXT_NO		= "No, I yearn rest.";
 	
 	private static final int WIDTH		= 120;
 	private static final int BTN_HEIGHT	= 20;

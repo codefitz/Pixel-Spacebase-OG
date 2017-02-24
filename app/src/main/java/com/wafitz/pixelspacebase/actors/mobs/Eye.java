@@ -17,26 +17,26 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.HashSet;
-
+import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.ResultDescriptions;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Light;
 import com.wafitz.pixelspacebase.actors.buffs.Terror;
 import com.wafitz.pixelspacebase.effects.CellEmitter;
 import com.wafitz.pixelspacebase.effects.particles.PurpleParticle;
-import com.wafitz.pixelspacebase.sprites.CharSprite;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.wafitz.pixelspacebase.Dungeon;
-import com.wafitz.pixelspacebase.ResultDescriptions;
-import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.items.Dewdrop;
 import com.wafitz.pixelspacebase.items.wands.WandOfDisintegration;
 import com.wafitz.pixelspacebase.items.weapon.enchantments.Death;
 import com.wafitz.pixelspacebase.items.weapon.enchantments.Leech;
 import com.wafitz.pixelspacebase.mechanics.Ballistica;
+import com.wafitz.pixelspacebase.sprites.CharSprite;
 import com.wafitz.pixelspacebase.sprites.EyeSprite;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public class Eye extends Mob {
 	
@@ -46,8 +46,8 @@ public class Eye extends Mob {
 		name = "evil eye";
 		spriteClass = EyeSprite.class;
 		
-		HP = HT = 100;
-		defenseSkill = 20;
+		HP = HT = Dungeon.depth	* 4;
+		defenseSkill = Dungeon.depth;
 		viewDistance = Light.DISTANCE;
 		
 		EXP = 13;
@@ -81,7 +81,7 @@ public class Eye extends Mob {
 	
 	@Override
 	public int attackSkill( Char target ) {
-		return 30;
+		return Dungeon.depth + 4;
 	}
 	
 	@Override
@@ -124,7 +124,7 @@ public class Eye extends Mob {
 			}
 			
 			if (hit( this, ch, true )) {
-				ch.damage( Random.NormalIntRange( 14, 20 ), this );
+				ch.damage( Random.NormalIntRange( Dungeon.depth , Dungeon.depth + 6 ), this );
 				
 				if (Dungeon.visible[pos]) {
 					ch.sprite.flash();
@@ -150,7 +150,7 @@ public class Eye extends Mob {
 			"it uses its deathgaze recklessly, often ignoring its allies and wounding them.";
 	}
 	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
 	static {
 		RESISTANCES.add( WandOfDisintegration.class );
 		RESISTANCES.add( Death.class );
@@ -162,7 +162,7 @@ public class Eye extends Mob {
 		return RESISTANCES;
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
 	static {
 		IMMUNITIES.add( Terror.class );
 	}

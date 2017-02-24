@@ -18,25 +18,26 @@
 package com.wafitz.pixelspacebase.actors.blobs;
 
 import com.wafitz.pixelspacebase.Assets;
-import com.wafitz.pixelspacebase.actors.hero.Hero;
-import com.wafitz.pixelspacebase.effects.CellEmitter;
-import com.wafitz.pixelspacebase.items.Item;
-import com.wafitz.pixelspacebase.items.potions.PotionOfHealing;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.Journal;
 import com.wafitz.pixelspacebase.Journal.Feature;
 import com.wafitz.pixelspacebase.actors.buffs.Hunger;
+import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
+import com.wafitz.pixelspacebase.effects.CellEmitter;
 import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.effects.particles.ShaftParticle;
 import com.wafitz.pixelspacebase.items.DewVial;
+import com.wafitz.pixelspacebase.items.Item;
+import com.wafitz.pixelspacebase.items.potions.PotionOfHealing;
+import com.wafitz.pixelspacebase.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 
 public class WaterOfHealth extends WellWater {
 
 	private static final String TXT_PROCCED =
-		"As you take a sip, you feel your wounds heal completely.";
+		"You allow the terminal to scan you." +
+			"Your wounds are healed and hunger is gone.";
 	
 	@Override
 	protected boolean affectHero( Hero hero ) {
@@ -45,7 +46,7 @@ public class WaterOfHealth extends WellWater {
 		
 		PotionOfHealing.heal( hero );
 		hero.belongings.uncurseEquipped();
-		((Hunger)hero.buff( Hunger.class )).satisfy( Hunger.STARVING );
+		hero.buff( Hunger.class ).satisfy( Hunger.STARVING );
 		
 		CellEmitter.get( pos ).start( ShaftParticle.FACTORY, 0.2f, 3 );
 
@@ -78,7 +79,6 @@ public class WaterOfHealth extends WellWater {
 	@Override
 	public String tileDesc() {
 		return 
-			"Power of health radiates from the water of this well. " +
-			"Take a sip from it to heal your wounds and satisfy hunger.";
+			"This medical terminal should help restore your health. ";
 	}
 }

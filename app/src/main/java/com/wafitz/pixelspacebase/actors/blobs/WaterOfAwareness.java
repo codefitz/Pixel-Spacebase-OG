@@ -18,30 +18,30 @@
 package com.wafitz.pixelspacebase.actors.blobs;
 
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
+import com.wafitz.pixelspacebase.Journal;
+import com.wafitz.pixelspacebase.Journal.Feature;
 import com.wafitz.pixelspacebase.actors.buffs.Awareness;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
+import com.wafitz.pixelspacebase.effects.Identification;
 import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Terrain;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.utils.GLog;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.Journal;
-import com.wafitz.pixelspacebase.Journal.Feature;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
-import com.wafitz.pixelspacebase.effects.Identification;
-import com.wafitz.pixelspacebase.levels.Terrain;
 
 public class WaterOfAwareness extends WellWater {
 
-	private static final String TXT_PROCCED =
-		"As you take a sip, you feel the knowledge pours into your mind. " +
-		"Now you know everything about your equipped items. Also you sense " +
-		"all items on the level and know all its secrets.";
+	private static final String TXT_PROCEED =
+		"You scan the items in your backpack and download the level schematics. " +
+		"You now know everything about the items you carry and " +
+		"and the blueprints to this floor.";
 	
 	@Override
 	protected boolean affectHero( Hero hero ) {
@@ -70,7 +70,7 @@ public class WaterOfAwareness extends WellWater {
 
 		Dungeon.hero.interrupt();
 	
-		GLog.p( TXT_PROCCED );
+		GLog.p( TXT_PROCEED );
 		
 		Journal.remove( Feature.WELL_OF_AWARENESS );
 		
@@ -102,7 +102,7 @@ public class WaterOfAwareness extends WellWater {
 	@Override
 	public String tileDesc() {
 		return 
-			"Power of knowledge radiates from the water of this well. " +
-			"Take a sip from it to reveal all secrets of equipped items.";
+			"This terminal provides access to the ships core knowledgebase. " +
+			"Use the terminal to identify all the items you currently carry.";
 	}
 }

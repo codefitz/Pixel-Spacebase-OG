@@ -23,12 +23,13 @@ import com.watabou.noosa.Game;
 public class IntroScene extends PixelScene {
 
 	private static final String TEXT = 	
-		"Many heroes of all kinds ventured into the Dungeon before you. Some of them have returned with treasures and magical " +
-		"artifacts, most have never been heard of since. But none have succeeded in retrieving the Amulet of Yendor, " +
-		"which is told to be hidden in the depths of the Dungeon.\n\n" +
+		"Welcome to Pixel Spacebase!\n\n" +
 		"" +
-		"You consider yourself ready for the challenge, but most importantly, you feel that fortune smiles on you. " +
-		"It's time to start your own adventure!";
+		"The spacebase is a large self-sustaining structure with medical facilities and replicators, " +
+		"staffed by a humans, robots and alien crew.\n\n" +
+		"" +
+		"Of course being this far out in deep space, there is always the possibility of unfriendly " +
+		"aliens and strange anomolies...!";
 	
 	@Override
 	public void create() {

@@ -19,14 +19,14 @@ package com.wafitz.pixelspacebase.windows;
 
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Ghost;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.utils.GLog;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Ghost;
 
 public class WndSadGhost extends WndQuest {
 	
-	private static final String TXT_WEAPON	= "Ghost's weapon";
-	private static final String TXT_ARMOR	= "Ghost's armor";
+	private static final String TXT_WEAPON	= "Hologram's Tool";
+	private static final String TXT_ARMOR	= "Hologram's Armor";
 	
 	private Ghost ghost;
 	private Item questItem;
@@ -53,7 +53,7 @@ public class WndSadGhost extends WndQuest {
 			Dungeon.level.drop( reward, ghost.pos ).sprite.drop();
 		}
 		
-		ghost.yell( "Farewell, adventurer!" );
+		ghost.yell( "Farewell, " + Dungeon.hero.heroClass.title() + "!" );
 		ghost.die( null );
 		
 		Ghost.Quest.complete();

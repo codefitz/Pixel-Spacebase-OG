@@ -17,21 +17,21 @@
  */
 package com.wafitz.pixelspacebase.actors.hero;
 
-import java.util.Iterator;
-
+import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.KindOfWeapon;
 import com.wafitz.pixelspacebase.items.armor.Armor;
 import com.wafitz.pixelspacebase.items.bags.Bag;
+import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.items.keys.Key;
 import com.wafitz.pixelspacebase.items.rings.Ring;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfRemoveCurse;
 import com.wafitz.pixelspacebase.items.wands.Wand;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.Iterator;
 
 public class Belongings implements Iterable<Item> {
 
@@ -56,10 +56,10 @@ public class Belongings implements Iterable<Item> {
 		backpack.owner = owner;
 	}
 	
-	private static final String WEAPON		= "weapon";
+	private static final String WEAPON		= "tool";
 	private static final String ARMOR		= "armor";
-	private static final String RING1		= "ring1";
-	private static final String RING2		= "ring2";
+	private static final String RING1		= "module1";
+	private static final String RING2		= "module2";
 	
 	public void storeInBundle( Bundle bundle ) {
 		

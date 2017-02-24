@@ -17,25 +17,25 @@
  */
 package com.wafitz.pixelspacebase.windows;
 
-import java.util.Locale;
-
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.Statistics;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.wafitz.pixelspacebase.scenes.PixelScene;
+import com.wafitz.pixelspacebase.ui.BuffIndicator;
+import com.wafitz.pixelspacebase.ui.RedButton;
 import com.wafitz.pixelspacebase.ui.Window;
+import com.wafitz.pixelspacebase.utils.Utils;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
-import com.wafitz.pixelspacebase.scenes.PixelScene;
-import com.wafitz.pixelspacebase.ui.BuffIndicator;
-import com.wafitz.pixelspacebase.ui.RedButton;
-import com.wafitz.pixelspacebase.utils.Utils;
+
+import java.util.Locale;
 
 public class WndHero extends WndTabbed {
 	
@@ -45,7 +45,7 @@ public class WndHero extends WndTabbed {
 	private static final String TXT_EXP		= "Experience";
 	private static final String TXT_STR		= "Strength";
 	private static final String TXT_HEALTH	= "Health";
-	private static final String TXT_GOLD	= "Gold Collected";
+	private static final String TXT_GOLD	= "Parts Collected";
 	private static final String TXT_DEPTH	= "Maximum Depth";
 	
 	private static final int WIDTH		= 100;
@@ -74,13 +74,13 @@ public class WndHero extends WndTabbed {
 			protected void select( boolean value ) {
 				super.select( value );
 				stats.visible = stats.active = selected;
-			};
+			}
 		} );
 		add( new LabeledTab( TXT_BUFFS ) {
 			protected void select( boolean value ) {
 				super.select( value );
 				buffs.visible = buffs.active = selected;
-			};
+			}
 		} );
 		for (Tab tab : tabs) {
 			tab.setSize( TAB_WIDTH, tabHeight() );
@@ -95,7 +95,7 @@ public class WndHero extends WndTabbed {
 		
 		private static final String TXT_TITLE		= "Level %d %s";
 		private static final String TXT_CATALOGUS	= "Catalogus";
-		private static final String TXT_JOURNAL		= "Journal";
+		private static final String TXT_JOURNAL		= "Logbook";
 		
 		private static final int GAP = 5;
 		

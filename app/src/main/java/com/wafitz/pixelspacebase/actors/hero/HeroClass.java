@@ -17,9 +17,10 @@
  */
 package com.wafitz.pixelspacebase.actors.hero;
 
+import android.util.Log;
+
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.items.TomeOfMastery;
 import com.wafitz.pixelspacebase.items.potions.PotionOfStrength;
 import com.wafitz.pixelspacebase.items.rings.RingOfShadows;
@@ -33,13 +34,12 @@ import com.wafitz.pixelspacebase.items.weapon.missiles.Boomerang;
 import com.wafitz.pixelspacebase.items.weapon.missiles.Dart;
 import com.wafitz.pixelspacebase.ui.QuickSlot;
 import com.watabou.utils.Bundle;
-import com.watabou.utils.Random;
 // Adding armor kit for testing
 
 
 public enum HeroClass {
 
-	WARRIOR( "warrior" ), MAGE( "mage" ), ROGUE( "rogue" ), HUNTRESS( "huntress" );
+	WARRIOR( "Captain" ), MAGE( "DM3000" ), ROGUE( "Shapeshifter" ), HUNTRESS( "First Officer" );
 	
 	private String title;
 	
@@ -48,36 +48,36 @@ public enum HeroClass {
 	}
 	
 	public static final String[] WAR_PERKS = {
-		"Warriors start with 11 points of Strength.",
-		"Warriors start with a unique short sword. This sword can be later \"reforged\" to upgrade another melee weapon.",
-		"Warriors are less proficient with missile weapons.",
+		"Captains start with 11 points of Strength.",
+		"Captains start with a unique short sword. This sword can be later \"reforged\" to upgrade another melee weapon.",
+		"Captains are less proficient with missile weapons.",
 		"Any piece of food restores some health when eaten.",
 		"Potions of Strength are identified from the beginning.",
 	};
 	
 	public static final String[] MAG_PERKS = {
-		"Mages start with a unique Wand of Magic Missile. This wand can be later \"disenchanted\" to upgrade another wand.",
-		"Mages recharge their wands faster.",
+		"DM3000 starts with a unique Wand of Magic Missile. This wand can be later \"disenchanted\" to upgrade another wand.",
+		"DM3000 units recharge their wands faster.",
 		"When eaten, any piece of food restores 1 charge for all wands in the inventory.",
-		"Mages can use wands as a melee weapon.",
+		"DM3000 units can use wands as a melee weapon.",
 		"Scrolls of Identify are identified from the beginning."
 	};
 	
 	public static final String[] ROG_PERKS = {
-		"Rogues start with a Ring of Shadows+1.",
-		"Rogues identify a type of a ring on equipping it.",
-		"Rogues are proficient with light armor, dodging better while wearing one.",
-		"Rogues are proficient in detecting hidden doors and traps.",
-		"Rogues can go without food longer.",
+		"Shapeshifters start with a Ring of Shadows+1.",
+		"Shapeshifters identify a type of a ring on equipping it.",
+		"Shapeshifters are proficient with light armor, dodging better while wearing one.",
+		"Shapeshifters are proficient in detecting hidden doors and traps.",
+		"Shapeshifters can go without food longer.",
 		"Scrolls of Magic Mapping are identified from the beginning."
 	};
 	
 	public static final String[] HUN_PERKS = {
-		"Huntresses start with 15 points of Health.",
-		"Huntresses start with a unique upgradeable boomerang.",
-		"Huntresses are proficient with missile weapons and get a damage bonus for excessive strength when using them.",
-		"Huntresses gain more health from dewdrops.",
-		"Huntresses sense neighbouring monsters even if they are hidden behind obstacles."
+		"Officers start with 15 points of Health.",
+		"Officers start with a unique upgradeable boomerang.",
+		"Officers are proficient with missile weapons and get a damage bonus for excessive strength when using them.",
+		"Officers gain more health from dewdrops.",
+		"Officers sense neighbouring monsters even if they are hidden behind obstacles."
 	};
 	
 	public void initHero( Hero hero ) {
@@ -109,17 +109,12 @@ public enum HeroClass {
 		}
 		
 		hero.updateAwareness();
+
+		Log.d("WAFITZ", "Hero is: " + hero.heroClass );
 	}
 	
 	private static void initCommon( Hero hero ) {
-		// No idea if this will break something later...
 
-		int width = Random.Int(16,52);
-		int height = width >= 44 ? Random.Int(16,36) : Random.Int(30,52);
-		//PixelSpacebase.level_width( 50 );
-		//PixelSpacebase.level_height( 16 );
-		PixelSpacebase.level_width( width );
-		PixelSpacebase.level_height( height );
 		//(hero.belongings.armor = new ClothArmor()).identify();
 		/*new Food().identify().collect();
 		new Keyring().collect();

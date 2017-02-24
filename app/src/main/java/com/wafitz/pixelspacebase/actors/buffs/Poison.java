@@ -17,14 +17,14 @@
  */
 package com.wafitz.pixelspacebase.actors.buffs;
 
+import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.items.rings.RingOfElements;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.ui.BuffIndicator;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
 import com.watabou.utils.Bundle;
 
@@ -49,8 +49,8 @@ public class Poison extends Buff implements Hero.Doom {
 	
 	public void set( float duration ) {
 		this.left = duration;
-	};
-	
+	}
+
 	@Override
 	public int icon() {
 		return BuffIndicator.POISON;
@@ -91,6 +91,6 @@ public class Poison extends Buff implements Hero.Doom {
 		Badges.validateDeathFromPoison();
 		
 		Dungeon.fail( Utils.format( ResultDescriptions.POISON, Dungeon.depth ) );
-		GLog.n( "You died from poison..." );
+		GLog.n( "The poison was too strong..." );
 	}
 }

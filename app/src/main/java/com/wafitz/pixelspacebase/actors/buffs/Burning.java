@@ -17,13 +17,18 @@
  */
 package com.wafitz.pixelspacebase.actors.buffs;
 
+import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.blobs.Blob;
+import com.wafitz.pixelspacebase.actors.blobs.Fire;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.actors.mobs.Thief;
+import com.wafitz.pixelspacebase.effects.particles.ElmoParticle;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
+import com.wafitz.pixelspacebase.items.food.ChargrilledMeat;
 import com.wafitz.pixelspacebase.items.food.MysteryMeat;
 import com.wafitz.pixelspacebase.items.rings.RingOfElements;
 import com.wafitz.pixelspacebase.items.scrolls.Scroll;
@@ -32,17 +37,12 @@ import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.ui.BuffIndicator;
 import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.blobs.Fire;
-import com.wafitz.pixelspacebase.effects.particles.ElmoParticle;
-import com.wafitz.pixelspacebase.items.food.ChargrilledMeat;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 public class Burning extends Buff implements Hero.Doom {
 
-	private static final String TXT_BURNS_UP		= "%s burns up!";
+	private static final String TXT_BURNS_UP		= "%s is lost to the flames!";
 	private static final String TXT_BURNED_TO_DEATH	= "You burned to death...";
 	
 	private static final float DURATION = 8f;

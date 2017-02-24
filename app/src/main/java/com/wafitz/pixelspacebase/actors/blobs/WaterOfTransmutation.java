@@ -17,11 +17,15 @@
  */
 package com.wafitz.pixelspacebase.actors.blobs;
 
+import com.wafitz.pixelspacebase.Journal;
+import com.wafitz.pixelspacebase.Journal.Feature;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
 import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.potions.Potion;
+import com.wafitz.pixelspacebase.items.potions.PotionOfMight;
+import com.wafitz.pixelspacebase.items.potions.PotionOfStrength;
 import com.wafitz.pixelspacebase.items.rings.Ring;
 import com.wafitz.pixelspacebase.items.scrolls.Scroll;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfEnchantment;
@@ -39,10 +43,6 @@ import com.wafitz.pixelspacebase.items.weapon.melee.Spear;
 import com.wafitz.pixelspacebase.items.weapon.melee.Sword;
 import com.wafitz.pixelspacebase.items.weapon.melee.WarHammer;
 import com.wafitz.pixelspacebase.plants.Plant;
-import com.wafitz.pixelspacebase.Journal;
-import com.wafitz.pixelspacebase.Journal.Feature;
-import com.wafitz.pixelspacebase.items.potions.PotionOfMight;
-import com.wafitz.pixelspacebase.items.potions.PotionOfStrength;
 
 public class WaterOfTransmutation extends WellWater {
 	
@@ -52,7 +52,7 @@ public class WaterOfTransmutation extends WellWater {
 		if (item instanceof MeleeWeapon) {
 			item = changeWeapon( (MeleeWeapon)item );		
 		} else if (item instanceof Scroll) {
-			item = changeScroll( (Scroll)item );	
+			item = changeScroll( (Scroll)item );
 		} else if (item instanceof Potion) {
 			item = changePotion( (Potion)item );
 		} else if (item instanceof Ring) {
@@ -228,7 +228,7 @@ public class WaterOfTransmutation extends WellWater {
 	@Override
 	public String tileDesc() {
 		return 
-			"Power of change radiates from the water of this well. " +
-			"Throw an item into the well to turn it into something else.";
+			"This terminal can breakdown any item to its subatomical parts " +
+			"and reform it into a new item.";
 	}
 }

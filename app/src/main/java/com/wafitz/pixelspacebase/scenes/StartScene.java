@@ -301,13 +301,15 @@ public class StartScene extends PixelScene {
 
 		Dungeon.hero = null;
 		InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
+
+        Game.switchScene( InterlevelScene.class );
 		
-		if (PixelSpacebase.intro()) {
+		/*if (PixelSpacebase.intro()) {
 			PixelSpacebase.intro( false );
 			Game.switchScene( IntroScene.class );
 		} else {
 			Game.switchScene( InterlevelScene.class );
-		}	
+		}*/
 	}
 	
 	@Override

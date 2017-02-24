@@ -18,33 +18,35 @@
 package com.wafitz.pixelspacebase.actors.blobs;
 
 import com.wafitz.pixelspacebase.Assets;
-import com.wafitz.pixelspacebase.DungeonTilemap;
-import com.wafitz.pixelspacebase.actors.Actor;
-import com.wafitz.pixelspacebase.actors.hero.Hero;
-import com.wafitz.pixelspacebase.effects.Flare;
-import com.wafitz.pixelspacebase.effects.Wound;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.DungeonTilemap;
 import com.wafitz.pixelspacebase.Journal;
 import com.wafitz.pixelspacebase.Journal.Feature;
+import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.FlavourBuff;
+import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
+import com.wafitz.pixelspacebase.effects.Flare;
+import com.wafitz.pixelspacebase.effects.Wound;
 import com.wafitz.pixelspacebase.effects.particles.SacrificialParticle;
-import com.wafitz.pixelspacebase.items.scrolls.ScrollOfWipeOut;
 import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.wafitz.pixelspacebase.sprites.CharSprite;
 import com.wafitz.pixelspacebase.ui.BuffIndicator;
+import com.wafitz.pixelspacebase.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
+import static com.wafitz.pixelspacebase.Dungeon.hero;
+
 public class SacrificialFire extends Blob {
 	
-	private static final String TXT_WORTHY		= "\"Your sacrifice is worthy...\" ";
-	private static final String TXT_UNWORTHY	= "\"Your sacrifice is unworthy...\" ";
-	private static final String TXT_REWARD		= "\"Your sacrifice is worthy and so you are!\" ";
+	private static final String TXT_WORTHY		= "\"Carbon remains absorbed.\" ";
+	private static final String TXT_UNWORTHY	= "\"The reactor stutters...\" ";
+	private static final String TXT_REWARD		= "\"Did you get some satisfaction from that?\" ";
 	
 	protected int pos;
 	
@@ -90,7 +92,7 @@ public class SacrificialFire extends Blob {
 		emitter.pour( SacrificialParticle.FACTORY, 0.04f );
 	}
 	
-	public static void sacrifice( Char ch ) {
+	private static void sacrifice(Char ch) {
 		
 		Wound.hit( ch );
 		
@@ -116,7 +118,10 @@ public class SacrificialFire extends Blob {
 					
 					GLog.w( TXT_REWARD );
 					GameScene.effect( new Flare( 7, 32 ).color( 0x66FFFF, true ).show( ch.sprite.parent, DungeonTilemap.tileCenterToWorld( fire.pos ), 2f ) );
-					Dungeon.level.drop( new ScrollOfWipeOut(), fire.pos ).sprite.drop();
+					//Dungeon.level.drop( new ScrollOfWipeOut(), fire.pos ).sprite.drop();
+					hero.STR++;
+					hero.sprite.showStatus( CharSprite.POSITIVE, "+1 str" );
+					GLog.p( "Your strength is enhanced." );
 				}
 			} else {
 				
@@ -128,10 +133,10 @@ public class SacrificialFire extends Blob {
 	
 	@Override
 	public String tileDesc() {
-		return "Sacrificial fire burns here. Every creature touched by this fire is marked as an offering for the spirits of the dungeon.";
+		return "This energy reactor helps keep the spacebase functioning.";
 	}
 	
-	public static class Marked extends FlavourBuff {
+	private static class Marked extends FlavourBuff {
 
 		public static final float DURATION	= 5f;
 		
@@ -142,7 +147,7 @@ public class SacrificialFire extends Blob {
 		
 		@Override
 		public String toString() {
-			return "Marked for sacrifice";
+			return "The energy reactor hums.";
 		}
 		
 		@Override

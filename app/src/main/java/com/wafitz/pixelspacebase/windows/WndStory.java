@@ -17,14 +17,14 @@
  */
 package com.wafitz.pixelspacebase.windows;
 
+import com.wafitz.pixelspacebase.Chrome;
+import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.scenes.PixelScene;
 import com.wafitz.pixelspacebase.ui.Window;
 import com.watabou.input.Touchscreen.Touch;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.TouchArea;
-import com.wafitz.pixelspacebase.Chrome;
-import com.wafitz.pixelspacebase.Dungeon;
-import com.wafitz.pixelspacebase.scenes.PixelScene;
 import com.watabou.utils.SparseArray;
 
 public class WndStory extends Window {
@@ -42,13 +42,13 @@ public class WndStory extends Window {
 	public static final int ID_METROPOLIS	= 3;
 	public static final int ID_HALLS		= 4;
 	
-	private static final SparseArray<String> CHAPTERS = new SparseArray<String>();
+	private static final SparseArray<String> CHAPTERS = new SparseArray<>();
 	
 	static {
 		CHAPTERS.put( ID_SEWERS, 
-		"The Dungeon lies right beneath the City, its upper levels actually constitute the City's sewer system. " +
-		"Being nominally a part of the City, these levels are not that dangerous. No one will call it a safe place, " +
-		"but at least you won't need to deal with evil magic here." );
+		"You wake up to the sound of the base alarm, we appear to be under attack. None of the crew " +
+		"are around. The door to the hanger appears to be locked by the central computer. You'll " +
+		"need to find a way to reset it in case you need to evacuate." );
 		
 		CHAPTERS.put( ID_PRISON, 
 		"Many years ago an underground prison was built here for the most dangerous criminals. At the time it seemed " +
@@ -72,13 +72,13 @@ public class WndStory extends Window {
 		"dwarves were too weakened to clear them of remaining demons. Gradually demons have tightened their grip on this place " +
 		"and now it's called Demon Halls.\n\n" +
 		"Very few adventurers have ever descended this far..." );
-	};
-	
+	}
+
 	private BitmapTextMultiline tf;
 	
 	private float delay;
 	
-	public WndStory( String text ) {
+	protected WndStory(String text) {
 		super( 0, 0, Chrome.get( Chrome.Type.SCROLL ) );
 		
 		tf = PixelScene.createMultiline( text, 7 );

@@ -17,16 +17,21 @@
  */
 package com.wafitz.pixelspacebase.windows;
 
-import java.util.Locale;
-
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.Statistics;
+import com.wafitz.pixelspacebase.actors.hero.Belongings;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.scenes.PixelScene;
+import com.wafitz.pixelspacebase.sprites.HeroSprite;
 import com.wafitz.pixelspacebase.ui.BadgesList;
+import com.wafitz.pixelspacebase.ui.Icons;
 import com.wafitz.pixelspacebase.ui.ItemSlot;
 import com.wafitz.pixelspacebase.ui.QuickSlot;
+import com.wafitz.pixelspacebase.ui.RedButton;
+import com.wafitz.pixelspacebase.ui.ScrollPane;
+import com.wafitz.pixelspacebase.utils.Utils;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
@@ -34,13 +39,8 @@ import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.actors.hero.Belongings;
-import com.wafitz.pixelspacebase.sprites.HeroSprite;
-import com.wafitz.pixelspacebase.ui.Icons;
-import com.wafitz.pixelspacebase.ui.RedButton;
-import com.wafitz.pixelspacebase.ui.ScrollPane;
-import com.wafitz.pixelspacebase.utils.Utils;
+
+import java.util.Locale;
 
 public class WndRanking extends WndTabbed {
 	
@@ -158,7 +158,7 @@ public class WndRanking extends WndTabbed {
 		
 		private static final String TXT_FOOD	= "Food Eaten";
 		private static final String TXT_ALCHEMY	= "Potions Cooked";
-		private static final String TXT_ANKHS	= "Ankhs Used";
+		private static final String TXT_ANKHS	= "Clones Used";
 		
 		public StatsTab() {
 			super();
@@ -362,12 +362,12 @@ public class WndRanking extends WndTabbed {
 		protected void onTouchDown() {
 			bg.brightness( 1.5f );
 			Sample.INSTANCE.play( Assets.SND_CLICK, 0.7f, 0.7f, 1.2f );
-		};
-		
+		}
+
 		protected void onTouchUp() {
 			bg.brightness( 1.0f );
-		};
-		
+		}
+
 		@Override
 		protected void onClick() {
 			Game.scene().add( new WndItem( null, item ) );

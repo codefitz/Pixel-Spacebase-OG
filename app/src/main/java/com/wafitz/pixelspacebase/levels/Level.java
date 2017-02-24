@@ -17,6 +17,8 @@
  */
 package com.wafitz.pixelspacebase.levels;
 
+import android.util.Log;
+
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Challenges;
 import com.wafitz.pixelspacebase.Dungeon;
@@ -92,11 +94,20 @@ public abstract class Level implements Bundlable {
 		GRASS
 	}
 
-    public static final int WIDTH = PixelSpacebase.lvl_width();
-    public static final int HEIGHT = PixelSpacebase.lvl_height();
-    public static final int LENGTH = WIDTH * HEIGHT;
+    static int width = Random.Int(16,52);
+    static int height = width >= 44 ? Random.Int(16,36) : Random.Int(30,52);
+    static int length = width * height;
 
-	public static final int[] NEIGHBOURS4 = {-WIDTH, +1, +WIDTH, -1}; 
+    public static final int WIDTH = PixelSpacebase.level_width( width );
+    public static final int HEIGHT = PixelSpacebase.level_height( height );
+    public static final int LENGTH = PixelSpacebase.level_length( length );
+
+
+    //public static final int WIDTH = 16;
+    //public static final int HEIGHT = 50;
+    //public static final int LENGTH = WIDTH * HEIGHT;
+
+	public static final int[] NEIGHBOURS4 = {-WIDTH, +1, +WIDTH, -1};
 	public static final int[] NEIGHBOURS8 = {+1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
 	public static final int[] NEIGHBOURS9 = {0, +1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
 	
@@ -130,9 +141,6 @@ public abstract class Level implements Bundlable {
 	
 	public int entrance;
 	public int exit;
-    public int width;
-    public int height;
-    public int length;
 	
 	public ArrayList<Mob> mobs;
 	public SparseArray<Heap> heaps;
@@ -164,18 +172,24 @@ public abstract class Level implements Bundlable {
 		
 		resizingNeeded = false;
 
+        Log.d("WAFITZ", "LENGTH is " + LENGTH );
+
         map = new int[LENGTH];
         visited = new boolean[LENGTH];
 		Arrays.fill( visited, false );
 		mapped = new boolean[LENGTH];
 		Arrays.fill( mapped, false );
-		
+
+        Log.d("WAFITZ", "Setting things..." );
+
 		mobs = new ArrayList<>();
         mobs.remove(null);
 		heaps = new SparseArray<>();
 		blobs = new HashMap<>();
 		plants = new SparseArray<>();
-		
+
+        Log.d("WAFITZ", "bossLevel: " + bossLevel() );
+
 		if (!bossLevel()) {
 			addItemToSpawn( Generator.random( Generator.Category.FOOD ) );
 			if (Dungeon.posNeeded()) {
@@ -190,6 +204,8 @@ public abstract class Level implements Bundlable {
 				addItemToSpawn( new ScrollOfEnchantment() );
 				Dungeon.scrollsOfEnchantment++;
 			}
+
+            Log.d("WAFITZ", "current depth: " + depth );
 			
 			if (depth > 1) {
 				switch (Random.Int( 10 )) {
@@ -207,9 +223,13 @@ public abstract class Level implements Bundlable {
 				}
 			}
 		}
+
+        Log.d("WAFITZ", "pit depth: " + depth );
 		
 		boolean pitNeeded = depth > 1 && weakFloorCreated;
-		
+
+        Log.d("WAFITZ", "Building..." );
+
 		do {
 			Arrays.fill( map, feeling == Feeling.CHASM ? Terrain.CHASM : Terrain.WALL );
 			
@@ -217,12 +237,25 @@ public abstract class Level implements Bundlable {
 			weakFloorCreated = false;
 			
 		} while (!build());
+
+        Log.d("WAFITZ", "Decorating..." );
+
 		decorate();
-		
+
+        Log.d("WAFITZ", "Building Flag Maps..." );
+
 		buildFlagMaps();
+
+        Log.d("WAFITZ", "Cleaning walls..." );
+
 		cleanWalls();
+
+        Log.d("WAFITZ", "Creating mobs..." );
 		
 		createMobs();
+
+        Log.d("WAFITZ", "Creating items..." );
+
 		createItems();
 
     }
@@ -253,9 +286,9 @@ public abstract class Level implements Bundlable {
 		entrance	= bundle.getInt( ENTRANCE );
 		exit		= bundle.getInt( EXIT );
 
-        width		= bundle.getInt( W );
+/*        width		= bundle.getInt( W );
         height		= bundle.getInt( H );
-        length		= bundle.getInt( L );
+        length		= bundle.getInt( L );*/
 
 		
 		weakFloorCreated = false;
@@ -265,18 +298,18 @@ public abstract class Level implements Bundlable {
 		Collection<Bundlable> collection = bundle.getCollection( HEAPS );
 		for (Bundlable h : collection) {
 			Heap heap = (Heap)h;
-			if (resizingNeeded) {
+			/*if (resizingNeeded) {
 				heap.pos = adjustPos( heap.pos );
-			}
+			}*/
 			heaps.put( heap.pos, heap );
 		}
 		
 		collection = bundle.getCollection( PLANTS );
 		for (Bundlable p : collection) {
 			Plant plant = (Plant)p;
-			if (resizingNeeded) {
+			/*if (resizingNeeded) {
 				plant.pos = adjustPos( plant.pos );
-			}
+			}*/
 			plants.put( plant.pos, plant );
 		}
 		
@@ -284,9 +317,9 @@ public abstract class Level implements Bundlable {
 		for (Bundlable m : collection) {
 			Mob mob = (Mob)m;
 			if (mob != null) {
-				if (resizingNeeded) {
+				/*if (resizingNeeded) {
 					mob.pos = adjustPos( mob.pos );
-				}
+				}*/
 				mobs.add( mob );
 			}
 		}
@@ -312,9 +345,9 @@ public abstract class Level implements Bundlable {
 		bundle.put( PLANTS, plants.values() );
 		bundle.put( MOBS, mobs );
 		bundle.put( BLOBS, blobs.values() );
-        bundle.put( W, WIDTH );
-        bundle.put( H, HEIGHT );
-        bundle.put( L, LENGTH );
+/*        bundle.put( W, width );
+        bundle.put( H, height );
+        bundle.put( L, length );*/
 	}
 	
 	public int tunnelTile() {
@@ -349,7 +382,7 @@ boolean[] visited = new boolean[LENGTH];
 
         entrance = adjustPos( entrance );
         exit = adjustPos( exit );*/
-        resizingNeeded = map.length < LENGTH;
+//        resizingNeeded = map.length < LENGTH;
         return null;
     }
 	
@@ -506,7 +539,7 @@ boolean[] visited = new boolean[LENGTH];
 			
 		} else {
 			boolean flood = false;
-			for (int j : NEIGHBOURS4 ) {
+			for (int j=0; j < NEIGHBOURS4.length ; j++ ) {
 				if (water[pos + NEIGHBOURS4[j]]) {
 					flood = true;
 					break;

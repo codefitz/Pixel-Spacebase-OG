@@ -18,12 +18,12 @@
 package com.wafitz.pixelspacebase.items.scrolls;
 
 import com.wafitz.pixelspacebase.Assets;
-import com.wafitz.pixelspacebase.windows.WndBag;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.actors.buffs.Invisibility;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.wafitz.pixelspacebase.windows.WndBag;
 import com.wafitz.pixelspacebase.windows.WndOptions;
+import com.watabou.noosa.audio.Sample;
 
 public abstract class InventoryScroll extends Scroll {
 
@@ -61,14 +61,14 @@ public abstract class InventoryScroll extends Scroll {
 					break;
 				}
 			}
-			public void onBackPressed() {};
+			public void onBackPressed() {}
 		} );
 	}
 	
 	protected abstract void onItemSelected( Item item );
 	
-	protected static boolean identifiedByUse = false;
-	protected static WndBag.Listener itemSelector = new WndBag.Listener() {
+	private static boolean identifiedByUse = false;
+	private static WndBag.Listener itemSelector = new WndBag.Listener() {
 		@Override
 		public void onSelect( Item item ) {
 			if (item != null) {
@@ -79,9 +79,9 @@ public abstract class InventoryScroll extends Scroll {
 				Sample.INSTANCE.play( Assets.SND_READ );
 				Invisibility.dispel();
 				
-			} else if (identifiedByUse) {
+			//} else if (identifiedByUse) {
 				
-				((InventoryScroll)curItem).confirmCancelation();
+				//((InventoryScroll)curItem).confirmCancelation();
 				
 			} else {
 

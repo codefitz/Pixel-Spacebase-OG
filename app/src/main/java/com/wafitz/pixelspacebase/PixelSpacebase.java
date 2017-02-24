@@ -240,8 +240,9 @@ public class PixelSpacebase extends Game {
 
 	// *** Set Dynamic Width and Height ***
 
-	public static void level_width( int value ) {
+	public static int level_width(int value ) {
 		Preferences.INSTANCE.put( Preferences.KEY_WIDTH, value );
+		return value;
 	}
 
 	public static int lvl_width() {
@@ -255,6 +256,14 @@ public class PixelSpacebase extends Game {
 
 	public static int lvl_height() {
 		return Preferences.INSTANCE.getInt( Preferences.KEY_HEIGHT, 0 );
+	}
+
+	public static int level_length(int value ) {
+		Preferences.INSTANCE.put(Preferences.KEY_LENGTH, value);
+		return value;
+	}
+
+	public static int lvl_length() { return Preferences.INSTANCE.getInt( Preferences.KEY_LENGTH, 0 );
 	}
 	
 	// *** IMMERSIVE MODE ****
@@ -396,4 +405,5 @@ public class PixelSpacebase extends Game {
 	public static void reportException( Throwable tr ) {
 		Log.e( "PD", Log.getStackTraceString( tr ) ); 
 	}
+
 }

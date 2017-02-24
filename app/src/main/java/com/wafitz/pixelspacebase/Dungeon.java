@@ -17,6 +17,8 @@
  */
 package com.wafitz.pixelspacebase;
 
+import android.util.Log;
+
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Amok;
@@ -72,6 +74,7 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import static com.wafitz.pixelspacebase.levels.Level.HEIGHT;
+import static com.wafitz.pixelspacebase.levels.Level.LENGTH;
 import static com.wafitz.pixelspacebase.levels.Level.WIDTH;
 
 public class Dungeon {
@@ -87,14 +90,17 @@ public class Dungeon {
 	public static Level level;
 	
 	public static int depth;
+    public static int width;
+    public static int height;
+    public static int length;
 	public static int gold;
 	// Reason of death
 	public static String resultDescription;
 	
 	public static HashSet<Integer> chapters;
-	
+
 	// Hero's field of view
-	public static boolean[] visible = new boolean[Level.LENGTH];
+	public static boolean[] visible = new boolean[LENGTH];
 	
 	public static boolean nightMode;
 	
@@ -105,8 +111,11 @@ public class Dungeon {
 		challenges = PixelSpacebase.challenges();
 		
 		Actor.clear();
+
+        Log.d("WAFITZ", "WIDTH = " + PixelSpacebase.lvl_width() + ", HEIGHT = " + PixelSpacebase.lvl_height());
 		
-		PathFinder.setMapSize( WIDTH, HEIGHT );
+		//PathFinder.setMapSize( PixelSpacebase.lvl_width(), PixelSpacebase.lvl_height() );
+        PathFinder.setMapSize( WIDTH, HEIGHT );
 		
 		Scroll.initLabels();
 		Potion.initColors();
@@ -142,6 +151,8 @@ public class Dungeon {
 		hero.live();
 		
 		Badges.reset();
+
+        Log.d("WAFITZ", "Running StartScene.curClass.initHero...");
 		
 		StartScene.curClass.initHero( hero );
 	}
@@ -156,12 +167,17 @@ public class Dungeon {
 		Actor.clear();
 		
 		depth++;
+
+        Log.d("WAFITZ", "depth now " + depth + ", Deepest floor: " + Statistics.deepestFloor );
+
 		if (depth > Statistics.deepestFloor) {
 			Statistics.deepestFloor = depth;
 
             Statistics.completedWithNoKilling = Statistics.qualifiedForNoKilling;
 		}
-		
+
+        Log.d("WAFITZ", "Filling arrays..." );
+
 		Arrays.fill( visible, false );
 		
 		Level level;
@@ -220,11 +236,15 @@ public class Dungeon {
 			level = new DeadEndLevel();
 			Statistics.deepestFloor--;
 		}
-		
+
+        Log.d("WAFITZ", "Creating level..." );
+
 		level.create();
 		
 		Statistics.qualifiedForNoKilling = !bossLevel();
-		
+
+        Log.d("WAFITZ", "newLevel finished." );
+
 		return level;
 	}
 	
@@ -239,7 +259,8 @@ public class Dungeon {
 	}
 	
 	public static boolean shopOnLevel() {
-		return depth == 6 || depth == 11 || depth == 16;
+		return true;
+		//depth == 6|| depth == 11 || depth == 16;
 	}
 	
 	public static boolean bossLevel() {
@@ -252,22 +273,32 @@ public class Dungeon {
 	
 	@SuppressWarnings("deprecation")
 	public static void switchLevel( final Level level, int pos ) {
-		
+
+        Log.d("WAFITZ", "Getting night mode." );
+
 		nightMode = new Date().getHours() < 7;
-		
+
+        Log.d("WAFITZ", "Setting dungeon level to: " + level );
+
 		Dungeon.level = level;
 		Actor.init();
+
+        Log.d("WAFITZ", "Respawning Actor..." );
 		
 		Actor respawner = level.respawner();
 		if (respawner != null) {
 			Actor.add( level.respawner() );
 		}
+
+        Log.d("WAFITZ", "Setting hero position..." );
 		
 		hero.pos = pos != -1 ? pos : level.exit;
 		
 		Light light = hero.buff( Light.class );
 		hero.viewDistance = light == null ? level.viewDistance : Math.max( Light.DISTANCE, level.viewDistance );
-		
+
+        Log.d("WAFITZ", "observe()" );
+
 		observe();
 	}
 	
@@ -335,6 +366,7 @@ public class Dungeon {
 	private static final String BADGES		= "badges";
 	private static final String W			= "width";
 	private static final String H			= "height";
+    private static final String L			= "length";
 	
 	public static String gameFile( HeroClass cl ) {
 		switch (cl) {
@@ -373,6 +405,7 @@ public class Dungeon {
 			bundle.put( DEPTH, depth );
 			bundle.put( W, WIDTH );
 			bundle.put( H, HEIGHT );
+            bundle.put( L, LENGTH );
 			
 			for (int d : droppedItems.keyArray()) {
 				bundle.put( String.format(Locale.getDefault(), DROPPED, d ), droppedItems.get( d ) );
@@ -524,7 +557,14 @@ public class Dungeon {
 		
 		gold = bundle.getInt( GOLD );
 		depth = bundle.getInt( DEPTH );
-		
+        width = bundle.getInt( W );
+        height = bundle.getInt( H );
+        length = bundle.getInt ( L );
+
+        PixelSpacebase.level_width(width);
+        PixelSpacebase.level_height(height);
+        PixelSpacebase.level_length(length);
+
 		Statistics.restoreFromBundle( bundle );
 		Journal.restoreFromBundle( bundle );
 		
@@ -617,7 +657,7 @@ public class Dungeon {
 		GameScene.afterObserve();
 	}
 	
-	private static boolean[] passable = new boolean[Level.LENGTH];
+	private static boolean[] passable = new boolean[LENGTH];
 	
 	public static int findPath( Char ch, int from, int to, boolean pass[], boolean[] visible ) {
 		
@@ -628,7 +668,7 @@ public class Dungeon {
 		if (ch.flying || ch.buff( Amok.class ) != null || ch.buff( Rage.class ) != null) {
 			BArray.or( pass, Level.avoid, passable );
 		} else {
-			System.arraycopy( pass, 0, passable, 0, Level.LENGTH );
+			System.arraycopy( pass, 0, passable, 0, LENGTH );
 		}
 		
 		for (Actor actor : Actor.all()) {
@@ -649,7 +689,7 @@ public class Dungeon {
 		if (ch.flying) {
 			BArray.or( pass, Level.avoid, passable );
 		} else {
-			System.arraycopy( pass, 0, passable, 0, Level.LENGTH );
+			System.arraycopy( pass, 0, passable, 0, LENGTH );
 		}
 		
 		for (Actor actor : Actor.all()) {

@@ -17,15 +17,15 @@
  */
 package com.wafitz.pixelspacebase.actors.blobs;
 
+import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.effects.Speck;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
 import com.watabou.utils.Random;
 
@@ -80,7 +80,7 @@ public class ToxicGas extends Blob implements Hero.Doom {
 	
 	@Override
 	public String tileDesc() {
-		return "A greenish cloud of toxic gas is swirling here.";
+		return "Careful, this gas is toxic.";
 	}
 	
 	@Override
@@ -89,6 +89,6 @@ public class ToxicGas extends Blob implements Hero.Doom {
 		Badges.validateDeathFromGas();
 		
 		Dungeon.fail( Utils.format( ResultDescriptions.GAS, Dungeon.depth ) );
-		GLog.n( "You died from a toxic gas.." );
+		GLog.n( "The toxicity levels were too high for your oxygen filters." );
 	}
 }

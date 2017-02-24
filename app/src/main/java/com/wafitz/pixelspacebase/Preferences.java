@@ -39,6 +39,7 @@ enum Preferences {
 	public static final String KEY_BRIGHTNESS	= "brightness";
 	public static final String KEY_WIDTH		= "level_width";
 	public static final String KEY_HEIGHT		= "level_height";
+	public static final String KEY_LENGTH		= "level_length";
 	
 	private SharedPreferences prefs;
 	
@@ -72,4 +73,5 @@ enum Preferences {
 	void put( String key, String value ) {
 		get().edit().putString( key, value ).commit();
 	}
+
 }

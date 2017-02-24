@@ -17,18 +17,18 @@
  */
 package com.wafitz.pixelspacebase.windows;
 
-import java.util.Collections;
-
-import com.wafitz.pixelspacebase.ui.Window;
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.ui.Component;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.Journal;
 import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.scenes.PixelScene;
 import com.wafitz.pixelspacebase.ui.Icons;
 import com.wafitz.pixelspacebase.ui.ScrollPane;
+import com.wafitz.pixelspacebase.ui.Window;
+import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.Image;
+import com.watabou.noosa.ui.Component;
+
+import java.util.Collections;
 
 public class WndJournal extends Window {
 	
@@ -38,7 +38,7 @@ public class WndJournal extends Window {
 	
 	private static final int ITEM_HEIGHT	= 18;
 	
-	private static final String TXT_TITLE	= "Journal";
+	private static final String TXT_TITLE	= "Logbook";
 	
 	private BitmapText txtTitle;
 	private ScrollPane list;

@@ -18,11 +18,11 @@
 package com.wafitz.pixelspacebase.actors.blobs;
 
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Vertigo;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
 import com.wafitz.pixelspacebase.effects.Speck;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
 
 public class ConfusionGas extends Blob {
 	
@@ -47,6 +47,6 @@ public class ConfusionGas extends Blob {
 	
 	@Override
 	public String tileDesc() {
-		return "A cloud of confusion gas is swirling here.";
+		return "This gas is liable to cause confusion.";
 	}
 }
