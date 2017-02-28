@@ -18,14 +18,14 @@
 package com.wafitz.pixelspacebase.levels;
 
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.Wandmaker;
-import com.watabou.noosa.Scene;
-import com.watabou.noosa.particles.Emitter;
-import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.effects.Halo;
 import com.wafitz.pixelspacebase.effects.particles.FlameParticle;
 import com.wafitz.pixelspacebase.levels.Room.Type;
+import com.watabou.noosa.Scene;
+import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
@@ -34,6 +34,14 @@ public class PrisonLevel extends RegularLevel {
 	{
 		color1 = 0x6a723d;
 		color2 = 0x88924c;
+	}
+
+	public static void addVisuals(Level level, Scene scene) {
+		for (int i = 0; i < level.length(); i++) {
+			if (level.map[i] == Terrain.WALL_DECO) {
+				scene.add(new Torch(i));
+			}
+		}
 	}
 	
 	@Override
@@ -47,17 +55,17 @@ public class PrisonLevel extends RegularLevel {
 	}
 	
 	protected boolean[] water() {
-		return Patch.generate( feeling == Feeling.WATER ? 0.65f : 0.45f, 4 );
+		return Patch.generate(this, feeling == Feeling.WATER ? 0.65f : 0.45f, 4);
 	}
 	
 	protected boolean[] grass() {
-		return Patch.generate( feeling == Feeling.GRASS ? 0.60f : 0.40f, 3 );
+		return Patch.generate(this, feeling == Feeling.GRASS ? 0.60f : 0.40f, 3);
 	}
 	
 	@Override
 	protected void assignRoomType() {
 		super.assignRoomType();
-		
+
 		for (Room r : rooms) {
 			if (r.type == Type.TUNNEL) {
 				r.type = Type.PASSAGE;
@@ -68,57 +76,57 @@ public class PrisonLevel extends RegularLevel {
 	@Override
 	protected void createMobs() {
 		super.createMobs();
-		
+
 		Wandmaker.Quest.spawn( this, roomEntrance );
 	}
 	
 	@Override
 	protected void decorate() {
-		
-		for (int i=WIDTH + 1; i < LENGTH - WIDTH - 1; i++) {
-			if (map[i] == Terrain.EMPTY) { 
-				
+
+		for (int i = width() + 1; i < length() - width() - 1; i++) {
+			if (map[i] == Terrain.EMPTY) {
+
 				float c = 0.05f;
-				if (map[i + 1] == Terrain.WALL && map[i + WIDTH] == Terrain.WALL) {
+				if (map[i + 1] == Terrain.WALL && map[i + width()] == Terrain.WALL) {
 					c += 0.2f;
 				}
-				if (map[i - 1] == Terrain.WALL && map[i + WIDTH] == Terrain.WALL) {
+				if (map[i - 1] == Terrain.WALL && map[i + width()] == Terrain.WALL) {
 					c += 0.2f;
 				}
-				if (map[i + 1] == Terrain.WALL && map[i - WIDTH] == Terrain.WALL) {
+				if (map[i + 1] == Terrain.WALL && map[i - width()] == Terrain.WALL) {
 					c += 0.2f;
 				}
-				if (map[i - 1] == Terrain.WALL && map[i - WIDTH] == Terrain.WALL) {
+				if (map[i - 1] == Terrain.WALL && map[i - width()] == Terrain.WALL) {
 					c += 0.2f;
 				}
-				
+
 				if (Random.Float() < c) {
 					map[i] = Terrain.EMPTY_DECO;
 				}
 			}
 		}
-		
-		for (int i=0; i < WIDTH; i++) {
-			if (map[i] == Terrain.WALL &&  
-				(map[i + WIDTH] == Terrain.EMPTY || map[i + WIDTH] == Terrain.EMPTY_SP) &&
+
+		for (int i = 0; i < width(); i++) {
+			if (map[i] == Terrain.WALL &&
+					(map[i + width()] == Terrain.EMPTY || map[i + width()] == Terrain.EMPTY_SP) &&
 				Random.Int( 6 ) == 0) {
-				
+
 				map[i] = Terrain.WALL_DECO;
 			}
 		}
-		
-		for (int i=WIDTH; i < LENGTH - WIDTH; i++) {
-			if (map[i] == Terrain.WALL && 
-				map[i - WIDTH] == Terrain.WALL && 
-				(map[i + WIDTH] == Terrain.EMPTY || map[i + WIDTH] == Terrain.EMPTY_SP) &&
+
+		for (int i = width(); i < length() - width(); i++) {
+			if (map[i] == Terrain.WALL &&
+					map[i - width()] == Terrain.WALL &&
+					(map[i + width()] == Terrain.EMPTY || map[i + width()] == Terrain.EMPTY_SP) &&
 				Random.Int( 3 ) == 0) {
-				
+
 				map[i] = Terrain.WALL_DECO;
 			}
 		}
-		
+
 		while (true) {
-			int pos = roomEntrance.random();
+			int pos = pointToCell(roomEntrance.random());
 			if (pos != entrance) {
 				map[pos] = Terrain.SIGN;
 				break;
@@ -152,14 +160,6 @@ public class PrisonLevel extends RegularLevel {
 	public void addVisuals( Scene scene ) {
 		super.addVisuals( scene );
 		addVisuals( this, scene );
-	}
-	
-	public static void addVisuals( Level level, Scene scene ) {
-		for (int i=0; i < LENGTH; i++) {
-			if (level.map[i] == Terrain.WALL_DECO) {
-				scene.add( new Torch( i ) );
-			}
-		}
 	}
 	
 	private static class Torch extends Emitter {

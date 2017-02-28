@@ -20,16 +20,16 @@ package com.wafitz.pixelspacebase.levels;
 import com.watabou.utils.Random;
 
 public class Patch {
-	
-	private static boolean[] cur = new boolean[Level.LENGTH];
-	private static boolean[] off = new boolean[Level.LENGTH];
-	
-	public static boolean[] generate( float seed, int nGen ) {
-		
-		int w = Level.WIDTH;
-		int h = Level.HEIGHT;
-		
-		for (int i=0; i < Level.LENGTH; i++) {
+
+	public static boolean[] generate(Level level, float seed, int nGen) {
+
+		int w = level.width();
+		int h = level.width();
+
+		boolean[] cur = new boolean[level.length()];
+		boolean[] off = new boolean[level.length()];
+
+		for (int i = 0; i < level.length(); i++) {
 			off[i] = Random.Float() < seed;
 		}
 		
@@ -67,11 +67,7 @@ public class Patch {
 					
 					if (!off[pos] && count >= 5) {
 						cur[pos] = true;
-					} else if (off[pos] && count >= 4) {
-						cur[pos] = true;
-					} else {
-						cur[pos] = false;
-					}
+					} else cur[pos] = off[pos] && count >= 4;
 				}
 			}
 			

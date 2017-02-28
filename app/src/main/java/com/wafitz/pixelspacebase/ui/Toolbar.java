@@ -27,74 +27,135 @@ import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.plants.Plant;
 import com.wafitz.pixelspacebase.scenes.CellSelector;
 import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.windows.WndBag;
 import com.wafitz.pixelspacebase.windows.WndCatalogus;
 import com.wafitz.pixelspacebase.windows.WndHero;
+import com.wafitz.pixelspacebase.windows.WndInfoCell;
 import com.wafitz.pixelspacebase.windows.WndInfoItem;
 import com.wafitz.pixelspacebase.windows.WndInfoMob;
 import com.wafitz.pixelspacebase.windows.WndInfoPlant;
+import com.wafitz.pixelspacebase.windows.WndMessage;
 import com.wafitz.pixelspacebase.windows.WndTradeItem;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Button;
 import com.watabou.noosa.ui.Component;
-import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.sprites.ItemSprite;
-import com.wafitz.pixelspacebase.windows.WndInfoCell;
-import com.wafitz.pixelspacebase.windows.WndMessage;
 
 public class Toolbar extends Component {
 
+	private static Toolbar instance;
+	private static CellSelector.Listener informer = new CellSelector.Listener() {
+		@Override
+		public void onSelect(Integer cell) {
+
+			if (cell == null) {
+				return;
+			}
+
+			if (cell < 0 || cell > Dungeon.level.length() || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
+				GameScene.show(new WndMessage("You don't know what is there."));
+				return;
+			}
+
+			if (!Dungeon.visible[cell]) {
+				GameScene.show(new WndInfoCell(cell));
+				return;
+			}
+
+			if (cell == Dungeon.hero.pos) {
+				GameScene.show(new WndHero());
+				return;
+			}
+
+			Mob mob = (Mob) Actor.findChar(cell);
+			if (mob != null) {
+				GameScene.show(new WndInfoMob(mob));
+				return;
+			}
+
+			Heap heap = Dungeon.level.heaps.get(cell);
+			if (heap != null && heap.type != Heap.Type.HIDDEN) {
+				if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
+					GameScene.show(new WndTradeItem(heap, false));
+				} else {
+					GameScene.show(new WndInfoItem(heap));
+				}
+				return;
+			}
+
+			Plant plant = Dungeon.level.plants.get(cell);
+			if (plant != null) {
+				GameScene.show(new WndInfoPlant(plant));
+				return;
+			}
+
+			GameScene.show(new WndInfoCell(cell));
+		}
+
+		@Override
+		public String prompt() {
+			return "Select a cell to examine";
+		}
+	};
 	private Tool btnWait;
 	private Tool btnSearch;
 	private Tool btnInfo;
 	private Tool btnInventory;
 	private Tool btnQuick1;
 	private Tool btnQuick2;
-	
 	private PickedUpItem pickedUp;
-	
 	private boolean lastEnabled = true;
-	
-	private static Toolbar instance;
 	
 	public Toolbar() {
 		super();
-		
+
 		instance = this;
-		
+
 		height = btnInventory.height();
+	}
+
+	public static boolean secondQuickslot() {
+		return instance.btnQuick2.visible;
+	}
+
+	public static void secondQuickslot(boolean value) {
+		instance.btnQuick2.visible =
+				instance.btnQuick2.active =
+						value;
+		instance.layout();
 	}
 	
 	@Override
 	protected void createChildren() {
-		
+
 		add( btnWait = new Tool( 0, 7, 20, 25 ) {
 			@Override
 			protected void onClick() {
 				Dungeon.hero.rest( false );
-			};
+			}
+
 			protected boolean onLongClick() {
 				Dungeon.hero.rest( true );
 				return true;
-			};
+			}
 		} );
-		
+
 		add( btnSearch = new Tool( 20, 7, 20, 25 ) {
 			@Override
 			protected void onClick() {
 				Dungeon.hero.search( true );
 			}
 		} );
-		
+
 		add( btnInfo = new Tool( 40, 7, 21, 25 ) {
 			@Override
 			protected void onClick() {
 				GameScene.selectCell( informer );
 			}
 		} );
-		
+
 		add( btnInventory = new Tool( 60, 7, 23, 25 ) {
 			private GoldIndicator gold;
 			@Override
@@ -104,24 +165,26 @@ public class Toolbar extends Component {
 			protected boolean onLongClick() {
 				GameScene.show( new WndCatalogus() );
 				return true;
-			};
+			}
+
 			@Override
 			protected void createChildren() {
 				super.createChildren();
 				gold = new GoldIndicator();
 				add( gold );
-			};
+			}
+
 			@Override
 			protected void layout() {
 				super.layout();
 				gold.fill( this );
-			};
+			}
 		} );
-		
+
 		add( btnQuick1 = new QuickslotTool( 83, 7, 22, 25, true ) );
 		add( btnQuick2 = new QuickslotTool( 83, 7, 22, 25, false ) );
 		btnQuick2.visible = true; //(QuickSlot.secondaryValue != null);
-		
+
 		add( pickedUp = new PickedUpItem() );
 	}
 	
@@ -142,91 +205,27 @@ public class Toolbar extends Component {
 	@Override
 	public void update() {
 		super.update();
-		
+
 		if (lastEnabled != Dungeon.hero.ready) {
 			lastEnabled = Dungeon.hero.ready;
-			
+
 			for (Gizmo tool : members) {
 				if (tool instanceof Tool) {
 					((Tool)tool).enable( lastEnabled );
 				}
 			}
 		}
-		
+
 		if (!Dungeon.hero.isAlive()) {
 			btnInventory.enable( true );
 		}
 	}
 	
 	public void pickup( Item item ) {
-		pickedUp.reset( item, 
-			btnInventory.centerX(), 
+		pickedUp.reset(item,
+				btnInventory.centerX(),
 			btnInventory.centerY() );
 	}
-	
-	public static boolean secondQuickslot() {
-		return instance.btnQuick2.visible;
-	}
-	
-	public static void secondQuickslot( boolean value ) {
-		instance.btnQuick2.visible = 
-		instance.btnQuick2.active = 
-			value;
-		instance.layout();
-	}
-	
-	private static CellSelector.Listener informer = new CellSelector.Listener() {
-		@Override
-		public void onSelect( Integer cell ) {
-			
-			if (cell == null) {
-				return;
-			}
-			
-			if (cell < 0 || cell > Level.LENGTH || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
-				GameScene.show( new WndMessage( "You don't know what is there." ) ) ;
-				return;
-			}
-			
-			if (!Dungeon.visible[cell]) {
-				GameScene.show( new WndInfoCell( cell ) );
-				return;
-			}
-			
-			if (cell == Dungeon.hero.pos) {
-				GameScene.show( new WndHero() );
-				return;
-			}
-			
-			Mob mob = (Mob) Actor.findChar( cell );
-			if (mob != null) {
-				GameScene.show( new WndInfoMob( mob ) );
-				return;
-			}
-			
-			Heap heap = Dungeon.level.heaps.get( cell );
-			if (heap != null && heap.type != Heap.Type.HIDDEN) {
-				if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
-					GameScene.show( new WndTradeItem( heap, false ) );
-				} else {
-					GameScene.show( new WndInfoItem( heap ) );
-				}
-				return;
-			}
-			
-			Plant plant = Dungeon.level.plants.get( cell );
-			if (plant != null) {
-				GameScene.show( new WndInfoPlant( plant ) );
-				return;
-			}
-			
-			GameScene.show( new WndInfoCell( cell ) );
-		}	
-		@Override
-		public String prompt() {
-			return "Select a cell to examine";
-		}
-	};
 	
 	private static class Tool extends Button {
 		

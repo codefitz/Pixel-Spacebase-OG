@@ -18,15 +18,14 @@
 package com.wafitz.pixelspacebase.effects;
 
 import com.wafitz.pixelspacebase.Assets;
-import com.wafitz.pixelspacebase.sprites.CharSprite;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.Visual;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
-import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.sprites.CharSprite;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.Visual;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PointF;
 
 public class Swap extends Actor {
@@ -43,8 +42,8 @@ public class Swap extends Actor {
 
 		this.ch1 = ch1;
 		this.ch2 = ch2;
-		
-		delay = Level.distance( ch1.pos,  ch2.pos ) * 0.1f;
+
+		delay = Dungeon.level.distance(ch1.pos, ch2.pos) * 0.1f;
 		
 		eff1 = new Effect( ch1.sprite, ch1.pos, ch2.pos );
 		eff2 = new Effect( ch2.sprite, ch2.pos, ch1.pos );

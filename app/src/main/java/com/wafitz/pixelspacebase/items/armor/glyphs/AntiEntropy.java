@@ -17,16 +17,16 @@
  */
 package com.wafitz.pixelspacebase.items.armor.glyphs;
 
-import com.wafitz.pixelspacebase.actors.buffs.Frost;
-import com.wafitz.pixelspacebase.effects.CellEmitter;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Burning;
+import com.wafitz.pixelspacebase.actors.buffs.Frost;
+import com.wafitz.pixelspacebase.effects.CellEmitter;
 import com.wafitz.pixelspacebase.effects.particles.FlameParticle;
 import com.wafitz.pixelspacebase.effects.particles.SnowParticle;
 import com.wafitz.pixelspacebase.items.armor.Armor;
 import com.wafitz.pixelspacebase.items.armor.Armor.Glyph;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
@@ -41,8 +41,8 @@ public class AntiEntropy extends Glyph {
 	public int proc( Armor armor, Char attacker, Char defender, int damage) {
 
 		int level = Math.max( 0, armor.effectiveLevel() );
-		
-		if (Level.adjacent( attacker.pos, defender.pos ) && Random.Int( level + 6 ) >= 5) {
+
+		if (Dungeon.level.adjacent(attacker.pos, defender.pos) && Random.Int(level + 6) >= 5) {
 			
 			Buff.prolong( attacker, Frost.class, Frost.duration( attacker ) * Random.Float( 1f, 1.5f ));
 			CellEmitter.get( attacker.pos ).start( SnowParticle.FACTORY, 0.2f, 6 );

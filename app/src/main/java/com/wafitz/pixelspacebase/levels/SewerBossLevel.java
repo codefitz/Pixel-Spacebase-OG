@@ -17,10 +17,8 @@
  */
 package com.wafitz.pixelspacebase.levels;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Bones;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.mobs.Bestiary;
@@ -29,19 +27,22 @@ import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.watabou.noosa.Scene;
-import com.wafitz.pixelspacebase.Bones;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Graph;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SewerBossLevel extends RegularLevel {
 
-	{
+    private static final String STAIRS = "stairs";
+    private int stairs = 0;
+
+    {
 		color1 = 0x48763c;
 		color2 = 0x59994a;
 	}
-	
-	private int stairs = 0;
 	
 	@Override
 	public String tilesTex() {
@@ -52,12 +53,12 @@ public class SewerBossLevel extends RegularLevel {
 	public String waterTex() {
 		return Assets.WATER_SEWERS;
 	}
-	
-	@Override
+
+    @Override
 	protected boolean build() {
-		
+
 		initRooms();
-	
+
 		int distance;
 		int retry = 0;
 		int minDistance = (int)Math.sqrt( rooms.size() );
@@ -69,7 +70,7 @@ public class SewerBossLevel extends RegularLevel {
 				}
 				roomEntrance = Random.element( rooms );
 			} while (roomEntrance.width() < 4 || roomEntrance.height() < 4);
-			
+
 			innerRetry = 0;
 			do {
 				if (innerRetry++ > 10) {
@@ -77,20 +78,20 @@ public class SewerBossLevel extends RegularLevel {
 				}
 				roomExit = Random.element( rooms );
 			} while (roomExit == roomEntrance || roomExit.width() < 6 || roomExit.height() < 6 || roomExit.top == 0);
-	
+
 			Graph.buildDistanceMap( rooms, roomExit );
 			distance = roomEntrance.distance();
-			
+
 			if (retry++ > 10) {
 				return false;
 			}
-			
-		} while (distance < minDistance);
-		
-		roomEntrance.type = Room.Type.ENTRANCE;
+
+        } while (distance < minDistance);
+
+        roomEntrance.type = Room.Type.ENTRANCE;
 		roomExit.type = Room.Type.BOSS_EXIT;
-		
-		Graph.buildDistanceMap( rooms, roomExit );
+
+        Graph.buildDistanceMap( rooms, roomExit );
 		List<Room> path = Graph.buildPath( rooms, roomEntrance, roomExit );
 
 		Graph.setPrice( path, roomEntrance.distance );
@@ -103,19 +104,19 @@ public class SewerBossLevel extends RegularLevel {
 			room.connect( next );
 			room = next;
 		}
-		
-		room = (Room)roomExit.connected.keySet().toArray()[0];
+
+        room = (Room)roomExit.connected.keySet().toArray()[0];
 		if (roomExit.top == room.bottom) {
 			return false;
 		}
-		
-		for (Room r : rooms) {
+
+        for (Room r : rooms) {
 			if (r.type == Room.Type.NULL && r.connected.size() > 0) {
 				r.type = Room.Type.TUNNEL;
 			}
 		}
-		
-		ArrayList<Room> candidates = new ArrayList<Room>();
+
+        ArrayList<Room> candidates = new ArrayList<Room>();
 		for (Room r : roomExit.neigbours) {
 			if (!roomExit.connected.containsKey( r ) &&
 				(roomExit.left == r.right || roomExit.right == r.left || roomExit.bottom == r.top)) {
@@ -127,63 +128,60 @@ public class SewerBossLevel extends RegularLevel {
 			kingsRoom.connect( roomExit );
 			kingsRoom.type = Room.Type.RAT_KING;
 		}
-		
-		paint();
-		
-		paintWater();
+
+        paint();
+
+        paintWater();
 		paintGrass();
-		
-		placeTraps();
-		
-		return true;
+
+        placeTraps();
+
+        return true;
 	}
-		
-	protected boolean[] water() {
-		return Patch.generate( 0.5f, 5 );
-	}
-	
-	protected boolean[] grass() {
-		return Patch.generate( 0.40f, 4 );
-	}
-	
-	@Override
-	protected void decorate() {	
-		int start = roomExit.top * WIDTH + roomExit.left + 1;
-		int end = start + roomExit.width() - 1;
-		for (int i=start; i < end; i++) {
-			if (i != exit) {
-				map[i] = Terrain.WALL_DECO;
-				map[i + WIDTH] = Terrain.WATER;
-			} else {
-				map[i + WIDTH] = Terrain.EMPTY;
-			}
-		}
-		
-		while (true) {
-			int pos = roomEntrance.random();
-			if (pos != entrance) {
-				map[pos] = Terrain.SIGN;
-				break;
-			}
-		}
-	}
-	
-	@Override
-	public void addVisuals( Scene scene ) {
-		SewerLevel.addVisuals( this, scene );
-	}
-	
-	
-	@Override
+
+    protected boolean[] water() {
+        return Patch.generate(this, 0.5f, 5);
+    }
+
+    protected boolean[] grass() {
+        return Patch.generate(this, 0.40f, 4);
+    }
+
+    @Override
+    protected void decorate() {
+        int start = roomExit.top * width() + roomExit.left + 1;
+        int end = start + roomExit.width() - 1;
+        for (int i = start; i < end; i++) {
+            if (i != exit) {
+                map[i] = Terrain.WALL_DECO;
+                map[i + width()] = Terrain.WATER;
+            } else {
+                map[i + width()] = Terrain.EMPTY;
+            }
+        }
+
+        placeSign();
+    }
+
+    @Override
+    public void addVisuals(Scene scene) {
+        SewerLevel.addVisuals(this, scene);
+    }
+
+    @Override
 	protected void createMobs() {
 		Mob mob = Bestiary.mob( Dungeon.depth );
-		mob.pos = roomExit.random();
-		mobs.add( mob );
-	}
-	
-	public Actor respawner() {
-		return null;
-	}
+        Room room;
+        do {
+            room = Random.element(rooms);
+        } while (room.type != Room.Type.STANDARD);
+        mob.pos = pointToCell(room.random());
+        mobs.add(mob);
+    }
+
+    public Actor respawner() {
+        return null;
+    }
 	
 	@Override
 	protected void createItems() {
@@ -191,36 +189,34 @@ public class SewerBossLevel extends RegularLevel {
 		if (item != null) {
 			int pos;
 			do {
-				pos = roomEntrance.random();
-			} while (pos == entrance || map[pos] == Terrain.SIGN);
-			drop( item, pos ).type = Heap.Type.SKELETON;
-		}
-	}
-	
-	public void seal() {
+                pos = pointToCell(roomEntrance.random());
+            } while (pos == entrance || map[pos] == Terrain.SIGN);
+            drop(item, pos).type = Heap.Type.SKELETON;
+        }
+    }
+
+    public void seal() {
 		if (entrance != 0) {
-			
-			set( entrance, Terrain.WATER_TILES );
+
+            set( entrance, Terrain.WATER_TILES );
 			GameScene.updateMap( entrance );
 			GameScene.ripple( entrance );
-			
-			stairs = entrance;
+
+            stairs = entrance;
 			entrance = 0;
 		}
 	}
 	
 	public void unseal() {
 		if (stairs != 0) {
-			
-			entrance = stairs;
+
+            entrance = stairs;
 			stairs = 0;
-			
-			set( entrance, Terrain.ENTRANCE );
+
+            set( entrance, Terrain.ENTRANCE );
 			GameScene.updateMap( entrance );
 		}
 	}
-	
-	private static final String STAIRS	= "stairs";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {

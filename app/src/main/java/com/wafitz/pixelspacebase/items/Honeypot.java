@@ -17,21 +17,22 @@
  */
 package com.wafitz.pixelspacebase.items;
 
-import java.util.ArrayList;
-
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Bee;
 import com.wafitz.pixelspacebase.effects.Pushing;
+import com.wafitz.pixelspacebase.effects.Splash;
+import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.sprites.ItemSpriteSheet;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.tweeners.AlphaTweener;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Bee;
-import com.wafitz.pixelspacebase.effects.Splash;
-import com.wafitz.pixelspacebase.levels.Level;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class Honeypot extends Item {
 	
@@ -86,8 +87,8 @@ public class Honeypot extends Item {
 		if (Actor.findChar( pos ) != null) {
 			ArrayList<Integer> candidates = new ArrayList<Integer>();
 			boolean[] passable = Level.passable;
-			
-			for (int n : Level.NEIGHBOURS4) {
+
+			for (int n : PathFinder.NEIGHBOURS4) {
 				int c = pos + n;
 				if (passable[c] && Actor.findChar( c ) == null) {
 					candidates.add( c );

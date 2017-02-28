@@ -53,29 +53,14 @@ public class InterlevelScene extends PixelScene {
 
     private static final String ERR_FILE_NOT_FOUND	= "File not found. For some reason.";
     private static final String ERR_GENERIC			= "Something went wrong..."	;
-
-    public enum Mode {
-        DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, NONE
-    }
-
     public static Mode mode;
-
     public static int returnDepth;
     public static int returnPos;
-
     public static boolean noStory = false;
-
     public static boolean fallIntoPit;
-
-    private enum Phase {
-        FADE_IN, STATIC, FADE_OUT
-    }
-
     private Phase phase;
     private float timeLeft;
-
     private BitmapText message;
-
     private Thread thread;
     private String error = null;
 
@@ -368,7 +353,7 @@ public class InterlevelScene extends PixelScene {
 
                 //level = Dungeon.loadLevel( Dungeon.hero.heroClass );
 
-                PathFinder.setMapSize(Level.WIDTH, Level.HEIGHT);
+                PathFinder.setMapSize(Dungeon.level.width(), Dungeon.level.height());
 
                 Dungeon.saveLevel();
 
@@ -398,10 +383,10 @@ public class InterlevelScene extends PixelScene {
                     pos = level.exit;
                 }
 
-                Log.d("WAFITZ", "level.WIDTH: " + Level.WIDTH + ", level.HEIGHT: " + Level.HEIGHT);
-                Log.d("WAFITZ", "PixelPrefs.WIDTH: " + PixelSpacebase.lvl_width() + ", PixelPrefs.HEIGHT: " + PixelSpacebase.lvl_height());
+                Log.d("WAFITZ", "Dungeon.level.width(): " + Dungeon.level.width() + ", dungeon.level.height(): " + Dungeon.level.height());
+                Log.d("WAFITZ", "PixelPrefs.WIDTH: " + PixelSpacebase.lvl_width() + ", PixelPrefs.height(): " + PixelSpacebase.lvl_height());
 
-                PathFinder.setMapSize( Level.WIDTH, Level.HEIGHT );
+                PathFinder.setMapSize(Dungeon.level.width(), Dungeon.level.height());
 
                 Dungeon.saveLevel();
 
@@ -427,7 +412,7 @@ public class InterlevelScene extends PixelScene {
                 Dungeon.depth = realdepth;
                 Log.d("WAFITZ", "Real depth set: " + Dungeon.depth);
 
-                PathFinder.setMapSize( Level.WIDTH, Level.HEIGHT );
+                PathFinder.setMapSize(Dungeon.level.width(), Dungeon.level.height());
 
                 Log.d("WAFITZ", "Switching. level...");
 
@@ -448,5 +433,13 @@ public class InterlevelScene extends PixelScene {
     @Override
     protected void onBackPressed() {
         // Do nothing
+    }
+
+    public enum Mode {
+        DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, NONE
+    }
+
+    private enum Phase {
+        FADE_IN, STATIC, FADE_OUT
     }
 }

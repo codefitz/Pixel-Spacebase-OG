@@ -17,12 +17,12 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import com.wafitz.pixelspacebase.items.Heap;
-import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Gold;
+import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
@@ -107,7 +107,7 @@ public class StandardPainter extends Painter {
 					t = Terrain.INACTIVE_TRAP;
 					break;
 				}
-				level.map[i * Level.WIDTH + j] = t;
+				level.map[i * Dungeon.level.width() + j] = t;
 			}
 		}
 	}
@@ -124,8 +124,8 @@ public class StandardPainter extends Painter {
 		int shift = Random.Int( 2 );
 		for (int i=0; i < nGraves; i++) {
 			int pos = w > h ?
-				room.left + 1 + shift + i * 2 + (room.top + 2 + Random.Int( h-2 )) * Level.WIDTH :
-				(room.left + 2 + Random.Int( w-2 )) + (room.top + 1 + shift + i * 2) * Level.WIDTH;	
+					room.left + 1 + shift + i * 2 + (room.top + 2 + Random.Int(h - 2)) * Dungeon.level.width() :
+					(room.left + 2 + Random.Int(w - 2)) + (room.top + 1 + shift + i * 2) * Dungeon.level.width();
 			level.drop( i == index ? Generator.random() : new Gold(), pos ).type = Heap.Type.TOMB;
 		}
 	}

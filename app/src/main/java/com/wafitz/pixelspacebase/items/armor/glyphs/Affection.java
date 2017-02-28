@@ -17,12 +17,12 @@
  */
 package com.wafitz.pixelspacebase.items.armor.glyphs;
 
+import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Charm;
 import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.items.armor.Armor;
-import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.sprites.ItemSprite.Glowing;
 import com.watabou.utils.GameMath;
@@ -38,8 +38,8 @@ public class Affection extends Armor.Glyph {
 	public int proc( Armor armor, Char attacker, Char defender, int damage) {
 
 		int level = (int)GameMath.gate( 0, armor.effectiveLevel(), 6 );
-		
-		if (Level.adjacent( attacker.pos, defender.pos ) && Random.Int( level / 2 + 5 ) >= 4) {
+
+		if (Dungeon.level.adjacent(attacker.pos, defender.pos) && Random.Int(level / 2 + 5) >= 4) {
 			
 			int duration = Random.IntRange( 3, 7 );
 			

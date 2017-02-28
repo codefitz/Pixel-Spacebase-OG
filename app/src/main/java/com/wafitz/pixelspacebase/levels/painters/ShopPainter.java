@@ -17,8 +17,6 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import java.util.ArrayList;
-
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.ImpShopkeeper;
@@ -33,14 +31,6 @@ import com.wafitz.pixelspacebase.items.armor.LeatherArmor;
 import com.wafitz.pixelspacebase.items.armor.MailArmor;
 import com.wafitz.pixelspacebase.items.armor.PlateArmor;
 import com.wafitz.pixelspacebase.items.armor.ScaleArmor;
-import com.wafitz.pixelspacebase.items.weapon.melee.BattleAxe;
-import com.wafitz.pixelspacebase.items.weapon.melee.Glaive;
-import com.wafitz.pixelspacebase.items.weapon.melee.Longsword;
-import com.wafitz.pixelspacebase.items.weapon.melee.Mace;
-import com.wafitz.pixelspacebase.items.weapon.melee.Quarterstaff;
-import com.wafitz.pixelspacebase.items.weapon.melee.Spear;
-import com.wafitz.pixelspacebase.items.weapon.melee.Sword;
-import com.wafitz.pixelspacebase.items.weapon.melee.WarHammer;
 import com.wafitz.pixelspacebase.items.bags.ScrollHolder;
 import com.wafitz.pixelspacebase.items.bags.SeedPouch;
 import com.wafitz.pixelspacebase.items.bags.WandHolster;
@@ -49,12 +39,23 @@ import com.wafitz.pixelspacebase.items.potions.PotionOfHealing;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfIdentify;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfMagicMapping;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfRemoveCurse;
+import com.wafitz.pixelspacebase.items.weapon.melee.BattleAxe;
+import com.wafitz.pixelspacebase.items.weapon.melee.Glaive;
+import com.wafitz.pixelspacebase.items.weapon.melee.Longsword;
+import com.wafitz.pixelspacebase.items.weapon.melee.Mace;
+import com.wafitz.pixelspacebase.items.weapon.melee.Quarterstaff;
+import com.wafitz.pixelspacebase.items.weapon.melee.Spear;
+import com.wafitz.pixelspacebase.items.weapon.melee.Sword;
+import com.wafitz.pixelspacebase.items.weapon.melee.WarHammer;
 import com.wafitz.pixelspacebase.levels.LastShopLevel;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class ShopPainter extends Painter {
 
@@ -76,11 +77,11 @@ public class ShopPainter extends Painter {
 		for (int i=0; i < range.length; i++) {
 			
 			Point xy = p2xy( room, (pos + per) % per );
-			int cell = xy.x + xy.y * Level.WIDTH;
+			int cell = xy.x + xy.y * level.width();
 			
 			if (level.heaps.get( cell ) != null) {
 				do {
-					cell = room.random();
+					cell = level.pointToCell(room.random());
 				} while (level.heaps.get( cell ) != null);
 			}
 			
@@ -165,7 +166,7 @@ public class ShopPainter extends Painter {
 		
 		int pos;
 		do {
-			pos = room.random();
+			pos = level.pointToCell(room.random());
 		} while (level.heaps.get( pos ) != null);
 		
 		Mob shopkeeper = level instanceof LastShopLevel ? new ImpShopkeeper() : new Shopkeeper();
@@ -173,8 +174,8 @@ public class ShopPainter extends Painter {
 		level.mobs.add( shopkeeper );
 		
 		if (level instanceof LastShopLevel) {
-			for (int i=0; i < Level.NEIGHBOURS9.length; i++) {
-				int p = shopkeeper.pos + Level.NEIGHBOURS9[i];
+			for (int i = 0; i < PathFinder.NEIGHBOURS9.length; i++) {
+				int p = shopkeeper.pos + PathFinder.NEIGHBOURS9[i];
 				if (level.map[p] == Terrain.EMPTY_SP) {
 					level.map[p] = Terrain.WATER;
 				}

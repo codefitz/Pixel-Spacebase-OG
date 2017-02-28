@@ -17,17 +17,18 @@
  */
 package com.wafitz.pixelspacebase.items.scrolls;
 
-import java.util.ArrayList;
-
-import com.wafitz.pixelspacebase.items.wands.WandOfBlink;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.buffs.Invisibility;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.MirrorImage;
+import com.wafitz.pixelspacebase.items.wands.WandOfBlink;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class ScrollOfMirrorImage extends Scroll {
 
@@ -41,9 +42,9 @@ public class ScrollOfMirrorImage extends Scroll {
 	protected void doRead() {
 		
 		ArrayList<Integer> respawnPoints = new ArrayList<Integer>();
-		
-		for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
-			int p = curUser.pos + Level.NEIGHBOURS8[i];
+
+		for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+			int p = curUser.pos + PathFinder.NEIGHBOURS8[i];
 			if (Actor.findChar( p ) == null && (Level.passable[p] || Level.avoid[p])) {
 				respawnPoints.add( p );
 			}

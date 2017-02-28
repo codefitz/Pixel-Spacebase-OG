@@ -17,13 +17,12 @@
  */
 package com.wafitz.pixelspacebase.effects;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
-import com.wafitz.pixelspacebase.Dungeon;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.levels.Level;
 
 public class Wound extends Image {
 
@@ -34,28 +33,6 @@ public class Wound extends Image {
 	public Wound() {
 		super( Effects.get( Effects.Type.WOUND ) );
 		origin.set( width / 2, height / 2 );
-	}
-	
-	public void reset( int p ) {
-		revive();
-		
-		x = (p % Level.WIDTH) * DungeonTilemap.SIZE + (DungeonTilemap.SIZE - width) / 2;
-		y = (p / Level.WIDTH) * DungeonTilemap.SIZE + (DungeonTilemap.SIZE - height) / 2;
-		
-		time = TIME_TO_FADE;
-	}
-	
-	@Override
-	public void update() {
-		super.update();
-		
-		if ((time -= Game.elapsed) <= 0) {
-			kill();
-		} else {
-			float p = time / TIME_TO_FADE;
-			alpha( p );
-			scale.x = 1 + p;
-		}
 	}
 	
 	public static void hit( Char ch ) {
@@ -79,5 +56,27 @@ public class Wound extends Image {
 		parent.bringToFront( w );
 		w.reset( pos );
 		w.angle = angle;
+	}
+
+	public void reset(int p) {
+		revive();
+
+		x = (p % Dungeon.level.width()) * DungeonTilemap.SIZE + (DungeonTilemap.SIZE - width) / 2;
+		y = (p / Dungeon.level.width()) * DungeonTilemap.SIZE + (DungeonTilemap.SIZE - height) / 2;
+
+		time = TIME_TO_FADE;
+	}
+
+	@Override
+	public void update() {
+		super.update();
+
+		if ((time -= Game.elapsed) <= 0) {
+			kill();
+		} else {
+			float p = time / TIME_TO_FADE;
+			alpha(p);
+			scale.x = 1 + p;
+		}
 	}
 }

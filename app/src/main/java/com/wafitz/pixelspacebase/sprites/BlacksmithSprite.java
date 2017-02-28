@@ -19,12 +19,11 @@ package com.wafitz.pixelspacebase.sprites;
 
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.effects.Speck;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
-import com.wafitz.pixelspacebase.actors.Char;
 
 public class BlacksmithSprite extends MobSprite {
 	
@@ -74,7 +73,7 @@ public class BlacksmithSprite extends MobSprite {
 		
 		if (visible && emitter != null && anim == idle) {
 			emitter.burst( Speck.factory( Speck.FORGE ), 3 );
-			float volume = 0.2f / (Level.distance( ch.pos, Dungeon.hero.pos ));
+			float volume = 0.2f / (Dungeon.level.distance(ch.pos, Dungeon.hero.pos));
 			Sample.INSTANCE.play( Assets.SND_EVOKE, volume, volume, 0.8f  );
 		}
 	}

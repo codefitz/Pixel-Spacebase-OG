@@ -18,25 +18,45 @@
 package com.wafitz.pixelspacebase.actors.blobs;
 
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.Journal;
+import com.wafitz.pixelspacebase.Journal.Feature;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.scenes.GameScene;
-import com.wafitz.pixelspacebase.Journal;
-import com.wafitz.pixelspacebase.Journal.Feature;
 import com.wafitz.pixelspacebase.levels.Terrain;
+import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 public class WellWater extends Blob {
 
 	protected int pos;
+
+	public static void affectCell(int cell) {
+
+		Class<?>[] waters = {WaterOfHealth.class, WaterOfAwareness.class, WaterOfTransmutation.class};
+
+		for (Class<?> waterClass : waters) {
+			WellWater water = (WellWater) Dungeon.level.blobs.get(waterClass);
+			if (water != null &&
+					water.volume > 0 &&
+					water.pos == cell &&
+					water.affect()) {
+
+				Level.set(cell, Terrain.EMPTY_WELL);
+				GameScene.updateMap(cell);
+
+				return;
+			}
+		}
+	}
 	
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		
+
 		for (int i=0; i < LENGTH; i++) {
 			if (cur[i] > 0) {
 				pos = i;
@@ -48,7 +68,7 @@ public class WellWater extends Blob {
 	@Override
 	protected void evolve() {
 		volume = off[pos] = cur[pos];
-		
+
 		if (Dungeon.visible[pos]) {
 			if (this instanceof WaterOfAwareness) {
 				Journal.add( Feature.WELL_OF_AWARENESS );
@@ -63,51 +83,51 @@ public class WellWater extends Blob {
 	protected boolean affect() {
 
 		Heap heap;
-		
+
 		if (pos == Dungeon.hero.pos && affectHero( Dungeon.hero )) {
-			
+
 			volume = off[pos] = cur[pos] = 0;
 			return true;
-			
+
 		} else if ((heap = Dungeon.level.heaps.get( pos )) != null) {
-			
+
 			Item oldItem = heap.peek();
 			Item newItem = affectItem( oldItem );
-			
+
 			if (newItem != null) {
-				
+
 				if (newItem == oldItem) {
 
 				} else if (oldItem.quantity() > 1) {
 
 					oldItem.quantity( oldItem.quantity() - 1 );
 					heap.drop( newItem );
-					
+
 				} else {
 					heap.replace( oldItem, newItem );
 				}
-				
+
 				heap.sprite.link();
 				volume = off[pos] = cur[pos] = 0;
-				
+
 				return true;
-				
+
 			} else {
-				
+
 				int newPlace;
 				do {
-					newPlace = pos + Level.NEIGHBOURS8[Random.Int( 8 )];
+					newPlace = pos + PathFinder.NEIGHBOURS8[Random.Int(8)];
 				} while (!Level.passable[newPlace] && !Level.avoid[newPlace]);
 				Dungeon.level.drop( heap.pickUp(), newPlace ).sprite.drop( pos );
-				
+
 				return false;
-				
+
 			}
-			
+
 		} else {
-			
+
 			return false;
-			
+
 		}
 	}
 	
@@ -124,24 +144,5 @@ public class WellWater extends Blob {
 		cur[pos] = 0;
 		pos = cell;
 		volume = cur[pos] = amount;
-	}
-	
-	public static void affectCell( int cell ) {
-		
-		Class<?>[] waters = {WaterOfHealth.class, WaterOfAwareness.class, WaterOfTransmutation.class};
-		
-		for (Class<?>waterClass : waters) {
-			WellWater water = (WellWater)Dungeon.level.blobs.get( waterClass );
-			if (water != null && 
-				water.volume > 0 && 
-				water.pos == cell && 
-				water.affect()) {
-				
-				Level.set( cell, Terrain.EMPTY_WELL );
-				GameScene.updateMap( cell );
-				
-				return;
-			}
-		}
 	}
 }

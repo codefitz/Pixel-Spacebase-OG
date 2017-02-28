@@ -17,8 +17,6 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.HashSet;
-
 import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.Statistics;
@@ -41,24 +39,33 @@ import com.wafitz.pixelspacebase.utils.GLog;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
 
+import java.util.HashSet;
+
 public class Goo extends Mob {
 
 	private static final float PUMP_UP_DELAY	= 2f;
+	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
+
+	static {
+		RESISTANCES.add(ToxicGas.class);
+		RESISTANCES.add(Death.class);
+		RESISTANCES.add(ScrollOfPsionicBlast.class);
+	}
+
+	private boolean pumpedUp = false;
+	private boolean jumped = false;
 	
 	{
 		name = Dungeon.depth == Statistics.deepestFloor ? "Goo" : "spawn of Goo";
-		
+
 		HP = HT = 80;
 		EXP = 10;
 		defenseSkill = 12;
 		spriteClass = GooSprite.class;
-		
+
 		loot = new LloydsBeacon();
 		lootChance = 0.333f;
 	}
-	
-	private boolean pumpedUp	= false;
-	private boolean jumped		= false;
 	
 	@Override
 	public int damageRoll() {
@@ -81,12 +88,12 @@ public class Goo extends Mob {
 	
 	@Override
 	public boolean act() {
-		
+
 		if (Level.water[pos] && HP < HT) {
 			sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
 			HP++;
 		}
-		
+
 		return super.act();
 	}
 	
@@ -101,27 +108,27 @@ public class Goo extends Mob {
 			Buff.affect( enemy, Ooze.class );
 			enemy.sprite.burst( 0x000000, 5 );
 		}
-		
+
 		return damage;
 	}
 	
 	@Override
-	protected boolean doAttack( final Char enemy ) {		
+	protected boolean doAttack(final Char enemy) {
 		if (pumpedUp) {
-			
-			if (Level.adjacent( pos, enemy.pos )) {
-				
+
+			if (Dungeon.level.adjacent(pos, enemy.pos)) {
+
 				// Pumped up attack WITHOUT accuracy penalty
 				jumped = false;
 				return super.doAttack( enemy );
-				
+
 			} else {
-				
+
 				// Pumped up attack WITH accuracy penalty
 				jumped = true;
 				if (Ballistica.cast( pos, enemy.pos, false, true ) == enemy.pos) {
 					final int dest = Ballistica.trace[Ballistica.distance - 2];
-					
+
 					Callback afterJump = new Callback() {
 						@Override
 						public void call() {
@@ -130,44 +137,44 @@ public class Goo extends Mob {
 							Goo.super.doAttack( enemy );
 						}
 					};
-					
+
 					if (Dungeon.visible[pos] || Dungeon.visible[dest]) {
-						
+
 						sprite.jump( pos, dest, afterJump );
 						return false;
-						
+
 					} else {
-						
+
 						afterJump.call();
 						return true;
-						
+
 					}
 				} else {
-					
+
 					sprite.idle();
 					pumpedUp = false;
 					return true;
 				}
 			}
-			
+
 		} else if (Random.Int( 3 ) > 0) {
-		
+
 			// Normal attack
 			return super.doAttack( enemy );
 
 		} else {
-			
+
 			// Pumping up
 			pumpedUp = true;
 			spend( PUMP_UP_DELAY );
-			
+
 			((GooSprite)sprite).pumpUp();
-			
+
 			if (Dungeon.visible[pos]) {
 				sprite.showStatus( CharSprite.NEGATIVE, "!!!" );
 				GLog.n( "Goo is pumping itself up!" );
 			}
-				
+
 			return true;
 		}
 	}
@@ -193,16 +200,16 @@ public class Goo extends Mob {
 	
 	@Override
 	public void die( Object cause ) {
-		
+
 		super.die( cause );
-		
+
 		((SewerBossLevel)Dungeon.level).unseal();
-		
+
 		GameScene.bossSlain();
 		Dungeon.level.drop( new SkeletonKey(), pos ).sprite.drop();
-		
+
 		Badges.validateBossSlain();
-		
+
 		yell( "glurp... glurp..." );
 	}
 	
@@ -211,19 +218,12 @@ public class Goo extends Mob {
 		super.notice();
 		yell( "GLURP-GLURP!" );
 	}
-	
+
 	@Override
 	public String description() {
 		return
 			"Little known about The Goo. It's quite possible that it is not even a creature, but rather a " +
 			"conglomerate of substances from the sewers that gained rudiments of free will.";
-	}
-	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
-	static {
-		RESISTANCES.add( ToxicGas.class );
-		RESISTANCES.add( Death.class );
-		RESISTANCES.add( ScrollOfPsionicBlast.class );
 	}
 	
 	@Override

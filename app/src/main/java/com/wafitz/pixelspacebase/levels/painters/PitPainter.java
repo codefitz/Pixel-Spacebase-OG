@@ -20,9 +20,9 @@ package com.wafitz.pixelspacebase.levels.painters;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
+import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Room;
-import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
@@ -48,10 +48,10 @@ public class PitPainter extends Painter {
 			well = new Point( Random.Int( 2 ) == 0 ? room.left + 1 : room.right - 1, room.top+1 );
 		}
 		set( level, well, Terrain.EMPTY_WELL );
-		
-		int remains = room.random();
+
+		int remains = level.pointToCell(room.random());
 		while (level.map[remains] == Terrain.EMPTY_WELL) {
-			remains = room.random();
+			remains = level.pointToCell(room.random());
 		}
 		
 		level.drop( new IronKey(), remains ).type = Heap.Type.SKELETON;

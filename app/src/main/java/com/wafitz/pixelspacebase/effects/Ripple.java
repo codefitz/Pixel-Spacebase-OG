@@ -17,10 +17,10 @@
  */
 package com.wafitz.pixelspacebase.effects;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
-import com.wafitz.pixelspacebase.levels.Level;
 
 public class Ripple extends Image {
 
@@ -34,9 +34,9 @@ public class Ripple extends Image {
 	
 	public void reset( int p ) {
 		revive();
-		
-		x = (p % Level.WIDTH) * DungeonTilemap.SIZE;
-		y = (p / Level.WIDTH) * DungeonTilemap.SIZE;
+
+		x = (p % Dungeon.level.width()) * DungeonTilemap.SIZE;
+		y = (p / Dungeon.level.width()) * DungeonTilemap.SIZE;
 		
 		origin.set( width / 2, height / 2 );
 		scale.set( 0 );

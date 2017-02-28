@@ -17,16 +17,17 @@
  */
 package com.wafitz.pixelspacebase.mechanics;
 
-import java.util.Arrays;
-
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.levels.Level;
+
+import java.util.Arrays;
 
 public final class ShadowCaster {
 
 	private static final int MAX_DISTANCE = 8;
-	
-	private static final int WIDTH	= Level.WIDTH;
-	private static final int HEIGHT	= Level.HEIGHT;
+
+	private static final int WIDTH = Dungeon.level.width();
+	private static final int HEIGHT = Dungeon.level.height();
 	
 	private static int distance;
 	private static int limits[];
@@ -35,6 +36,8 @@ public final class ShadowCaster {
 	private static boolean[] fieldOfView;
 	
 	private static int[][] rounding;
+	private static Obstacles obs = new Obstacles();
+	
 	static {
 		rounding = new int[MAX_DISTANCE+1][];
 		for (int i=1; i <= MAX_DISTANCE; i++) {
@@ -44,8 +47,6 @@ public final class ShadowCaster {
 			}
 		}
 	}
-	
-	private static Obstacles obs = new Obstacles();
 	
 	public static void castShadow( int x, int y, boolean[] fieldOfView, int distance ) {
 

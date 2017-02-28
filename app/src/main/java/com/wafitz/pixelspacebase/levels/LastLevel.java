@@ -17,24 +17,23 @@
  */
 package com.wafitz.pixelspacebase.levels;
 
-import java.util.Arrays;
-
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.items.Amulet;
-import com.watabou.noosa.Scene;
 import com.wafitz.pixelspacebase.levels.painters.Painter;
+import com.watabou.noosa.Scene;
 import com.watabou.utils.Random;
+
+import java.util.Arrays;
 
 public class LastLevel extends Level {
 
 	private static final int SIZE = 7;
+	private int pedestal;
 	
 	{
 		color1 = 0x801500;
 		color2 = 0xa68521;
 	}
-	
-	private int pedestal;
 	
 	@Override
 	public String tilesTex() {
@@ -53,14 +52,14 @@ public class LastLevel extends Level {
 		Painter.fill( this, 1, 1, SIZE, SIZE, Terrain.WATER );
 		Painter.fill( this, 2, 2, SIZE-2, SIZE-2, Terrain.EMPTY );
 		Painter.fill( this, SIZE/2, SIZE/2, 3, 3, Terrain.EMPTY_SP );
-		
-		entrance = SIZE * WIDTH + SIZE / 2 + 1;
+
+		entrance = SIZE * width() + SIZE / 2 + 1;
 		map[entrance] = Terrain.ENTRANCE;
-		
-		exit = entrance - WIDTH * SIZE;
+
+		exit = entrance - width() * SIZE;
 		map[exit] = Terrain.LOCKED_EXIT;
-		
-		pedestal = (SIZE / 2 + 1) * (WIDTH + 1);
+
+		pedestal = (SIZE / 2 + 1) * (width() + 1);
 		map[pedestal] = Terrain.PEDESTAL;
 		map[pedestal-1] = map[pedestal+1] = Terrain.STATUE_SP;
 		
@@ -71,7 +70,7 @@ public class LastLevel extends Level {
 
 	@Override
 	protected void decorate() {
-		for (int i=0; i < LENGTH; i++) {
+		for (int i = 0; i < length(); i++) {
 			if (map[i] == Terrain.EMPTY && Random.Int( 10 ) == 0) { 
 				map[i] = Terrain.EMPTY_DECO;
 			}

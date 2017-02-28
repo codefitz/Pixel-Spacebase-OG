@@ -17,40 +17,45 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.HashSet;
-
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.effects.particles.SparkParticle;
 import com.wafitz.pixelspacebase.items.Generator;
+import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.traps.LightningTrap;
+import com.wafitz.pixelspacebase.mechanics.Ballistica;
 import com.wafitz.pixelspacebase.sprites.CharSprite;
 import com.wafitz.pixelspacebase.sprites.ShamanSprite;
 import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.Camera;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.effects.particles.SparkParticle;
-import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.mechanics.Ballistica;
 import com.wafitz.pixelspacebase.utils.Utils;
+import com.watabou.noosa.Camera;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public class Shaman extends Mob implements Callback {
 
 	private static final float TIME_TO_ZAP	= 2f;
 	
 	private static final String TXT_LIGHTNING_KILLED = "%s's lightning bolt killed you...";
+	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
+
+	static {
+		RESISTANCES.add(LightningTrap.Electricity.class);
+	}
 	
 	{
 		name = "gnoll shaman";
 		spriteClass = ShamanSprite.class;
-		
+
 		HP = HT = 18;
 		defenseSkill = 8;
-		
+
 		EXP = 6;
 		maxLvl = 14;
-		
+
 		loot = Generator.Category.SCROLL;
 		lootChance = 0.33f;
 	}
@@ -78,33 +83,33 @@ public class Shaman extends Mob implements Callback {
 	@Override
 	protected boolean doAttack( Char enemy ) {
 
-		if (Level.distance( pos, enemy.pos ) <= 1) {
-			
+		if (Dungeon.level.distance(pos, enemy.pos) <= 1) {
+
 			return super.doAttack( enemy );
-			
+
 		} else {
-			
-			boolean visible = Level.fieldOfView[pos] || Level.fieldOfView[enemy.pos]; 
+
+			boolean visible = Level.fieldOfView[pos] || Level.fieldOfView[enemy.pos];
 			if (visible) {
-				((ShamanSprite)sprite).zap( enemy.pos );
+				sprite.zap(enemy.pos);
 			}
-			
+
 			spend( TIME_TO_ZAP );
-			
+
 			if (hit( this, enemy, true )) {
 				int dmg = Random.Int( 2, 12 );
 				if (Level.water[enemy.pos] && !enemy.flying) {
 					dmg *= 1.5f;
 				}
 				enemy.damage( dmg, LightningTrap.LIGHTNING );
-				
+
 				enemy.sprite.centerEmitter().burst( SparkParticle.FACTORY, 3 );
 				enemy.sprite.flash();
-				
+
 				if (enemy == Dungeon.hero) {
-					
+
 					Camera.main.shake( 2, 0.3f );
-					
+
 					if (!enemy.isAlive()) {
 						Dungeon.fail( Utils.format( ResultDescriptions.MOB,
 							Utils.indefinite( name ), Dungeon.depth ) );
@@ -114,7 +119,7 @@ public class Shaman extends Mob implements Callback {
 			} else {
 				enemy.sprite.showStatus( CharSprite.NEUTRAL,  enemy.defenseVerb() );
 			}
-			
+
 			return !visible;
 		}
 	}
@@ -123,18 +128,13 @@ public class Shaman extends Mob implements Callback {
 	public void call() {
 		next();
 	}
-	
+
 	@Override
 	public String description() {
 		return
 			"The most intelligent gnolls can master shamanistic magic. Gnoll shamans prefer " +
 			"battle spells to compensate for lack of might, not hesitating to use them " +
 			"on those who question their status in a tribe.";
-	}
-	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
-	static {
-		RESISTANCES.add( LightningTrap.Electricity.class );
 	}
 	
 	@Override

@@ -18,14 +18,13 @@
 package com.wafitz.pixelspacebase.items.armor.glyphs;
 
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.effects.Lightning;
 import com.wafitz.pixelspacebase.items.armor.Armor;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.traps.LightningTrap;
-import com.watabou.noosa.Camera;
-import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.sprites.ItemSprite.Glowing;
+import com.watabou.noosa.Camera;
 import com.watabou.utils.Random;
 
 public class Potential extends Armor.Glyph {
@@ -38,8 +37,8 @@ public class Potential extends Armor.Glyph {
 	public int proc( Armor armor, Char attacker, Char defender, int damage) {
 
 		int level = Math.max( 0, armor.effectiveLevel() );
-		
-		if (Level.adjacent( attacker.pos, defender.pos ) && Random.Int( level + 7 ) >= 6) {
+
+		if (Dungeon.level.adjacent(attacker.pos, defender.pos) && Random.Int(level + 7) >= 6) {
 			
 			int dmg = Random.IntRange( 1, damage );
 			attacker.damage( dmg, LightningTrap.LIGHTNING );

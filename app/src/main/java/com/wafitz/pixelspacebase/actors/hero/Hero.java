@@ -103,6 +103,7 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
@@ -113,124 +114,160 @@ import static com.wafitz.pixelspacebase.Dungeon.hero;
 import static com.wafitz.pixelspacebase.items.potions.PotionOfHealing.heal;
 
 public class Hero extends Char {
-	
+
+	public static final String TXT_YOU_NOW_HAVE = "You now have %s";
+	public static final int STARTING_STR = 10;
 	private static final String TXT_LEAVE = "The door to the hangar bay is locked.";
-	
 	private static final String TXT_LEVEL_UP = "Level up!";
-	private static final String TXT_NEW_LEVEL = 
+	private static final String TXT_NEW_LEVEL =
 		"Welcome to level %d! Now you are healthier and more focused. " +
 		"It's easier for you to hit enemies and dodge their attacks.";
-	
-	public static final String TXT_YOU_NOW_HAVE	= "You now have %s";
-	
 	private static final String TXT_SOMETHING_ELSE	= "There is something else here";
 	private static final String TXT_LOCKED_CHEST	= "This container is locked and you don't have a matching key";
 	private static final String TXT_LOCKED_DOOR		= "You don't have a matching key";
 	private static final String TXT_NOTICED_SMTH	= "You noticed something";
-	
 	private static final String TXT_WAIT	= "...";
 	private static final String TXT_SEARCH	= "scanning...";
-	
-	public static final int STARTING_STR = 10;
-	
 	private static final float TIME_TO_REST		= 1f;
 	private static final float TIME_TO_SEARCH	= 2f;
-	
+	private static final String ATTACK = "attackSkill";
+	private static final String DEFENSE = "defenseSkill";
+	private static final String STRENGTH = "STR";
+	private static final String LEVEL = "lvl";
+	private static final String EXPERIENCE = "exp";
 	public HeroClass heroClass = HeroClass.ROGUE;
 	public HeroSubClass subClass = HeroSubClass.NONE;
-	
-	private int attackSkill = 10;
-	private int defenseSkill = 5;
-	
-
 	public boolean ready = false;
-
 	public HeroAction curAction = null;
 	public HeroAction lastAction = null;
-	
-	private Char enemy;
-	
 	public Armor.Glyph killerGlyph = null;
-	
-	private Item theKey;
-	
 	public boolean restoreHealth = false;
-	
 	public MissileWeapon rangedWeapon = null;
 	public Belongings belongings;
-	
 	public int STR;
 	public boolean weakened = false;
-	
-	private float awareness;
-	
 	public int lvl = 1;
 	public int exp = 0;
-	
-	private ArrayList<Mob> visibleEnemies; 
-	
+	private int attackSkill = 10;
+	private int defenseSkill = 5;
+	private Char enemy;
+	private Item theKey;
+	private float awareness;
+	private ArrayList<Mob> visibleEnemies;
 	public Hero() {
 		super();
 		name = "you";
-		
+
 		HP = HT = 20;
 		STR = STARTING_STR;
 		awareness = 0.1f;
-		
+
 		belongings = new Belongings( this );
-		
+
 		visibleEnemies = new ArrayList<>();
 	}
 
+	public static void preview(GamesInProgress.Info info, Bundle bundle) {
+		info.level = bundle.getInt(LEVEL);
+	}
+
+	public static void reallyDie(Object cause) {
+
+		int length = Dungeon.level.length();
+		int[] map = Dungeon.level.map;
+		boolean[] visited = Dungeon.level.visited;
+		boolean[] discoverable = Level.discoverable;
+
+		for (int i = 0; i < length; i++) {
+
+			int terr = map[i];
+
+			if (discoverable[i]) {
+
+				visited[i] = true;
+				if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {
+					Level.set(i, Terrain.discover(terr));
+					GameScene.updateMap(i);
+				}
+			}
+		}
+
+		Bones.leave();
+
+		Dungeon.observe();
+
+		hero.belongings.identify();
+
+		int pos = hero.pos;
+
+		ArrayList<Integer> passable = new ArrayList<>();
+		for (Integer ofs : PathFinder.NEIGHBOURS8) {
+			int cell = pos + ofs;
+			if ((Level.passable[cell] || Level.avoid[cell]) && Dungeon.level.heaps.get(cell) == null) {
+				passable.add(cell);
+			}
+		}
+		Collections.shuffle(passable);
+
+		ArrayList<Item> items = new ArrayList<>(hero.belongings.backpack.items);
+		for (Integer cell : passable) {
+			if (items.isEmpty()) {
+				break;
+			}
+
+			Item item = Random.element(items);
+			Dungeon.level.drop(item, cell).sprite.drop(pos);
+			items.remove(item);
+		}
+
+		GameScene.gameOver();
+
+		if (cause instanceof Hero.Doom) {
+			((Hero.Doom) cause).onDeath();
+		}
+
+		Dungeon.deleteGame(hero.heroClass, true);
+	}
+	
 	public int STR() {
 		return weakened ? STR - 2 : STR;
 	}
-
-	private static final String ATTACK		= "attackSkill";
-	private static final String DEFENSE		= "defenseSkill";
-	private static final String STRENGTH	= "STR";
-	private static final String LEVEL		= "lvl";
-	private static final String EXPERIENCE	= "exp";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
-		
+
 		heroClass.storeInBundle( bundle );
 		subClass.storeInBundle( bundle );
-		
+
 		bundle.put( ATTACK, attackSkill );
 		bundle.put( DEFENSE, defenseSkill );
-		
+
 		bundle.put( STRENGTH, STR );
-		
+
 		bundle.put( LEVEL, lvl );
 		bundle.put( EXPERIENCE, exp );
-		
+
 		belongings.storeInBundle( bundle );
 	}
 	
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		
+
 		heroClass = HeroClass.restoreInBundle( bundle );
 		subClass = HeroSubClass.restoreInBundle( bundle );
-		
+
 		attackSkill = bundle.getInt( ATTACK );
 		defenseSkill = bundle.getInt( DEFENSE );
-		
+
 		STR = bundle.getInt( STRENGTH );
 		updateAwareness();
-		
+
 		lvl = bundle.getInt( LEVEL );
 		exp = bundle.getInt( EXPERIENCE );
-		
+
 		belongings.restoreFromBundle( bundle );
-	}
-	
-	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
-		info.level = bundle.getInt( LEVEL );
 	}
 	
 	public String className() {
@@ -238,7 +275,7 @@ public class Hero extends Char {
 	}
 	
 	public void live() {
-		Buff.affect( this, Regeneration.class );	
+		Buff.affect(this, Regeneration.class);
 		Buff.affect( this, Hunger.class );
 	}
 	
@@ -247,26 +284,26 @@ public class Hero extends Char {
 	}
 	
 	public boolean shoot( Char enemy, MissileWeapon wep ) {
-		
+
 		rangedWeapon = wep;
 		boolean result = attack( enemy );
 		rangedWeapon = null;
-		
+
 		return result;
 	}
 	
 	@Override
 	public int attackSkill( Char target ) {
-		
+
 		int bonus = 0;
 		for (Buff buff : buffs( RingOfAccuracy.Accuracy.class )) {
 			bonus += ((RingOfAccuracy.Accuracy)buff).level;
 		}
-		float accuracy = (bonus == 0) ? 1 : (float)Math.pow( 1.4, bonus );
-		if (rangedWeapon != null && Level.distance( pos, target.pos ) == 1) {
+		float accuracy = 1;
+		if (rangedWeapon != null && Dungeon.level.distance(pos, target.pos) == 1) {
 			accuracy *= 0.5f;
 		}
-		
+
 		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 		if (wep != null) {
 			return (int)(attackSkill * accuracy * wep.acuracyFactor( this ));
@@ -277,7 +314,7 @@ public class Hero extends Char {
 	
 	@Override
 	public int defenseSkill( Char enemy ) {
-		
+
 		int bonus = 0;
 		for (Buff buff : buffs( RingOfEvasion.Evasion.class )) {
 			bonus += ((RingOfEvasion.Evasion)buff).level;
@@ -286,19 +323,19 @@ public class Hero extends Char {
 		if (paralysed) {
 			evasion /= 2;
 		}
-		
+
 		int aEnc = belongings.armor != null ? belongings.armor.STR - STR() : 0;
-		
+
 		if (aEnc > 0) {
 			return (int)(defenseSkill * evasion / Math.pow( 1.5, aEnc ));
 		} else {
-			
+
 			if (heroClass == HeroClass.ROGUE) {
-				
+
 				if (curAction != null && subClass == HeroSubClass.FREERUNNER && !isStarving()) {
 					evasion *= 2;
 				}
-				
+
 				return (int)((defenseSkill - aEnc) * evasion);
 			} else {
 				return (int)(defenseSkill * evasion);
@@ -320,7 +357,7 @@ public class Hero extends Char {
 	public int damageRoll() {
 		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 		int dmg;
-		if (wep != null) {	
+		if (wep != null) {
 			dmg = wep.damageRoll( this );
 		} else {
 			dmg = STR() > 10 ? Random.IntRange( 1, STR() - 9 ) : 1;
@@ -330,26 +367,26 @@ public class Hero extends Char {
 	
 	@Override
 	public float speed() {
-		
+
 		int aEnc = belongings.armor != null ? belongings.armor.STR - STR() : 0;
 		if (aEnc > 0) {
-			
+
 			return (float)(super.speed() * Math.pow( 1.3, -aEnc ));
-			
+
 		} else {
-			
+
 			float speed = super.speed();
 			return ((HeroSprite)sprite).sprint( subClass == HeroSubClass.FREERUNNER && !isStarving() ) ? 1.6f * speed : speed;
-			
+
 		}
 	}
 	
 	public float attackDelay() {
 		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 		if (wep != null) {
-			
+
 			return wep.speedFactor( this );
-						
+
 		} else {
 			return 1f;
 		}
@@ -372,22 +409,22 @@ public class Hero extends Char {
 	
 	@Override
 	public boolean act() {
-		
+
 		super.act();
-		
+
 		if (paralysed) {
-			
+
 			curAction = null;
-			
+
 			spendAndNext( TICK );
 			return false;
 		}
 
 		AttackIndicator.updateState();
 		checkVisibleMobs();
-		
+
 		if (curAction == null) {
-			
+
 			if (restoreHealth) {
 				if (isStarving() || HP >= HT) {
 					restoreHealth = false;
@@ -396,66 +433,66 @@ public class Hero extends Char {
 					return false;
 				}
 			}
-			
+
 			ready();
 			return false;
-			
+
 		} else {
-			
+
 			restoreHealth = false;
-			
+
 			ready = false;
-			
+
 			if (curAction instanceof HeroAction.Move) {
-				
+
 				return actMove( (HeroAction.Move)curAction );
-				
-			} else 
+
+			} else
 			if (curAction instanceof HeroAction.Interact) {
-				
+
 				return actInteract( (HeroAction.Interact)curAction );
-				
+
 			} else
 			if (curAction instanceof HeroAction.PickUp) {
 					return actPickUp( (HeroAction.PickUp)curAction );
 			} else
 			if (curAction instanceof HeroAction.Buy) {
-				
+
 				return actBuy( (HeroAction.Buy)curAction );
-				
+
 			} else
 			if (curAction instanceof HeroAction.OpenChest) {
-				
+
 				return actOpenChest( (HeroAction.OpenChest)curAction );
-				
-			} else 
+
+			} else
 			if (curAction instanceof HeroAction.Unlock) {
-				
+
 				return actUnlock( (HeroAction.Unlock)curAction );
-				
-			} else 
+
+			} else
 			if (curAction instanceof HeroAction.Descend) {
-				
+
 				return actDescend( (HeroAction.Descend)curAction );
-				
+
 			} else
 			if (curAction instanceof HeroAction.Ascend) {
-				
+
 				return actAscend( (HeroAction.Ascend)curAction );
-				
+
 			} else
 			if (curAction instanceof HeroAction.Attack) {
 
 				return actAttack( (HeroAction.Attack)curAction );
-				
+
 			} else
 			if (curAction instanceof HeroAction.Cook) {
 
 				return actCook( (HeroAction.Cook)curAction );
-				
+
 			}
 		}
-		
+
 		return false;
 	}
 	
@@ -467,7 +504,7 @@ public class Hero extends Char {
 		sprite.idle();
 		curAction = null;
 		ready = true;
-		
+
 		GameScene.ready();
 	}
 	
@@ -487,61 +524,61 @@ public class Hero extends Char {
 	private boolean actMove( HeroAction.Move action ) {
 
 		if (getCloser( action.dst )) {
-			
+
 			return true;
-			
+
 		} else {
 			if (Dungeon.level.map[pos] == Terrain.SIGN) {
 				Sign.read( pos );
 			}
 			ready();
-			
+
 			return false;
 		}
 	}
 	
 	private boolean actInteract( HeroAction.Interact action ) {
-		
+
 		NPC npc = action.npc;
 
-		if (Level.adjacent( pos, npc.pos )) {
-			
+		if (Dungeon.level.adjacent(pos, npc.pos)) {
+
 			ready();
 			sprite.turnTo( pos, npc.pos );
 			npc.interact();
 			return false;
-			
+
 		} else {
-			
+
 			if (Level.fieldOfView[npc.pos] && getCloser( npc.pos )) {
-				
+
 				return true;
-				
+
 			} else {
 				ready();
 				return false;
 			}
-			
+
 		}
 	}
 	
 	private boolean actBuy( HeroAction.Buy action ) {
 		int dst = action.dst;
-		if (pos == dst || Level.adjacent( pos, dst )) {
+		if (pos == dst || Dungeon.level.adjacent(pos, dst)) {
 
 			ready();
-			
+
 			Heap heap = Dungeon.level.heaps.get( dst );
 			if (heap != null && heap.type == Type.FOR_SALE && heap.size() == 1) {
 				GameScene.show( new WndTradeItem( heap, true ) );
 			}
-			
+
 			return false;
-			
+
 		} else if (getCloser( dst )) {
-			
+
 			return true;
-			
+
 		} else {
 			ready();
 			return false;
@@ -555,11 +592,11 @@ public class Hero extends Char {
 			ready();
 			AlchemyPot.operate( this, dst );
 			return false;
-			
+
 		} else if (getCloser( dst )) {
-			
+
 			return true;
-			
+
 		} else {
 			ready();
 			return false;
@@ -569,16 +606,16 @@ public class Hero extends Char {
 	private boolean actPickUp( HeroAction.PickUp action ) {
 		int dst = action.dst;
 		if (pos == dst) {
-			
+
 			Heap heap = Dungeon.level.heaps.get( pos );
-			if (heap != null) {				
+			if (heap != null) {
 				Item item = heap.pickUp();
 				if (item.doPickUp( this )) {
-					
+
 					if (item instanceof Dewdrop) {
 						// Do nothing
 					} else {
-						boolean important = 
+						boolean important =
 							((item instanceof ScrollOfUpgrade || item instanceof ScrollOfEnchantment) && ((Scroll)item).isKnown()) ||
 							((item instanceof PotionOfStrength || item instanceof PotionOfMight) && ((Potion)item).isKnown());
 						if (important) {
@@ -587,7 +624,7 @@ public class Hero extends Char {
 							GLog.i( TXT_YOU_NOW_HAVE, item.name() );
 						}
 					}
-					
+
 					if (!heap.isEmpty()) {
 						GLog.i( TXT_SOMETHING_ELSE );
 					}
@@ -599,13 +636,13 @@ public class Hero extends Char {
 			} else {
 				ready();
 			}
-			
+
 			return false;
-			
+
 		} else if (getCloser( dst )) {
-			
+
 			return true;
-			
+
 		} else {
 			ready();
 			return false;
@@ -614,24 +651,24 @@ public class Hero extends Char {
 	
 	private boolean actOpenChest( HeroAction.OpenChest action ) {
 		int dst = action.dst;
-		if (Level.adjacent( pos, dst ) || pos == dst) {
-			
+		if (Dungeon.level.adjacent(pos, dst) || pos == dst) {
+
 			Heap heap = Dungeon.level.heaps.get( dst );
 			if (heap != null && (heap.type != Type.HEAP && heap.type != Type.FOR_SALE)) {
-				
+
 				theKey = null;
-				
+
 				if (heap.type == Type.LOCKED_CHEST || heap.type == Type.CRYSTAL_CHEST) {
 
 					theKey = belongings.getKey( GoldenKey.class, Dungeon.depth );
-					
+
 					if (theKey == null) {
 						GLog.w( TXT_LOCKED_CHEST );
 						ready();
 						return false;
 					}
 				}
-				
+
 				switch (heap.type) {
 				case TOMB:
 					Sample.INSTANCE.play( Assets.SND_TOMB );
@@ -642,20 +679,20 @@ public class Hero extends Char {
 				default:
 					Sample.INSTANCE.play( Assets.SND_UNLOCK );
 				}
-				
+
 				spend( Key.TIME_TO_UNLOCK );
 				sprite.operate( dst );
-				
+
 			} else {
 				ready();
 			}
-			
+
 			return false;
-			
+
 		} else if (getCloser( dst )) {
-			
+
 			return true;
-			
+
 		} else {
 			ready();
 			return false;
@@ -664,39 +701,39 @@ public class Hero extends Char {
 	
 	private boolean actUnlock( HeroAction.Unlock action ) {
 		int doorCell = action.dst;
-		if (Level.adjacent( pos, doorCell )) {
-			
+		if (Dungeon.level.adjacent(pos, doorCell)) {
+
 			theKey = null;
 			int door = Dungeon.level.map[doorCell];
-			
+
 			if (door == Terrain.LOCKED_DOOR) {
-				
+
 				theKey = belongings.getKey( IronKey.class, Dungeon.depth );
-				
+
 			} else if (door == Terrain.LOCKED_EXIT) {
-				
+
 				theKey = belongings.getKey( SkeletonKey.class, Dungeon.depth );
-				
+
 			}
-			
+
 			if (theKey != null) {
-				
+
 				spend( Key.TIME_TO_UNLOCK );
 				sprite.operate( doorCell );
-				
+
 				Sample.INSTANCE.play( Assets.SND_UNLOCK );
-				
+
 			} else {
 				GLog.w( TXT_LOCKED_DOOR );
 				ready();
 			}
-			
+
 			return false;
-			
+
 		} else if (getCloser( doorCell )) {
-			
+
 			return true;
-			
+
 		} else {
 			ready();
 			return false;
@@ -706,23 +743,23 @@ public class Hero extends Char {
 	private boolean actDescend( HeroAction.Descend action ) {
 		int stairs = action.dst;
 		if (pos == stairs && pos == Dungeon.level.exit) {
-			
+
 			curAction = null;
-			
+
 			Hunger hunger = buff( Hunger.class );
 			if (hunger != null && !hunger.isStarving()) {
 				hunger.satisfy( -Hunger.STARVING / 10 );
 			}
-			
+
 			InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
 			Game.switchScene( InterlevelScene.class );
-			
+
 			return false;
-			
+
 		} else if (getCloser( stairs )) {
-			
+
 			return true;
-			
+
 		} else {
 			ready();
 			return false;
@@ -732,9 +769,9 @@ public class Hero extends Char {
 	private boolean actAscend( HeroAction.Ascend action ) {
 		int stairs = action.dst;
 		if (pos == stairs && pos == Dungeon.level.entrance) {
-			
+
 			if (Dungeon.depth == 1) {
-				
+
 				if (belongings.getItem( Amulet.class ) == null) {
 					GameScene.show( new WndMessage( TXT_LEAVE ) );
 					ready();
@@ -743,26 +780,26 @@ public class Hero extends Char {
 					Dungeon.deleteGame( hero.heroClass, true );
 					Game.switchScene( SurfaceScene.class );
 				}
-				
+
 			} else {
-				
+
 				curAction = null;
-				
+
 				Hunger hunger = buff( Hunger.class );
 				if (hunger != null && !hunger.isStarving()) {
 					hunger.satisfy( -Hunger.STARVING / 10 );
 				}
-				
+
 				InterlevelScene.mode = InterlevelScene.Mode.ASCEND;
 				Game.switchScene( InterlevelScene.class );
 			}
-			
+
 			return false;
-			
+
 		} else if (getCloser( stairs )) {
-			
+
 			return true;
-			
+
 		} else {
 			ready();
 			return false;
@@ -773,24 +810,24 @@ public class Hero extends Char {
 
 		enemy = action.target;
 
-		if (Level.adjacent( pos, enemy.pos ) && enemy.isAlive() && !isCharmedBy( enemy )) {
-			
+		if (Dungeon.level.adjacent(pos, enemy.pos) && enemy.isAlive() && !isCharmedBy(enemy)) {
+
 			spend( attackDelay() );
 			sprite.attack( enemy.pos );
-			
+
 			return false;
-			
+
 		} else {
-			
+
 			if (Level.fieldOfView[enemy.pos] && getCloser( enemy.pos )) {
-				
+
 				return true;
-				
+
 			} else {
 				ready();
 				return false;
 			}
-			
+
 		}
 	}
 	
@@ -806,9 +843,9 @@ public class Hero extends Char {
 	public int attackProc( Char enemy, int damage ) {
 		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 		if (wep != null) {
-			
+
 			wep.proc( this, enemy, damage );
-			
+
 			switch (subClass) {
 			case GLADIATOR:
 				if (wep instanceof MeleeWeapon) {
@@ -822,12 +859,12 @@ public class Hero extends Char {
 
 						//Quickfix degredation removal
 						//wand.use();
-						
+
 					} else if (damage > 0) {
-						
+
 						wand.curCharges++;
 						wand.updateQuickslot();
-						
+
 						ScrollOfRecharging.charge( this );
 					}
 					damage += wand.curCharges;
@@ -840,13 +877,13 @@ public class Hero extends Char {
 			default:
 			}
 		}
-		
+
 		return damage;
 	}
 	
 	@Override
 	public int defenseProc( Char enemy, int damage ) {
-		
+
 		RingOfThorns.Thorns thorns = buff( RingOfThorns.Thorns.class );
 		if (thorns != null) {
 			int dmg = Random.IntRange( 0, damage );
@@ -854,24 +891,24 @@ public class Hero extends Char {
 				enemy.damage( dmg, thorns );
 			}
 		}
-		
+
 		Earthroot.Armor armor = buff( Earthroot.Armor.class );
 		if (armor != null) {
 			damage = armor.absorb( damage );
 		}
-		
+
 		if (belongings.armor != null) {
 			damage = belongings.armor.proc( enemy, this, damage );
 		}
-		
+
 		return damage;
 	}
 	
 	@Override
-	public void damage( int dmg, Object src ) {		
+	public void damage(int dmg, Object src) {
 		restoreHealth = false;
 		super.damage( dmg, src );
-		
+
 		if (subClass == HeroSubClass.BERSERKER && 0 < HP && HP <= HT * Fury.LEVEL) {
 			Buff.affect( this, Fury.class );
 		}
@@ -887,7 +924,7 @@ public class Hero extends Char {
                 actPickUp((HeroAction.PickUp) curAction);
             }
         }
-		
+
 		for (Mob m : Dungeon.level.mobs) {
 			if (Level.fieldOfView[ m.pos ] && m.hostile) {
 				visible.add( m );
@@ -896,12 +933,12 @@ public class Hero extends Char {
 				}
 			}
 		}
-		
+
 		if (newMob) {
 			interrupt();
 			restoreHealth = false;
 		}
-		
+
 		visibleEnemies = visible;
 	}
 	
@@ -914,16 +951,16 @@ public class Hero extends Char {
 	}
 	
 	private boolean getCloser( final int target ) {
-		
+
 		if (rooted) {
 			Camera.main.shake( 1, 1f );
 			return false;
 		}
-		
+
 		int step = -1;
-		
-		if (Level.adjacent( pos, target )) {
-			
+
+		if (Dungeon.level.adjacent(pos, target)) {
+
 			if (Actor.findChar( target ) == null) {
 				if (Level.pit[target] && !flying && !Chasm.jumpConfirmed) {
 					Chasm.heroJump( this );
@@ -934,10 +971,10 @@ public class Hero extends Char {
 					step = target;
 				}
 			}
-			
+
 		} else {
-		
-			int len = Level.LENGTH;
+
+			int len = Dungeon.level.length();
 			boolean[] p = Level.passable;
 			boolean[] v = Dungeon.level.visited;
 			boolean[] m = Dungeon.level.mapped;
@@ -945,48 +982,48 @@ public class Hero extends Char {
 			for (int i=0; i < len; i++) {
 				passable[i] = p[i] && (v[i] || m[i]);
 			}
-			
+
 			step = Dungeon.findPath( this, pos, target, passable, Level.fieldOfView );
 		}
-		
+
 		if (step != -1) {
-			
+
 			int oldPos = pos;
 			move( step );
 			sprite.move( oldPos, pos );
 			spend( 1 / speed() );
-			
+
 			return true;
 
 		} else {
 
 			return false;
-			
+
 		}
 
 	}
 	
 	public boolean handle( int cell ) {
-		
+
 		if (cell == -1) {
 			return false;
 		}
-		
+
 		Char ch;
 		Heap heap;
-		
+
 		if (Dungeon.level.map[cell] == Terrain.ALCHEMY && cell != pos) {
-			
+
 			curAction = new HeroAction.Cook( cell );
-			
+
 		} else if (Level.fieldOfView[cell] && (ch = Actor.findChar( cell )) instanceof Mob) {
-			
+
 			if (ch instanceof NPC) {
 				curAction = new HeroAction.Interact( (NPC)ch );
 			} else {
 				curAction = new HeroAction.Attack( ch );
 			}
-			
+
 		} else if (Level.fieldOfView[cell] && (heap = Dungeon.level.heaps.get( cell )) != null && heap.type != Heap.Type.HIDDEN) {
 
 			switch (heap.type) {
@@ -994,74 +1031,74 @@ public class Hero extends Char {
 				curAction = new HeroAction.PickUp( cell );
 				break;
 			case FOR_SALE:
-				curAction = heap.size() == 1 && heap.peek().price() > 0 ? 
-					new HeroAction.Buy( cell ) : 
+				curAction = heap.size() == 1 && heap.peek().price() > 0 ?
+						new HeroAction.Buy(cell) :
 					new HeroAction.PickUp( cell );
 				break;
 			default:
 				curAction = new HeroAction.OpenChest( cell );
 			}
-			
+
 		} else if (Dungeon.level.map[cell] == Terrain.LOCKED_DOOR || Dungeon.level.map[cell] == Terrain.LOCKED_EXIT) {
-			
+
 			curAction = new HeroAction.Unlock( cell );
-			
+
 		} else if (cell == Dungeon.level.exit) {
-			
+
 			curAction = new HeroAction.Descend( cell );
-			
+
 		} else if (cell == Dungeon.level.entrance) {
-			
+
 			curAction = new HeroAction.Ascend( cell );
-			
+
 		} else  {
-			
+
 			curAction = new HeroAction.Move( cell );
 			lastAction = null;
-			
+
 		}
 
 		return act();
 	}
 	
 	public void earnExp( int exp ) {
-		
+
 		this.exp += exp;
-		
+
 		boolean levelUp = false;
 		while (this.exp >= maxExp()) {
 			this.exp -= maxExp();
 			lvl++;
-			
+
 			HT += 5;
-			HP += 5;			
+			HP += 5;
 			attackSkill++;
 			defenseSkill++;
-			
+
 			if (lvl < 10) {
 				updateAwareness();
 			}
-			
+
 			levelUp = true;
 		}
-		
+
 		if (levelUp) {
-			
+
 			GLog.p( TXT_NEW_LEVEL, lvl );
 			sprite.showStatus( CharSprite.POSITIVE, TXT_LEVEL_UP );
 			Sample.INSTANCE.play( Assets.SND_LEVELUP );
-			
+
 			Badges.validateLevelReached();
 		}
-		
+
 		if (subClass == HeroSubClass.WARLOCK) {
-			
+
 			int value = Math.min( HT - HP, 1 + (Dungeon.depth - 1) / 5 );
 			if (value > 0) {
 				HP += value;
 				sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
 			}
-			
+
 			buff( Hunger.class ).satisfy( 10 );
 		}
 	}
@@ -1071,9 +1108,9 @@ public class Hero extends Char {
 	}
 	
 	void updateAwareness() {
-		awareness = (float)(1 - Math.pow( 
-			(heroClass == HeroClass.ROGUE ? 0.85 : 0.90), 
-			(1 + Math.min( lvl,  9 )) * 0.5 
+		awareness = (float) (1 - Math.pow(
+				(heroClass == HeroClass.ROGUE ? 0.85 : 0.90),
+				(1 + Math.min(lvl, 9)) * 0.5
 		));
 	}
 	
@@ -1084,7 +1121,7 @@ public class Hero extends Char {
 	@Override
 	public void add( Buff buff ) {
 		super.add( buff );
-		
+
 		if (sprite != null) {
 			if (buff instanceof Burning) {
 				GLog.w( "You catch fire!" );
@@ -1115,24 +1152,22 @@ public class Hero extends Char {
 			} else if (buff instanceof Vertigo) {
 				GLog.w( "Everything is spinning around you!" );
 				interrupt();
-			}
-			
-			else if (buff instanceof Light) {
+			} else if (buff instanceof Light) {
 				sprite.add( CharSprite.State.ILLUMINATED );
 			}
 		}
-		
+
 		BuffIndicator.refreshHero();
 	}
 	
 	@Override
 	public void remove( Buff buff ) {
 		super.remove( buff );
-		
+
 		if (buff instanceof Light) {
 			sprite.remove( CharSprite.State.ILLUMINATED );
 		}
-		
+
 		BuffIndicator.refreshHero();
 	}
 	
@@ -1147,90 +1182,32 @@ public class Hero extends Char {
 	
 	@Override
 	public void die( Object cause  ) {
-		
+
 		curAction = null;
 
 		// Cheat for Testing Purposes
 		heal( Dungeon.hero );
-		
+
 		DewVial.autoDrink( this );
 		if (isAlive()) {
 			new Flare( 8, 32 ).color( 0xFFFF66, true ).show( sprite, 2f ) ;
 			return;
 		}
-		
+
 		Actor.fixTime();
 		super.die( cause );
-		
+
 		Ankh ankh = belongings.getItem( Ankh.class );
 		if (ankh == null) {
-			
+
 			reallyDie( cause );
-			
+
 		} else {
-			
+
 			Dungeon.deleteGame( hero.heroClass, false );
 			GameScene.show( new WndResurrect( ankh, cause ) );
-			
+
 		}
-	}
-	
-	public static void reallyDie( Object cause ) {
-		
-		int length = Level.LENGTH;
-		int[] map = Dungeon.level.map;
-		boolean[] visited = Dungeon.level.visited;
-		boolean[] discoverable = Level.discoverable;
-		
-		for (int i=0; i < length; i++) {
-			
-			int terr = map[i];
-			
-			if (discoverable[i]) {
-				
-				visited[i] = true;
-				if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {
-					Level.set( i, Terrain.discover( terr ) );						
-					GameScene.updateMap( i );
-				}
-			}
-		}
-		
-		Bones.leave();
-		
-		Dungeon.observe();
-				
-		hero.belongings.identify();
-		
-		int pos = hero.pos;
-		
-		ArrayList<Integer> passable = new ArrayList<>();
-		for (Integer ofs : Level.NEIGHBOURS8) {
-			int cell = pos + ofs;
-			if ((Level.passable[cell] || Level.avoid[cell]) && Dungeon.level.heaps.get( cell ) == null) {
-				passable.add( cell );
-			}
-		}
-		Collections.shuffle( passable );
-		
-		ArrayList<Item> items = new ArrayList<>(hero.belongings.backpack.items);
-		for (Integer cell : passable) {
-			if (items.isEmpty()) {
-				break;
-			}
-			
-			Item item = Random.element( items );
-			Dungeon.level.drop( item, cell ).sprite.drop( pos );
-			items.remove( item );
-		}
-		
-		GameScene.gameOver();
-		
-		if (cause instanceof Hero.Doom) {
-			((Hero.Doom)cause).onDeath();
-		}
-		
-		Dungeon.deleteGame( hero.heroClass, true );
 	}
 	
 	@Override
@@ -1324,28 +1301,28 @@ public class Hero extends Char {
 			level /= 2 - distance;
 			distance = 1;
 		}
-		
-		int cx = pos % Level.WIDTH;
-		int cy = pos / Level.WIDTH;
+
+		int cx = pos % Dungeon.level.width();
+		int cy = pos / Dungeon.level.width();
 		int ax = cx - distance;
 		if (ax < 0) {
 			ax = 0;
 		}
 		int bx = cx + distance;
-		if (bx >= Level.WIDTH) {
-			bx = Level.WIDTH - 1;
+		if (bx >= Dungeon.level.width()) {
+			bx = Dungeon.level.width() - 1;
 		}
 		int ay = cy - distance;
 		if (ay < 0) {
 			ay = 0;
 		}
 		int by = cy + distance;
-		if (by >= Level.HEIGHT) {
-			by = Level.HEIGHT - 1;
+		if (by >= Dungeon.level.height()) {
+			by = Dungeon.level.height() - 1;
 		}
 		
 		for (int y = ay; y <= by; y++) {
-			for (int x = ax, p = ax + y * Level.WIDTH; x <= bx; x++, p++) {
+			for (int x = ax, p = ax + y * Dungeon.level.width(); x <= bx; x++, p++) {
 				
 				if (Dungeon.visible[p]) {
 					

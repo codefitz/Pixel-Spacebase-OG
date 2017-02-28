@@ -17,12 +17,12 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import com.wafitz.pixelspacebase.actors.blobs.WaterOfHealth;
-import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.actors.blobs.WaterOfAwareness;
+import com.wafitz.pixelspacebase.actors.blobs.WaterOfHealth;
 import com.wafitz.pixelspacebase.actors.blobs.WaterOfTransmutation;
 import com.wafitz.pixelspacebase.actors.blobs.WellWater;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
@@ -52,7 +52,7 @@ public class MagicWellPainter extends Painter {
 				water = null;
 			}
 		}
-		water.seed( c.x + Level.WIDTH * c.y, 1 );
+		water.seed(c.x + level.width() * c.y, 1);
 		level.blobs.put( waterClass, water );
 		
 		room.entrance().set( Room.Door.Type.REGULAR );

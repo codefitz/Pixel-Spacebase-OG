@@ -18,13 +18,13 @@
 package com.wafitz.pixelspacebase.plants;
 
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.blobs.Fire;
+import com.wafitz.pixelspacebase.actors.blobs.Freezing;
 import com.wafitz.pixelspacebase.items.potions.PotionOfFrost;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.sprites.ItemSpriteSheet;
 import com.wafitz.pixelspacebase.utils.BArray;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.blobs.Fire;
-import com.wafitz.pixelspacebase.actors.blobs.Freezing;
 import com.watabou.utils.PathFinder;
 
 public class Icecap extends Plant {
@@ -43,8 +43,8 @@ public class Icecap extends Plant {
 		PathFinder.buildDistanceMap( pos, BArray.not( Level.losBlocking, null ), 1 );
 		
 		Fire fire = (Fire) Dungeon.level.blobs.get( Fire.class );
-		
-		for (int i=0; i < Level.LENGTH; i++) {
+
+		for (int i = 0; i < Dungeon.level.length(); i++) {
 			if (PathFinder.distance[i] < Integer.MAX_VALUE) {
 				Freezing.affect( i, fire );
 			}

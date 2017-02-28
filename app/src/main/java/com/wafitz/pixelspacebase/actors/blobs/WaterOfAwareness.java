@@ -50,8 +50,8 @@ public class WaterOfAwareness extends WellWater {
 		emitter.parent.add( new Identification( DungeonTilemap.tileCenterToWorld( pos ) ) );
 		
 		hero.belongings.observe();
-		
-		for (int i = 0; i < Level.LENGTH; i++) {
+
+		for (int i = 0; i < Dungeon.level.length(); i++) {
 			
 			int terr = Dungeon.level.map[i];
 			if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {

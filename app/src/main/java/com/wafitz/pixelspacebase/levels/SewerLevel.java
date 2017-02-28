@@ -21,15 +21,10 @@ import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.Ghost;
-import com.wafitz.pixelspacebase.items.ArmorKit;
 import com.wafitz.pixelspacebase.items.DewVial;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.armor.ClothArmor;
-import com.wafitz.pixelspacebase.items.armor.LeatherArmor;
-import com.wafitz.pixelspacebase.items.armor.MailArmor;
-import com.wafitz.pixelspacebase.items.armor.PlateArmor;
-import com.wafitz.pixelspacebase.items.armor.ScaleArmor;
 import com.wafitz.pixelspacebase.items.bags.Keyring;
 import com.wafitz.pixelspacebase.items.food.Food;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfMagicMapping;
@@ -48,8 +43,16 @@ public class SewerLevel extends RegularLevel {
 		color1 = 0x48763c;
 		color2 = 0x59994a;
 	}
-	
-	@Override
+
+    public static void addVisuals(Level level, Scene scene) {
+        for (int i = 0; i < level.length(); i++) {
+            if (level.map[i] == Terrain.WALL_DECO) {
+                scene.add(new Sink(i));
+            }
+        }
+    }
+
+    @Override
 	public String tilesTex() {
 		return Assets.TILES_SEWERS;
 	}
@@ -58,77 +61,64 @@ public class SewerLevel extends RegularLevel {
 	public String waterTex() {
 		return Assets.WATER_SEWERS;
 	}
-	
-	protected boolean[] water() {
-		return Patch.generate( feeling == Feeling.WATER ? 0.60f : 0.45f, 5 );
-	}
-	
-	protected boolean[] grass() {
-		return Patch.generate( feeling == Feeling.GRASS ? 0.60f : 0.40f, 4 );
-	}
-	
-	@Override
-	protected void decorate() {
-		
-		for (int i=0; i < WIDTH; i++) {
-			if (map[i] == Terrain.WALL &&  
-				map[i + WIDTH] == Terrain.WATER &&
-				Random.Int( 4 ) == 0) {
-				
-				map[i] = Terrain.WALL_DECO;
-			}
-		}
-		
-		for (int i=WIDTH; i < LENGTH - WIDTH; i++) {
-			if (map[i] == Terrain.WALL && 
-				map[i - WIDTH] == Terrain.WALL && 
-				map[i + WIDTH] == Terrain.WATER &&
-				Random.Int( 2 ) == 0) {
-				
-				map[i] = Terrain.WALL_DECO;
-			}
-		}
-		
-		for (int i=WIDTH + 1; i < LENGTH - WIDTH - 1; i++) {
-			if (map[i] == Terrain.EMPTY) { 
-				
-				int count = 
-					(map[i + 1] == Terrain.WALL ? 1 : 0) + 
-					(map[i - 1] == Terrain.WALL ? 1 : 0) + 
-					(map[i + WIDTH] == Terrain.WALL ? 1 : 0) +
-					(map[i - WIDTH] == Terrain.WALL ? 1 : 0);
-				
-				if (Random.Int( 16 ) < count * count) {
-					map[i] = Terrain.EMPTY_DECO;
-				}
-			}
-		}
-		
-		while (true) {
-			int pos = roomEntrance.random();
-			if (pos != entrance) {
-				map[pos] = Terrain.SIGN;
 
-                if (Dungeon.depth <= 1) {
-                    int belongings = roomEntrance.random();
-                    if (belongings != Terrain.SIGN) {
-                        //pos+1 == Terrain.WALL ? pos-1 : pos+1
-                        drop(Generator.random(), belongings).type = Heap.Type.CHEST;
-                        drop(new ClothArmor().identify(), belongings);
-                        drop(new Food().identify(), belongings);
-                        drop(new Keyring(), belongings);
-                        // Testing
-                        drop(new ArmorKit().identify(), belongings);
-                        drop(new LeatherArmor().identify(), belongings);
-                        drop(new MailArmor().identify(), belongings);
-                        drop(new PlateArmor().identify(), belongings);
-                        drop(new ScaleArmor().identify(), belongings);
-                        drop(new ScrollOfMagicMapping().identify(), belongings);
-                        break;
-                    }
-                    break;
+	protected boolean[] water() {
+        return Patch.generate(this, feeling == Feeling.WATER ? 0.60f : 0.45f, 5);
+    }
+
+    protected boolean[] grass() {
+        return Patch.generate(this, feeling == Feeling.GRASS ? 0.60f : 0.40f, 4);
+    }
+
+    @Override
+    protected void decorate() {
+
+        for (int i = 0; i < width(); i++) {
+            if (map[i] == Terrain.WALL &&
+                    map[i + width()] == Terrain.WATER &&
+                    Random.Int(4) == 0) {
+
+                map[i] = Terrain.WALL_DECO;
+            }
+        }
+
+        for (int i = width(); i < length() - width(); i++) {
+            if (map[i] == Terrain.WALL &&
+                    map[i - width()] == Terrain.WALL &&
+                    map[i + width()] == Terrain.WATER &&
+                    Random.Int(2) == 0) {
+
+                map[i] = Terrain.WALL_DECO;
+            }
+        }
+
+        for (int i = width() + 1; i < length() - width() - 1; i++) {
+            if (map[i] == Terrain.EMPTY) {
+
+                int count =
+                        (map[i + 1] == Terrain.WALL ? 1 : 0) +
+                                (map[i - 1] == Terrain.WALL ? 1 : 0) +
+                                (map[i + width()] == Terrain.WALL ? 1 : 0) +
+                                (map[i - width()] == Terrain.WALL ? 1 : 0);
+
+                if (Random.Int(16) < count * count) {
+                    map[i] = Terrain.EMPTY_DECO;
                 }
-                break;
+            }
+        }
+
+        placeSign();
+
+        if (Dungeon.depth <= 1) {
+            int belongings = pointToCell(roomEntrance.random());
+            if (belongings != Terrain.SIGN) {
+                //pos+1 == Terrain.WALL ? pos-1 : pos+1
+                drop(Generator.random(), belongings).type = Heap.Type.CHEST;
+                drop(new ClothArmor().identify(), belongings);
+                drop(new Food().identify(), belongings);
+                drop(new Keyring(), belongings);
+                // Testing
+                drop(new ScrollOfMagicMapping().identify(), belongings);
             }
         }
     }
@@ -146,7 +136,7 @@ public class SewerLevel extends RegularLevel {
 			addItemToSpawn( new DewVial() );
 			Dungeon.dewVial = false;
 		}
-		
+
 		super.createItems();
 	}
 	
@@ -154,14 +144,6 @@ public class SewerLevel extends RegularLevel {
 	public void addVisuals( Scene scene ) {
 		super.addVisuals( scene );
 		addVisuals( this, scene );
-	}
-	
-	public static void addVisuals( Level level, Scene scene ) {
-		for (int i=0; i < LENGTH; i++) {
-			if (level.map[i] == Terrain.WALL_DECO) {
-				scene.add( new Sink( i ) );
-			}
-		}
 	}
 	
 	@Override
@@ -188,19 +170,18 @@ public class SewerLevel extends RegularLevel {
 	
 	private static class Sink extends Emitter {
 		
-		private int pos;
-		private float rippleDelay = 0;
-		
 		private static final Emitter.Factory factory = new Factory() {
-			
-			@Override
+
+            @Override
 			public void emit( Emitter emitter, int index, float x, float y ) {
 				WaterParticle p = (WaterParticle)emitter.recycle( WaterParticle.class );
 				p.reset( x, y );
 			}
 		};
-		
-		public Sink( int pos ) {
+        private int pos;
+        private float rippleDelay = 0;
+
+        public Sink( int pos ) {
 			super();
 			
 			this.pos = pos;
@@ -218,12 +199,12 @@ public class SewerLevel extends RegularLevel {
 				super.update();
 				
 				if ((rippleDelay -= Game.elapsed) <= 0) {
-					GameScene.ripple( pos + WIDTH ).y -= DungeonTilemap.SIZE / 2;
-					rippleDelay = Random.Float( 0.2f, 0.3f );
-				}
-			}
-		}
-	}
+                    GameScene.ripple(pos + Dungeon.level.width()).y -= DungeonTilemap.SIZE / 2;
+                    rippleDelay = Random.Float(0.2f, 0.3f);
+                }
+            }
+        }
+    }
 
 	public static final class WaterParticle extends PixelParticle {
 		

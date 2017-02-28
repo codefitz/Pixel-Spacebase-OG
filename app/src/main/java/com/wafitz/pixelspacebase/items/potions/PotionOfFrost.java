@@ -17,13 +17,13 @@
  */
 package com.wafitz.pixelspacebase.items.potions;
 
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.blobs.Fire;
 import com.wafitz.pixelspacebase.actors.blobs.Freezing;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.utils.BArray;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PathFinder;
 
 public class PotionOfFrost extends Potion {
@@ -42,7 +42,7 @@ public class PotionOfFrost extends Potion {
 		Fire fire = (Fire)Dungeon.level.blobs.get( Fire.class );
 		
 		boolean visible = false;
-		for (int i=0; i < Level.LENGTH; i++) {
+		for (int i = 0; i < Dungeon.level.length(); i++) {
 			if (PathFinder.distance[i] < Integer.MAX_VALUE) {
 				visible = Freezing.affect( i, fire ) || visible;
 			}

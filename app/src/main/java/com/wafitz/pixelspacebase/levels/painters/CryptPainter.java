@@ -17,9 +17,10 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.items.Generator;
-import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.Heap.Type;
+import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Room;
@@ -59,8 +60,8 @@ public class CryptPainter extends Painter {
 			set( level, new Point( room.right-1, room.top+1 ), Terrain.STATUE );
 			cy = room.top + 2;
 		}
-		
-		level.drop( prize( level ), cx + cy * Level.WIDTH ).type = Type.TOMB;
+
+		level.drop(prize(level), cx + cy * Dungeon.level.width()).type = Type.TOMB;
 	}
 	
 	private static Item prize( Level level ) {

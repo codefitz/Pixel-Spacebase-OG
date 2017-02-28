@@ -17,13 +17,14 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.blobs.Alchemy;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Item;
+import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.items.potions.Potion;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Room;
-import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
@@ -50,14 +51,14 @@ public class LaboratoryPainter extends Painter {
 		set( level, pot, Terrain.ALCHEMY );
 		
 		Alchemy alchemy = new Alchemy();
-		alchemy.seed( pot.x + Level.WIDTH * pot.y, 1 );
+		alchemy.seed(pot.x + Dungeon.level.width() * pot.y, 1);
 		level.blobs.put( Alchemy.class, alchemy );
 		
 		int n = Random.IntRange( 2, 3 );
 		for (int i=0; i < n; i++) {
 			int pos;
 			do {
-				pos = room.random();
+				pos = level.pointToCell(room.random());
 			} while (
 				level.map[pos] != Terrain.EMPTY_SP || 
 				level.heaps.get( pos ) != null);

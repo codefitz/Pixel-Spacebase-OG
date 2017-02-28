@@ -17,10 +17,11 @@
  */
 package com.wafitz.pixelspacebase;
 
-import java.util.HashMap;
-
 import com.wafitz.pixelspacebase.actors.hero.HeroClass;
 import com.watabou.utils.Bundle;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 public class GamesInProgress {
 
@@ -41,7 +42,7 @@ public class GamesInProgress {
 				info = new Info();
 				Dungeon.preview( info, bundle );
 
-			} catch (Exception e) {
+			} catch (IOException e) {
 				info = null;
 			}
 			

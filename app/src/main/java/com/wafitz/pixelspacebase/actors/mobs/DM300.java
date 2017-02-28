@@ -17,44 +17,56 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.HashSet;
-
 import com.wafitz.pixelspacebase.Assets;
-import com.wafitz.pixelspacebase.Statistics;
-import com.wafitz.pixelspacebase.actors.Actor;
-import com.wafitz.pixelspacebase.actors.blobs.Blob;
-import com.wafitz.pixelspacebase.effects.CellEmitter;
-import com.wafitz.pixelspacebase.items.rings.RingOfThorns;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.Statistics;
+import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.blobs.Blob;
 import com.wafitz.pixelspacebase.actors.blobs.ToxicGas;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Paralysis;
+import com.wafitz.pixelspacebase.effects.CellEmitter;
 import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.effects.particles.ElmoParticle;
 import com.wafitz.pixelspacebase.items.keys.SkeletonKey;
+import com.wafitz.pixelspacebase.items.rings.RingOfThorns;
 import com.wafitz.pixelspacebase.items.scrolls.ScrollOfPsionicBlast;
 import com.wafitz.pixelspacebase.items.weapon.enchantments.Death;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.sprites.DM300Sprite;
+import com.wafitz.pixelspacebase.utils.GLog;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Random;
 
+import java.util.HashSet;
+
 public class DM300 extends Mob {
+
+	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+
+	static {
+		RESISTANCES.add(Death.class);
+		RESISTANCES.add(ScrollOfPsionicBlast.class);
+	}
+
+	static {
+		IMMUNITIES.add(ToxicGas.class);
+	}
 	
 	{
 		name = Dungeon.depth == Statistics.deepestFloor ? "DM-300" : "DM-350";
 		spriteClass = DM300Sprite.class;
-		
+
 		HP = HT = 200;
 		EXP = 30;
 		defenseSkill = 18;
-		
+
 		loot = new RingOfThorns().random();
 		lootChance = 0.333f;
 	}
@@ -83,31 +95,31 @@ public class DM300 extends Mob {
 	@Override
 	public void move( int step ) {
 		super.move( step );
-		
+
 		if (Dungeon.level.map[step] == Terrain.INACTIVE_TRAP && HP < HT) {
-			
+
 			HP += Random.Int( 1, HT - HP );
 			sprite.emitter().burst( ElmoParticle.FACTORY, 5 );
-			
+
 			if (Dungeon.visible[step] && Dungeon.hero.isAlive()) {
 				GLog.n( "DM-300 repairs itself!" );
 			}
 		}
 
 		int[] cells = {
-			step-1, step+1, step-Level.WIDTH, step+Level.WIDTH, 
-			step-1-Level.WIDTH, 
-			step-1+Level.WIDTH, 
-			step+1-Level.WIDTH, 
-			step+1+Level.WIDTH
+				step - 1, step + 1, step - Dungeon.level.width(), step + Dungeon.level.width(),
+				step - 1 - Dungeon.level.width(),
+				step - 1 + Dungeon.level.width(),
+				step + 1 - Dungeon.level.width(),
+				step + 1 + Dungeon.level.width()
 		};
 		int cell = cells[Random.Int( cells.length )];
-		
+
 		if (Dungeon.visible[cell]) {
 			CellEmitter.get( cell ).start( Speck.factory( Speck.ROCK ), 0.07f, 10 );
 			Camera.main.shake( 3, 0.7f );
 			Sample.INSTANCE.play( Assets.SND_ROCKS );
-			
+
 			if (Level.water[cell]) {
 				GameScene.ripple( cell );
 			} else if (Dungeon.level.map[cell] == Terrain.EMPTY) {
@@ -121,17 +133,17 @@ public class DM300 extends Mob {
 			Buff.prolong( ch, Paralysis.class, 2 );
 		}
 	}
-	
+
 	@Override
 	public void die( Object cause ) {
-		
+
 		super.die( cause );
-		
+
 		GameScene.bossSlain();
 		Dungeon.level.drop( new SkeletonKey(), pos ).sprite.drop();
-		
+
 		Badges.validateBossSlain();
-		
+
 		yell( "Mission failed. Shutting down." );
 	}
 	
@@ -148,21 +160,10 @@ public class DM300 extends Mob {
 			"golems, elementals and even demons. Eventually it led their civilization to the decline. The DM-300 and similar " +
 			"machines were typically used for construction and mining, and in some cases, for city defense.";
 	}
-	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
-	static {
-		RESISTANCES.add( Death.class );
-		RESISTANCES.add( ScrollOfPsionicBlast.class );
-	}
-	
+
 	@Override
 	public HashSet<Class<?>> resistances() {
 		return RESISTANCES;
-	}
-	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
-	static {
-		IMMUNITIES.add( ToxicGas.class );
 	}
 	
 	@Override

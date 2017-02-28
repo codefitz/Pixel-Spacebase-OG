@@ -19,9 +19,9 @@ package com.wafitz.pixelspacebase.levels.painters;
 
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.mobs.Statue;
-import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Point;
 
@@ -64,7 +64,7 @@ public class StatuePainter extends Painter {
 		}
 		
 		Statue statue = new Statue();
-		statue.pos = cx + cy * Level.WIDTH;
+		statue.pos = cx + cy * level.width();
 		level.mobs.add( statue );
 		Actor.occupyCell( statue );
 	}

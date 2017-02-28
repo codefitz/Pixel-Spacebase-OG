@@ -17,14 +17,15 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
+import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
-import com.wafitz.pixelspacebase.levels.Room;
-import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.keys.GoldenKey;
 import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 public class VaultPainter extends Painter {
@@ -37,7 +38,7 @@ public class VaultPainter extends Painter {
 		
 		int cx = (room.left + room.right) / 2;
 		int cy = (room.top + room.bottom) / 2;
-		int c = cx + cy * Level.WIDTH;
+		int c = cx + cy * level.width();
 		
 		switch (Random.Int( 3 )) {
 		
@@ -53,7 +54,7 @@ public class VaultPainter extends Painter {
 				i2 = prize( level );
 			} while (i1.getClass() == i2.getClass());
 			level.drop( i1, c ).type = Heap.Type.CRYSTAL_CHEST;
-			level.drop( i2, c + Level.NEIGHBOURS8[Random.Int( 8 )]).type = Heap.Type.CRYSTAL_CHEST;
+			level.drop(i2, c + PathFinder.NEIGHBOURS8[Random.Int(8)]).type = Heap.Type.CRYSTAL_CHEST;
 			level.addItemToSpawn( new GoldenKey() );
 			break;
 			

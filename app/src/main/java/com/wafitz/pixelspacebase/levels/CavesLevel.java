@@ -20,12 +20,12 @@ package com.wafitz.pixelspacebase.levels;
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Blacksmith;
+import com.wafitz.pixelspacebase.levels.painters.Painter;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.particles.PixelParticle;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Blacksmith;
-import com.wafitz.pixelspacebase.levels.painters.Painter;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 import com.watabou.utils.Rect;
@@ -37,6 +37,14 @@ public class CavesLevel extends RegularLevel {
 		color2 = 0xb9d661;
 		
 		viewDistance = 6;
+	}
+
+	public static void addVisuals(Level level, Scene scene) {
+		for (int i = 0; i < level.length(); i++) {
+			if (level.map[i] == Terrain.WALL_DECO) {
+				scene.add(new Vein(i));
+			}
+		}
 	}
 	
 	@Override
@@ -50,58 +58,58 @@ public class CavesLevel extends RegularLevel {
 	}
 	
 	protected boolean[] water() {
-		return Patch.generate( feeling == Feeling.WATER ? 0.60f : 0.45f, 6 );
+		return Patch.generate(this, feeling == Feeling.WATER ? 0.60f : 0.45f, 6);
 	}
 	
 	protected boolean[] grass() {
-		return Patch.generate( feeling == Feeling.GRASS ? 0.55f : 0.35f, 3 );
+		return Patch.generate(this, feeling == Feeling.GRASS ? 0.55f : 0.35f, 3);
 	}
 	
 	@Override
 	protected void assignRoomType() {
 		super.assignRoomType();
-		
+
 		Blacksmith.Quest.spawn( rooms );
 	}
 	
 	@Override
 	protected void decorate() {
-		
+
 		for (Room room : rooms) {
 			if (room.type != Room.Type.STANDARD) {
 				continue;
 			}
-			
+
 			if (room.width() <= 3 || room.height() <= 3) {
 				continue;
 			}
-			
+
 			int s = room.square();
-			
+
 			if (Random.Int( s ) > 8) {
-				int corner = (room.left + 1) + (room.top + 1) * WIDTH;
-				if (map[corner - 1] == Terrain.WALL && map[corner - WIDTH] == Terrain.WALL) {
+				int corner = (room.left + 1) + (room.top + 1) * width();
+				if (map[corner - 1] == Terrain.WALL && map[corner - width()] == Terrain.WALL) {
 					map[corner] = Terrain.WALL;
 				}
 			}
-			
+
 			if (Random.Int( s ) > 8) {
-				int corner = (room.right - 1) + (room.top + 1) * WIDTH;
-				if (map[corner + 1] == Terrain.WALL && map[corner - WIDTH] == Terrain.WALL) {
+				int corner = (room.right - 1) + (room.top + 1) * width();
+				if (map[corner + 1] == Terrain.WALL && map[corner - width()] == Terrain.WALL) {
 					map[corner] = Terrain.WALL;
 				}
 			}
-			
+
 			if (Random.Int( s ) > 8) {
-				int corner = (room.left + 1) + (room.bottom - 1) * WIDTH;
-				if (map[corner - 1] == Terrain.WALL && map[corner + WIDTH] == Terrain.WALL) {
+				int corner = (room.left + 1) + (room.bottom - 1) * width();
+				if (map[corner - 1] == Terrain.WALL && map[corner + width()] == Terrain.WALL) {
 					map[corner] = Terrain.WALL;
 				}
 			}
-			
+
 			if (Random.Int( s ) > 8) {
-				int corner = (room.right - 1) + (room.bottom - 1) * WIDTH;
-				if (map[corner + 1] == Terrain.WALL && map[corner + WIDTH] == Terrain.WALL) {
+				int corner = (room.right - 1) + (room.bottom - 1) * width();
+				if (map[corner + 1] == Terrain.WALL && map[corner + width()] == Terrain.WALL) {
 					map[corner] = Terrain.WALL;
 				}
 			}
@@ -112,8 +120,8 @@ public class CavesLevel extends RegularLevel {
 				}
 			}
 		}
-		
-		for (int i=WIDTH + 1; i < LENGTH - WIDTH; i++) {
+
+		for (int i = width() + 1; i < length() - width(); i++) {
 			if (map[i] == Terrain.EMPTY) {
 				int n = 0;
 				if (map[i+1] == Terrain.WALL) {
@@ -122,10 +130,10 @@ public class CavesLevel extends RegularLevel {
 				if (map[i-1] == Terrain.WALL) {
 					n++;
 				}
-				if (map[i+WIDTH] == Terrain.WALL) {
+				if (map[i + width()] == Terrain.WALL) {
 					n++;
 				}
-				if (map[i-WIDTH] == Terrain.WALL) {
+				if (map[i - width()] == Terrain.WALL) {
 					n++;
 				}
 				if (Random.Int( 6 ) <= n) {
@@ -133,46 +141,40 @@ public class CavesLevel extends RegularLevel {
 				}
 			}
 		}
-		
-		for (int i=0; i < LENGTH; i++) {
+
+		for (int i = 0; i < length(); i++) {
 			if (map[i] == Terrain.WALL && Random.Int( 12 ) == 0) {
 				map[i] = Terrain.WALL_DECO;
 			}
 		}
-		
-		while (true) {
-			int pos = roomEntrance.random();
-			if (pos != entrance) {
-				map[pos] = Terrain.SIGN;
-				break;
-			}
-		}
-		
+
+		placeSign();
+
 		if (Dungeon.bossLevel( Dungeon.depth + 1 )) {
 			return;
 		}
-		
+
 		for (Room r : rooms) {
 			if (r.type == Room.Type.STANDARD) {
 				for (Room n : r.neigbours) {
 					if (n.type == Room.Type.STANDARD && !r.connected.containsKey( n )) {
 						Rect w = r.intersect( n );
 						if (w.left == w.right && w.bottom - w.top >= 5) {
-							
+
 							w.top += 2;
 							w.bottom -= 1;
-							
+
 							w.right++;
-							
+
 							Painter.fill( this, w.left, w.top, 1, w.height(), Terrain.CHASM );
-							
+
 						} else if (w.top == w.bottom && w.right - w.left >= 5) {
-							
+
 							w.left += 2;
 							w.right -= 1;
-							
+
 							w.bottom++;
-							
+
 							Painter.fill( this, w.left, w.top, w.width(), 1, Terrain.CHASM );
 						}
 					}
@@ -217,14 +219,6 @@ public class CavesLevel extends RegularLevel {
 	public void addVisuals( Scene scene ) {
 		super.addVisuals( scene );
 		addVisuals( this, scene );
-	}
-	
-	public static void addVisuals( Level level, Scene scene ) {
-		for (int i=0; i < LENGTH; i++) {
-			if (level.map[i] == Terrain.WALL_DECO) {
-				scene.add( new Vein( i ) );
-			}
-		}
 	}
 	
 	private static class Vein extends Group {

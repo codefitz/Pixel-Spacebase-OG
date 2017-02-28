@@ -17,8 +17,6 @@
  */
 package com.wafitz.pixelspacebase.items.armor.glyphs;
 
-import java.util.ArrayList;
-
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
@@ -28,7 +26,10 @@ import com.wafitz.pixelspacebase.items.wands.WandOfBlink;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.sprites.ItemSprite;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class Multiplicity extends Armor.Glyph {
 
@@ -44,9 +45,9 @@ public class Multiplicity extends Armor.Glyph {
 		if (Random.Int( level / 2 + 6 ) >= 5) {
 			
 			ArrayList<Integer> respawnPoints = new ArrayList<Integer>();
-			
-			for (int i = 0; i < Level.NEIGHBOURS8.length; i++) {
-				int p = defender.pos + Level.NEIGHBOURS8[i];
+
+			for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+				int p = defender.pos + PathFinder.NEIGHBOURS8[i];
 				if (Actor.findChar( p ) == null && (Level.passable[p] || Level.avoid[p])) {
 					respawnPoints.add( p );
 				}

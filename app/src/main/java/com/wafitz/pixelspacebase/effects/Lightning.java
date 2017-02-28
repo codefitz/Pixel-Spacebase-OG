@@ -17,77 +17,72 @@
  */
 package com.wafitz.pixelspacebase.effects;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import android.opengl.GLES20;
 
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
+
+import javax.microedition.khronos.opengles.GL10;
 
 public class Lightning extends Group {
 
 	private static final float DURATION = 0.3f;
-	
+	private static final double A = 180 / Math.PI;
 	private float life;
-	
 	private int length;
 	private float[] cx;
 	private float[] cy;
-	
 	private Image[] arcsS;
 	private Image[] arcsE;
-	
 	private Callback callback;
 	
 	public Lightning( int[] cells, int length, Callback callback ) {
-		
+
 		super();
-		
+
 		this.callback = callback;
-		
+
 		Image proto = Effects.get( Effects.Type.LIGHTNING );
 		float ox = 0;
 		float oy = proto.height / 2;
-		
+
 		this.length = length;
 		cx = new float[length];
 		cy = new float[length];
-		
+
 		for (int i=0; i < length; i++) {
 			int c = cells[i];
-			cx[i] = (c % Level.WIDTH + 0.5f) * DungeonTilemap.SIZE;
-			cy[i] = (c / Level.WIDTH + 0.5f) * DungeonTilemap.SIZE;
+			cx[i] = (c % Dungeon.level.width() + 0.5f) * DungeonTilemap.SIZE;
+			cy[i] = (c / Dungeon.level.width() + 0.5f) * DungeonTilemap.SIZE;
 		}
-		
+
 		arcsS = new Image[length - 1];
 		arcsE = new Image[length - 1];
 		for (int i=0; i < length - 1; i++) {
-			
+
 			Image arc = arcsS[i] = new Image( proto );
-			
+
 			arc.x = cx[i] - arc.origin.x;
 			arc.y = cy[i] - arc.origin.y;
 			arc.origin.set( ox, oy );
 			add( arc );
-			
+
 			arc = arcsE[i] = new Image( proto );
 			arc.origin.set( ox, oy );
 			add( arc );
 		}
-		
+
 		life = DURATION;
-		
+
 		Sample.INSTANCE.play( Assets.SND_LIGHTNING );
 	}
-	
-	private static final double A = 180 / Math.PI;
 	
 	@Override
 	public void update() {

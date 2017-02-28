@@ -19,10 +19,10 @@ package com.wafitz.pixelspacebase.items.armor.glyphs;
 
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.items.armor.Armor;
 import com.wafitz.pixelspacebase.items.wands.WandOfBlink;
 import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
@@ -43,7 +43,7 @@ public class Displacement extends Armor.Glyph {
 		int level = armor.effectiveLevel();
 		int nTries = (level < 0 ? 1 : level + 1) * 5;
 		for (int i=0; i < nTries; i++) {
-			int pos = Random.Int( Level.LENGTH );
+			int pos = Random.Int(Dungeon.level.length());
 			if (Dungeon.visible[pos] && Level.passable[pos] && Actor.findChar( pos ) == null) {
 				
 				WandOfBlink.appear( defender, pos );

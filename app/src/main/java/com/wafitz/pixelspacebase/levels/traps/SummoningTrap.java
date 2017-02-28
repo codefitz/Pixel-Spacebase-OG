@@ -17,17 +17,18 @@
  */
 package com.wafitz.pixelspacebase.levels.traps;
 
-import java.util.ArrayList;
-
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.mobs.Bestiary;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.items.wands.WandOfBlink;
-import com.wafitz.pixelspacebase.scenes.GameScene;
-import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class SummoningTrap {
 
@@ -56,9 +57,9 @@ public class SummoningTrap {
 		}
 		
 		ArrayList<Integer> candidates = new ArrayList<Integer>();
-		
-		for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
-			int p = pos + Level.NEIGHBOURS8[i];
+
+		for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+			int p = pos + PathFinder.NEIGHBOURS8[i];
 			if (Actor.findChar( p ) == null && (Level.passable[p] || Level.avoid[p])) {
 				candidates.add( p );
 			}

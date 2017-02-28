@@ -17,12 +17,12 @@
  */
 package com.wafitz.pixelspacebase.items.armor.glyphs;
 
+import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.blobs.Blob;
 import com.wafitz.pixelspacebase.actors.blobs.ToxicGas;
 import com.wafitz.pixelspacebase.items.armor.Armor;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.scenes.GameScene;
-import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
@@ -37,8 +37,8 @@ public class Stench extends Armor.Glyph {
 	public int proc( Armor armor, Char attacker, Char defender, int damage) {
 
 		int level = Math.max( 0, armor.effectiveLevel() );
-		
-		if (Level.adjacent( attacker.pos, defender.pos ) && Random.Int( level + 5 ) >= 4) {
+
+		if (Dungeon.level.adjacent(attacker.pos, defender.pos) && Random.Int(level + 5) >= 4) {
 			
 			GameScene.add( Blob.seed( attacker.pos, 20, ToxicGas.class ) );
 			

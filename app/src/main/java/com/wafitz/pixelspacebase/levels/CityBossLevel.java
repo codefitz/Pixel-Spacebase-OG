@@ -17,55 +17,53 @@
  */
 package com.wafitz.pixelspacebase.levels;
 
-import com.wafitz.pixelspacebase.actors.mobs.Bestiary;
-import com.watabou.noosa.Scene;
-import com.watabou.noosa.tweeners.AlphaTweener;
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Bones;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.mobs.Bestiary;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.keys.SkeletonKey;
 import com.wafitz.pixelspacebase.levels.painters.Painter;
 import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.watabou.noosa.Scene;
+import com.watabou.noosa.tweeners.AlphaTweener;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 public class CityBossLevel extends Level {
 	
-	{
-		color1 = 0x4b6636;
-		color2 = 0xf2f2f2;
-	}
-	
 	private static final int TOP			= 2;
 	private static final int HALL_WIDTH		= 7;
 	private static final int HALL_HEIGHT	= 15;
 	private static final int CHAMBER_HEIGHT	= 3;
-	
-	private static final int LEFT	= (WIDTH - HALL_WIDTH) / 2;
-	private static final int CENTER	= LEFT + HALL_WIDTH / 2;
-	
-	private int arenaDoor;
-	private boolean enteredArena = false;
-	private boolean keyDropped = false;
-	
+    private static final int WIDTH = 32;
+    private static final int LEFT = (WIDTH - HALL_WIDTH) / 2;
+    private static final int CENTER = LEFT + HALL_WIDTH / 2;
+    private static final String DOOR = "door";
+    private static final String ENTERED = "entered";
+    private static final String DROPPED = "droppped";
+    private int arenaDoor;
+    private boolean enteredArena = false;
+    private boolean keyDropped = false;
+
+    {
+        color1 = 0x4b6636;
+        color2 = 0xf2f2f2;
+    }
+
 	@Override
 	public String tilesTex() {
 		return Assets.TILES_CITY;
 	}
-	
+
 	@Override
 	public String waterTex() {
 		return Assets.WATER_CITY;
 	}
-	
-	private static final String DOOR	= "door";
-	private static final String ENTERED	= "entered";
-	private static final String DROPPED	= "droppped";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -91,60 +89,60 @@ public class CityBossLevel extends Level {
 		
 		int y = TOP + 1;
 		while (y < TOP + HALL_HEIGHT) {
-			map[y * WIDTH + CENTER - 2] = Terrain.STATUE_SP;
-			map[y * WIDTH + CENTER + 2] = Terrain.STATUE_SP;
-			y += 2;
-		}
-		
-		int left = pedestal( true );
-		int right = pedestal( false );
-		map[left] = map[right] = Terrain.PEDESTAL;
+            map[y * width() + CENTER - 2] = Terrain.STATUE_SP;
+            map[y * width() + CENTER + 2] = Terrain.STATUE_SP;
+            y += 2;
+        }
+
+        int left = pedestal(true);
+        int right = pedestal(false);
+        map[left] = map[right] = Terrain.PEDESTAL;
 		for (int i=left+1; i < right; i++) {
 			map[i] = Terrain.EMPTY_SP;
 		}
-		
-		exit = (TOP - 1) * WIDTH + CENTER;
-		map[exit] = Terrain.LOCKED_EXIT;
-		
-		arenaDoor = (TOP + HALL_HEIGHT) * WIDTH + CENTER;
-		map[arenaDoor] = Terrain.DOOR;
-		
-		Painter.fill( this, LEFT, TOP + HALL_HEIGHT + 1, HALL_WIDTH, CHAMBER_HEIGHT, Terrain.EMPTY );
-		Painter.fill( this, LEFT, TOP + HALL_HEIGHT + 1, 1, CHAMBER_HEIGHT, Terrain.BOOKSHELF );
-		Painter.fill( this, LEFT + HALL_WIDTH - 1, TOP + HALL_HEIGHT + 1, 1, CHAMBER_HEIGHT, Terrain.BOOKSHELF );
-		
-		entrance = (TOP + HALL_HEIGHT + 2 + Random.Int( CHAMBER_HEIGHT - 1 )) * WIDTH + LEFT + (/*1 +*/ Random.Int( HALL_WIDTH-2 )); 
-		map[entrance] = Terrain.ENTRANCE;
-		
-		return true;
-	}
-	
-	@Override
-	protected void decorate() {	
-		
-		for (int i=0; i < LENGTH; i++) {
-			if (map[i] == Terrain.EMPTY && Random.Int( 10 ) == 0) { 
-				map[i] = Terrain.EMPTY_DECO;
-			} else if (map[i] == Terrain.WALL && Random.Int( 8 ) == 0) { 
-				map[i] = Terrain.WALL_DECO;
-			}
+
+        exit = (TOP - 1) * width() + CENTER;
+        map[exit] = Terrain.LOCKED_EXIT;
+
+        arenaDoor = (TOP + HALL_HEIGHT) * width() + CENTER;
+        map[arenaDoor] = Terrain.DOOR;
+
+        Painter.fill(this, LEFT, TOP + HALL_HEIGHT + 1, HALL_WIDTH, CHAMBER_HEIGHT, Terrain.EMPTY);
+        Painter.fill(this, LEFT, TOP + HALL_HEIGHT + 1, 1, CHAMBER_HEIGHT, Terrain.BOOKSHELF);
+        Painter.fill(this, LEFT + HALL_WIDTH - 1, TOP + HALL_HEIGHT + 1, 1, CHAMBER_HEIGHT, Terrain.BOOKSHELF);
+
+        entrance = (TOP + HALL_HEIGHT + 2 + Random.Int(CHAMBER_HEIGHT - 1)) * width() + LEFT + (/*1 +*/ Random.Int(HALL_WIDTH - 2));
+        map[entrance] = Terrain.ENTRANCE;
+
+        return true;
+    }
+
+    @Override
+    protected void decorate() {
+
+        for (int i = 0; i < length(); i++) {
+            if (map[i] == Terrain.EMPTY && Random.Int(10) == 0) {
+                map[i] = Terrain.EMPTY_DECO;
+            } else if (map[i] == Terrain.WALL && Random.Int(8) == 0) {
+                map[i] = Terrain.WALL_DECO;
+            }
 		}
-		
-		int sign = arenaDoor + WIDTH + 1;
-		map[sign] = Terrain.SIGN;
-	}
-	
-	public static int pedestal( boolean left ) {
-		if (left) {
-			return (TOP + HALL_HEIGHT / 2) * WIDTH + CENTER - 2;
-		} else {
-			return (TOP + HALL_HEIGHT / 2) * WIDTH + CENTER + 2;
-		}
-	}
-	
-	@Override
-	protected void createMobs() {	
-	}
+
+        int sign = arenaDoor + width() + 1;
+        map[sign] = Terrain.SIGN;
+    }
+
+    public int pedestal(boolean left) {
+        if (left) {
+            return (TOP + HALL_HEIGHT / 2) * width() + CENTER - 2;
+        } else {
+            return (TOP + HALL_HEIGHT / 2) * width() + CENTER + 2;
+        }
+    }
+
+    @Override
+    protected void createMobs() {
+    }
 	
 	public Actor respawner() {
 		return null;
@@ -156,15 +154,15 @@ public class CityBossLevel extends Level {
 		if (item != null) {
 			int pos;
 			do {
-				pos = 
-					Random.IntRange( LEFT + 1, LEFT + HALL_WIDTH - 2 ) + 
-					Random.IntRange( TOP + HALL_HEIGHT + 1, TOP + HALL_HEIGHT  + CHAMBER_HEIGHT ) * WIDTH;
-			} while (pos == entrance || map[pos] == Terrain.SIGN);
-			drop( item, pos ).type = Heap.Type.SKELETON;
-		}
-	}
-	
-	@Override
+                pos =
+                        Random.IntRange(LEFT + 1, LEFT + HALL_WIDTH - 2) +
+                                Random.IntRange(TOP + HALL_HEIGHT + 1, TOP + HALL_HEIGHT + CHAMBER_HEIGHT) * width();
+            } while (pos == entrance || map[pos] == Terrain.SIGN);
+            drop(item, pos).type = Heap.Type.SKELETON;
+        }
+    }
+
+    @Override
 	public int randomRespawnCell() {
 		return -1;
 	}
@@ -182,12 +180,12 @@ public class CityBossLevel extends Level {
 			boss.state = boss.HUNTING;
 			int count = 0;
 			do {
-				boss.pos = Random.Int( LENGTH );
-			} while (
-				!passable[boss.pos] ||
-				!outsideEntraceRoom( boss.pos ) ||
-				(Dungeon.visible[boss.pos] && count++ < 20));
-			GameScene.add( boss );
+                boss.pos = Random.Int(length());
+            } while (
+                    !passable[boss.pos] ||
+                            !outsideEntraceRoom(boss.pos) ||
+                            (Dungeon.visible[boss.pos] && count++ < 20));
+            GameScene.add( boss );
 			
 			if (Dungeon.visible[boss.pos]) {
 				boss.notice();
@@ -217,13 +215,13 @@ public class CityBossLevel extends Level {
 	}
 	
 	private boolean outsideEntraceRoom( int cell ) {
-		return cell / WIDTH < arenaDoor / WIDTH;
-	}
-	
-	@Override
-	public String tileName( int tile ) {
-		switch (tile) {
-		case Terrain.WATER:
+        return cell / width() < arenaDoor / width();
+    }
+
+    @Override
+    public String tileName(int tile) {
+        switch (tile) {
+            case Terrain.WATER:
 			return "Suspiciously colored water";
 		case Terrain.HIGH_GRASS:
 			return "High blooming flowers";

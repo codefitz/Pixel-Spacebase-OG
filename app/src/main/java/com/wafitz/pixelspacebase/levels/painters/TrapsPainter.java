@@ -17,13 +17,13 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import com.wafitz.pixelspacebase.items.Heap;
-import com.wafitz.pixelspacebase.items.Item;
-import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.items.Generator;
+import com.wafitz.pixelspacebase.items.Heap;
+import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.potions.PotionOfLevitation;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Random;
 
@@ -40,8 +40,8 @@ public class TrapsPainter extends Painter {
 		
 		Room.Door door = room.entrance(); 
 		door.set( Room.Door.Type.REGULAR );
-		
-		int lastRow = level.map[room.left + 1 + (room.top + 1) * Level.WIDTH] == Terrain.CHASM ? Terrain.CHASM : Terrain.EMPTY;
+
+		int lastRow = level.map[room.left + 1 + (room.top + 1) * level.width()] == Terrain.CHASM ? Terrain.CHASM : Terrain.EMPTY;
 
 		int x = -1;
 		int y = -1;
@@ -62,8 +62,8 @@ public class TrapsPainter extends Painter {
 			y = room.top + 1;
 			fill( level, room.left + 1, y, room.width() - 1, 1 , lastRow );
 		}
-		
-		int pos = x + y * Level.WIDTH;
+
+		int pos = x + y * Dungeon.level.width();
 		if (Random.Int( 3 ) == 0) {
 			if (lastRow == Terrain.CHASM) {
 				set( level, pos, Terrain.EMPTY );

@@ -25,102 +25,42 @@ import com.wafitz.pixelspacebase.Statistics;
 import com.wafitz.pixelspacebase.actors.blobs.Blob;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 
-import java.util.Arrays;
 import java.util.HashSet;
 
 public abstract class Actor implements Bundlable {
 	
 	public static final float TICK	= 1f;
-
-	private float time;
-	
-	private int id = 0;
-	
-	protected abstract boolean act();
-	
-	protected void spend( float time ) {
-		this.time += time;
-	}
-	
-	protected void postpone( float time ) {
-		if (this.time < now + time) {
-			this.time = now + time;
-		}
-	}
-	
-	protected float cooldown() {
-		return time - now;
-	}
-	
-	protected void diactivate() {
-		time = Float.MAX_VALUE;
-	}
-	
-	protected void onAdd() {}
-	
-	protected void onRemove() {}
-	
 	private static final String TIME	= "time";
 	private static final String ID		= "id";
-	
-	@Override
-	public void storeInBundle( Bundle bundle ) {
-		bundle.put( TIME, time );
-		bundle.put( ID, id );
-	}
-	
-	@Override
-	public void restoreFromBundle( Bundle bundle ) {
-		time = bundle.getFloat( TIME );
-		id = bundle.getInt( ID );
-	}
-	
-	public int id() {
-		if (id > 0) {
-			return id;
-		} else {
-			int max = 0;
-			for (Actor a : all) {
-				if (a.id > max) {
-					max = a.id;
-				}
-			}
-			return (id = max + 1);
-		}
-	}
-	
-	// **********************
-	// *** Static members ***
-	
 	private static HashSet<Actor> all = new HashSet<>();
-	private static Actor current;
-	
+	private static HashSet<Char> chars = new HashSet<>();
+	private static volatile Actor current;
+	private static volatile boolean processing;
 	private static SparseArray<Actor> ids = new SparseArray<>();
-	
 	private static float now = 0;
-	
-	private static Char[] chars = new Char[Level.LENGTH];
-	
+	protected int actPriority = Integer.MAX_VALUE;
+	private float time;
+	private int id = 0;
+
 	public static void clear() {
-		
+
 		now = 0;
-		
-		Arrays.fill( chars, null );
+
 		all.clear();
-		
+		chars.clear();
+
 		ids.clear();
 	}
 	
 	public static void fixTime() {
-		
+
 		if (Dungeon.hero != null && all.contains( Dungeon.hero )) {
 			Statistics.duration += now;
 		}
-		
+
 		float min = Float.MAX_VALUE;
 		for (Actor a : all) {
 			if (a.time < min) {
@@ -135,7 +75,7 @@ public abstract class Actor implements Bundlable {
 	
 	public static void init() {
 
-		
+
 		addDelayed( Dungeon.hero, -Float.MIN_VALUE );
 
 		for (Mob mob : Dungeon.level.mobs) {
@@ -146,59 +86,49 @@ public abstract class Actor implements Bundlable {
 		for (Blob blob : Dungeon.level.blobs.values()) {
 			add( blob );
 		}
-		
+
 		current = null;
 	}
 	
 	public static void occupyCell( Char ch ) {
-		chars[ch.pos] = ch;
+		chars.add(ch);
 	}
-	
-	public static void freeCell( int pos ) {
-		chars[pos] = null;
-	}
-	
-	/*protected*/public void next() {
-		if (current == this) {
-			current = null;
-		}
-	}
+
+	// **********************
+	// *** Static members ***
 	
 	public static void process() {
-		
+
 		if (current != null) {
 			return;
 		}
-	
+
 		boolean doNext;
 
 		do {
 			now = Float.MAX_VALUE;
 			current = null;
-			
-			Arrays.fill( chars, null );
-			
+
 			for (Actor actor : all) {
-				if (actor.time < now) {
+
+				//some actors will always go before others if time is equal.
+				if (actor.time < now ||
+						actor.time == now && (current == null || actor.actPriority < current.actPriority)) {
 					now = actor.time;
 					current = actor;
 				}
-				
-				if (actor instanceof Char) {
-					Char ch = (Char)actor;
-					chars[ch.pos] = ch;
-				}
+
 			}
 
 			if (current != null) {
-				
+
 				if (current instanceof Char && ((Char)current).sprite.isMoving) {
-					// If it's character's turn to act, but its sprite 
+					// If it's character's turn to act, but its sprite
 					// is moving, wait till the movement is over
 					current = null;
 					break;
 				}
-				
+
 				doNext = current.act();
 				if (doNext && !Dungeon.hero.isAlive()) {
 					doNext = false;
@@ -207,25 +137,25 @@ public abstract class Actor implements Bundlable {
 			} else {
 				doNext = false;
 			}
-			
+
 		} while (doNext);
 	}
-	
+
 	public static void add( Actor actor ) {
 		add( actor, now );
 	}
-	
+
 	public static void addDelayed( Actor actor, float delay ) {
 		Log.d("WAFITZ", "Setting delay... " );
 		add( actor, now + delay );
 	}
-	
+
 	private static void add( Actor actor, float time ) {
-		
+
 		if (all.contains( actor )) {
 			return;
 		}
-		
+
 		if (actor.id > 0) {
 			ids.put( actor.id,  actor );
 		}
@@ -233,10 +163,10 @@ public abstract class Actor implements Bundlable {
 		all.add( actor );
 		actor.time += time;
 		actor.onAdd();
-		
+
 		if (actor instanceof Char) {
 			Char ch = (Char)actor;
-			chars[ch.pos] = ch;
+			chars.add(ch);
 			for (Buff buff : ch.buffs()) {
 				all.add( buff );
 				buff.onAdd();
@@ -245,11 +175,11 @@ public abstract class Actor implements Bundlable {
 	}
 	
 	public static void remove( Actor actor ) {
-		
+
 		if (actor != null) {
 			all.remove( actor );
 			actor.onRemove();
-			
+
 			if (actor.id > 0) {
 				ids.remove( actor.id );
 			}
@@ -257,7 +187,11 @@ public abstract class Actor implements Bundlable {
 	}
 	
 	public static Char findChar( int pos ) {
-		return chars[pos];
+		for (Char ch : chars) {
+			if (ch.pos == pos)
+				return ch;
+		}
+		return null;
 	}
 	
 	protected static Actor findById(int id) {
@@ -266,5 +200,64 @@ public abstract class Actor implements Bundlable {
 	
 	public static HashSet<Actor> all() {
 		return all;
+	}
+
+	protected abstract boolean act();
+
+	protected void spend(float time) {
+		this.time += time;
+	}
+
+	protected void postpone(float time) {
+		if (this.time < now + time) {
+			this.time = now + time;
+		}
+	}
+
+	public float cooldown() {
+		return time - now;
+	}
+
+	protected void diactivate() {
+		time = Float.MAX_VALUE;
+	}
+
+	protected void onAdd() {
+	}
+
+	protected void onRemove() {
+	}
+
+	@Override
+	public void storeInBundle(Bundle bundle) {
+		bundle.put(TIME, time);
+		bundle.put(ID, id);
+	}
+
+	@Override
+	public void restoreFromBundle(Bundle bundle) {
+		time = bundle.getFloat(TIME);
+		id = bundle.getInt(ID);
+	}
+
+	public int id() {
+		if (id > 0) {
+			return id;
+		} else {
+			int max = 0;
+			for (Actor a : all) {
+				if (a.id > max) {
+					max = a.id;
+				}
+			}
+			return (id = max + 1);
+		}
+	}
+
+	/*protected*/
+	public void next() {
+		if (current == this) {
+			current = null;
+		}
 	}
 }

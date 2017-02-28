@@ -21,18 +21,19 @@ import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
+import com.wafitz.pixelspacebase.actors.buffs.Paralysis;
 import com.wafitz.pixelspacebase.effects.CellEmitter;
+import com.wafitz.pixelspacebase.effects.particles.BlastParticle;
+import com.wafitz.pixelspacebase.effects.particles.SmokeParticle;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.sprites.ItemSpriteSheet;
 import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
-import com.wafitz.pixelspacebase.actors.buffs.Paralysis;
-import com.wafitz.pixelspacebase.effects.particles.BlastParticle;
-import com.wafitz.pixelspacebase.effects.particles.SmokeParticle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 public class Bomb extends Item {
@@ -56,9 +57,9 @@ public class Bomb extends Item {
 			}
 			
 			boolean terrainAffected = false;
-			for (int n : Level.NEIGHBOURS9) {
+			for (int n : PathFinder.NEIGHBOURS9) {
 				int c = cell + n;
-				if (c >= 0 && c < Level.LENGTH) {
+				if (c >= 0 && c < Dungeon.level.length()) {
 					if (Dungeon.visible[c]) {
 						CellEmitter.get( c ).burst( SmokeParticle.FACTORY, 4 );
 					}

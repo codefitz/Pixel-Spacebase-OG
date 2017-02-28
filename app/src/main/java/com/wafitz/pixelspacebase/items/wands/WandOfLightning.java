@@ -17,34 +17,34 @@
  */
 package com.wafitz.pixelspacebase.items.wands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
-import com.wafitz.pixelspacebase.actors.Actor;
-import com.wafitz.pixelspacebase.effects.CellEmitter;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.Camera;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
+import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.effects.CellEmitter;
 import com.wafitz.pixelspacebase.effects.Lightning;
 import com.wafitz.pixelspacebase.effects.particles.SparkParticle;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.traps.LightningTrap;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
+import com.watabou.noosa.Camera;
 import com.watabou.utils.Callback;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 public class WandOfLightning extends Wand {
+
+	private ArrayList<Char> affected = new ArrayList<>();
+	private int[] points = new int[20];
+	private int nPoints;
 
 	{
 		name = "Wand of Lightning";
 	}
-	
-	private ArrayList<Char> affected = new ArrayList<Char>();
-	
-	private int[] points = new int[20];
-	private int nPoints;
 	
 	@Override
 	protected void onZap( int cell ) {
@@ -66,16 +66,16 @@ public class WandOfLightning extends Wand {
 		}
 		
 		affected.add( ch );
-		ch.damage( Level.water[ch.pos] && !ch.flying ? (int)(damage * 2) : damage, LightningTrap.LIGHTNING  );
+		ch.damage(Level.water[ch.pos] && !ch.flying ? damage * 2 : damage, LightningTrap.LIGHTNING);
 		
 		ch.sprite.centerEmitter().burst( SparkParticle.FACTORY, 3 );
 		ch.sprite.flash();
 		
 		points[nPoints++] = ch.pos;
-		
-		HashSet<Char> ns = new HashSet<Char>();
-		for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
-			Char n = Actor.findChar( ch.pos + Level.NEIGHBOURS8[i] );
+
+		HashSet<Char> ns = new HashSet<>();
+		for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+			Char n = Actor.findChar(ch.pos + PathFinder.NEIGHBOURS8[i]);
 			if (n != null && !affected.contains( n )) {
 				ns.add( n );
 			}

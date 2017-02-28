@@ -21,22 +21,22 @@ import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
 import com.wafitz.pixelspacebase.actors.Actor;
-import com.wafitz.pixelspacebase.actors.mobs.Mob;
-import com.wafitz.pixelspacebase.effects.CellEmitter;
-import com.wafitz.pixelspacebase.effects.MagicMissile;
-import com.wafitz.pixelspacebase.items.Item;
-import com.wafitz.pixelspacebase.scenes.GameScene;
-import com.wafitz.pixelspacebase.utils.BArray;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Paralysis;
+import com.wafitz.pixelspacebase.actors.mobs.Mob;
+import com.wafitz.pixelspacebase.effects.CellEmitter;
+import com.wafitz.pixelspacebase.effects.MagicMissile;
 import com.wafitz.pixelspacebase.effects.Speck;
+import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.mechanics.Ballistica;
+import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.wafitz.pixelspacebase.utils.BArray;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
@@ -61,7 +61,7 @@ public class WandOfAvalanche extends Wand {
 		PathFinder.buildDistanceMap( cell, BArray.not( Level.solid, null ), size );
 
 		int shake = 0;
-		for (int i=0; i < Level.LENGTH; i++) {
+		for (int i = 0; i < Dungeon.level.length(); i++) {
 
 			int d = PathFinder.distance[i];
 

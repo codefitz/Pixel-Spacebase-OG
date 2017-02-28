@@ -17,10 +17,10 @@
  */
 package com.wafitz.pixelspacebase.levels;
 
-import java.util.Arrays;
-
 import com.wafitz.pixelspacebase.Assets;
 import com.watabou.utils.Random;
+
+import java.util.Arrays;
 
 public class DeadEndLevel extends Level {
 
@@ -48,31 +48,31 @@ public class DeadEndLevel extends Level {
 		
 		for (int i=2; i < SIZE; i++) {
 			for (int j=2; j < SIZE; j++) {
-				map[i * WIDTH + j] = Terrain.EMPTY;
+				map[i * width() + j] = Terrain.EMPTY;
 			}
 		}
 		
 		for (int i=1; i <= SIZE; i++) {
-			map[WIDTH + i] = 
-			map[WIDTH * SIZE + i] =
-			map[WIDTH * i + 1] =
-			map[WIDTH * i + SIZE] =
+			map[width() + i] =
+					map[width() * SIZE + i] =
+							map[width() * i + 1] =
+									map[width() * i + SIZE] =
 				Terrain.WATER;
 		}
-		
-		entrance = SIZE * WIDTH + SIZE / 2 + 1;
+
+		entrance = SIZE * width() + SIZE / 2 + 1;
 		map[entrance] = Terrain.ENTRANCE;
 		
 		exit = -1;
-		
-		map[(SIZE / 2 + 1) * (WIDTH + 1)] = Terrain.SIGN;
+
+		map[(SIZE / 2 + 1) * (width() + 1)] = Terrain.SIGN;
 		
 		return true;
 	}
 
 	@Override
 	protected void decorate() {
-		for (int i=0; i < LENGTH; i++) {
+		for (int i = 0; i < length(); i++) {
 			if (map[i] == Terrain.EMPTY && Random.Int( 10 ) == 0) { 
 				map[i] = Terrain.EMPTY_DECO;
 			} else if (map[i] == Terrain.WALL && Random.Int( 8 ) == 0) { 

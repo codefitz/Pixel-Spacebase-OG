@@ -17,73 +17,64 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.HashSet;
-
-import com.wafitz.pixelspacebase.Statistics;
-import com.wafitz.pixelspacebase.actors.Actor;
-import com.wafitz.pixelspacebase.actors.buffs.Terror;
-import com.wafitz.pixelspacebase.actors.hero.Hero;
-import com.wafitz.pixelspacebase.effects.Flare;
-import com.wafitz.pixelspacebase.effects.Wound;
-import com.wafitz.pixelspacebase.items.Item;
-import com.wafitz.pixelspacebase.sprites.CharSprite;
-import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.Badges;
 import com.wafitz.pixelspacebase.Challenges;
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.Statistics;
+import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Amok;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Sleep;
+import com.wafitz.pixelspacebase.actors.buffs.Terror;
+import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.actors.hero.HeroSubClass;
+import com.wafitz.pixelspacebase.effects.Flare;
+import com.wafitz.pixelspacebase.effects.Wound;
 import com.wafitz.pixelspacebase.items.Generator;
+import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.sprites.CharSprite;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
+import java.util.HashSet;
+
 public abstract class Mob extends Char {
 	
-	private static final String	TXT_DIED	= "You hear something died in the distance";
-	
 	protected static final String	TXT_ECHO	= "echo of ";
-	
 	protected static final String TXT_NOTICE1	= "?!";
 	protected static final String TXT_RAGE		= "#$%^";
 	protected static final String TXT_EXP		= "%+dEXP";
-	
+	protected static final float TIME_TO_WAKE_UP = 1f;
+	private static final String TXT_DIED = "You hear something died in the distance";
+	private static final String STATE = "state";
+	private static final String TARGET = "target";
 	public AiState SLEEPEING	= new Sleeping();
 	public AiState HUNTING		= new Hunting();
 	public AiState WANDERING	= new Wandering();
 	public AiState FLEEING		= new Fleeing();
 	public AiState PASSIVE		= new Passive();
 	public AiState state = SLEEPEING;
-	
 	public Class<? extends CharSprite> spriteClass;
-	
+	public boolean hostile = true;
 	protected int target = -1;
-	
 	protected int defenseSkill = 0;
-	
 	protected int EXP = 1;
 	protected int maxLvl = 30;
-	
 	protected Char enemy;
 	protected boolean enemySeen;
 	protected boolean alerted = false;
-
-	protected static final float TIME_TO_WAKE_UP = 1f;
-	
-	public boolean hostile = true;
-	
-	private static final String STATE	= "state";
-	private static final String TARGET	= "target";
+	protected Object loot = null;
+	protected float lootChance = 0;
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
-		
+
 		super.storeInBundle( bundle );
-		
+
 		if (state == SLEEPEING) {
 			bundle.put( STATE, Sleeping.TAG );
 		} else if (state == WANDERING) {
@@ -100,9 +91,9 @@ public abstract class Mob extends Char {
 	
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
-		
+
 		super.restoreFromBundle( bundle );
-		
+
 		String state = bundle.getString( STATE );
 		if (state.equals( Sleeping.TAG )) {
 			this.state = SLEEPEING;
@@ -130,34 +121,34 @@ public abstract class Mob extends Char {
 	
 	@Override
 	protected boolean act() {
-		
+
 		super.act();
-		
+
 		boolean justAlerted = alerted;
 		alerted = false;
-		
+
 		sprite.hideAlert();
-		
+
 		if (paralysed) {
 			enemySeen = false;
 			spend( TICK );
 			return true;
 		}
-		
+
 		enemy = chooseEnemy();
-		
-		boolean enemyInFOV = 
-			enemy != null && enemy.isAlive() && 
+
+		boolean enemyInFOV =
+				enemy != null && enemy.isAlive() &&
 			Level.fieldOfView[enemy.pos] && enemy.invisible <= 0;
-		
+
 		return state.act( enemyInFOV, justAlerted );
 	}
 	
 	protected Char chooseEnemy() {
-		
+
 		if (buff( Amok.class ) != null) {
 			if (enemy == Dungeon.hero || enemy == null) {
-				
+
 				HashSet<Mob> enemies = new HashSet<Mob>();
 				for (Mob mob:Dungeon.level.mobs) {
 					if (mob != this && Level.fieldOfView[mob.pos]) {
@@ -167,11 +158,11 @@ public abstract class Mob extends Char {
 				if (enemies.size() > 0) {
 					return Random.element( enemies );
 				}
-				
+
 			}
 		}
-		
-		Terror terror = (Terror)buff( Terror.class );
+
+		Terror terror = buff(Terror.class);
 		if (terror != null) {
 			Char source = (Char) Actor.findById( terror.object );
 			if (source != null) {
@@ -222,17 +213,17 @@ public abstract class Mob extends Char {
 	}
 	
 	protected boolean canAttack( Char enemy ) {
-		return Level.adjacent( pos, enemy.pos ) && !isCharmedBy( enemy );
+		return Dungeon.level.adjacent(pos, enemy.pos) && !isCharmedBy(enemy);
 	}
 	
 	protected boolean getCloser( int target ) {
-		
+
 		if (rooted) {
 			return false;
 		}
-		
-		int step = Dungeon.findPath( this, pos, target, 
-			Level.passable, 
+
+		int step = Dungeon.findPath(this, pos, target,
+				Level.passable,
 			Level.fieldOfView );
 		if (step != -1) {
 			move( step );
@@ -243,8 +234,8 @@ public abstract class Mob extends Char {
 	}
 	
 	protected boolean getFurther( int target ) {
-		int step = Dungeon.flee( this, pos, target, 
-			Level.passable, 
+		int step = Dungeon.flee(this, pos, target,
+				Level.passable,
 			Level.fieldOfView );
 		if (step != -1) {
 			move( step );
@@ -257,7 +248,7 @@ public abstract class Mob extends Char {
 	@Override
 	public void move( int step ) {
 		super.move( step );
-		
+
 		if (!flying) {
 			Dungeon.level.mobPress( this );
 		}
@@ -268,17 +259,17 @@ public abstract class Mob extends Char {
 	}
 	
 	protected boolean doAttack( Char enemy ) {
-		
+
 		boolean visible = Dungeon.visible[pos];
-		
+
 		if (visible) {
 			sprite.attack( enemy.pos );
 		} else {
 			attack( enemy );
 		}
-				
+
 		spend( attackDelay() );
-		
+
 		return !visible;
 	}
 	
@@ -310,30 +301,29 @@ public abstract class Mob extends Char {
 	public void damage( int dmg, Object src ) {
 
 		Terror.recover( this );
-		
+
 		if (state == SLEEPEING) {
 			state = WANDERING;
 		}
 		alerted = true;
-		
+
 		super.damage( dmg, src );
 	}
 	
-	
 	@Override
 	public void destroy() {
-		
+
 		super.destroy();
-		
+
 		Dungeon.level.mobs.remove( this );
-		
+
 		if (Dungeon.hero.isAlive()) {
 
 			if (hostile) {
 				Statistics.enemiesSlain++;
 				Badges.validateMonstersSlain();
 				Statistics.qualifiedForNoKilling = false;
-				
+
 				if (Dungeon.nightMode) {
 					Statistics.nightHunt++;
 				} else {
@@ -353,23 +343,20 @@ public abstract class Mob extends Char {
 	public int exp() {
 		return Dungeon.hero.lvl <= maxLvl ? EXP : 0;
 	}
-	
+
 	@Override
 	public void die( Object cause ) {
-		
+
 		super.die( cause );
 
 		if (Dungeon.hero.lvl <= maxLvl + 2) {
 			dropLoot();
 		}
 
-		if (Dungeon.hero.isAlive() && !Dungeon.visible[pos]) {	
+		if (Dungeon.hero.isAlive() && !Dungeon.visible[pos]) {
 			GLog.i( TXT_DIED );
 		}
 	}
-	
-	protected Object loot = null;
-	protected float lootChance = 0;
 	
 	@SuppressWarnings("unchecked")
 	protected void dropLoot() {
@@ -419,8 +406,9 @@ public abstract class Mob extends Char {
 	}
 	
 	public interface AiState {
-		public boolean act( boolean enemyInFOV, boolean justAlerted );
-		public String status();
+		boolean act(boolean enemyInFOV, boolean justAlerted);
+
+		String status();
 	}
 	
 	private class Sleeping implements AiState {

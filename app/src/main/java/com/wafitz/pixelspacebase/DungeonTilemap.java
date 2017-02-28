@@ -21,7 +21,6 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.Tilemap;
 import com.watabou.noosa.tweeners.AlphaTweener;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.watabou.utils.Point;
 import com.watabou.utils.PointF;
 
@@ -35,9 +34,25 @@ public class DungeonTilemap extends Tilemap {
 		super( 
 			Dungeon.level.tilesTex(), 
 			new TextureFilm( Dungeon.level.tilesTex(), SIZE, SIZE ) );
-		map( Dungeon.level.map, Level.WIDTH );
+		map(Dungeon.level.map, Dungeon.level.width());
 		
 		instance = this;
+	}
+
+	public static PointF tileToWorld(int pos) {
+		return new PointF(pos % Dungeon.level.width(), pos / Dungeon.level.width()).scale(SIZE);
+	}
+
+	public static PointF tileCenterToWorld(int pos) {
+		return new PointF(
+				(pos % Dungeon.level.width() + 0.5f) * SIZE,
+				(pos / Dungeon.level.width() + 0.5f) * SIZE);
+	}
+
+	public static Image tile(int index) {
+		Image img = new Image(instance.texture);
+		img.frame(instance.tileset.get(index));
+		return img;
 	}
 	
 	public int screenToTile( int x, int y ) {
@@ -45,7 +60,7 @@ public class DungeonTilemap extends Tilemap {
 			offset( this.point().negate() ).
 			invScale( SIZE ).
 			floor();
-		return p.x >= 0 && p.x < Level.WIDTH && p.y >= 0 && p.y < Level.HEIGHT ? p.x + p.y * Level.WIDTH : -1;
+		return p.x >= 0 && p.x < Dungeon.level.width() && p.y >= 0 && p.y < Dungeon.level.height() ? p.x + p.y * Dungeon.level.width() : -1;
 	}
 	
 	@Override
@@ -54,37 +69,21 @@ public class DungeonTilemap extends Tilemap {
 	}
 	
 	public void discover( int pos, int oldValue ) {
-		
+
 		final Image tile = tile( oldValue );
 		tile.point( tileToWorld( pos ) );
-		
+
 		// For bright mode
 		tile.rm = tile.gm = tile.bm = rm;
 		tile.ra = tile.ga = tile.ba = ra;
 		parent.add( tile );
-		
+
 		parent.add( new AlphaTweener( tile, 0, 0.6f ) {
 			protected void onComplete() {
 				tile.killAndErase();
 				killAndErase();
-			};
+			}
 		} );
-	}
-	
-	public static PointF tileToWorld( int pos ) {
-		return new PointF( pos % Level.WIDTH, pos / Level.WIDTH  ).scale( SIZE );
-	}
-	
-	public static PointF tileCenterToWorld( int pos ) {
-		return new PointF( 
-			(pos % Level.WIDTH + 0.5f) * SIZE, 
-			(pos / Level.WIDTH + 0.5f) * SIZE );
-	}
-	
-	public static Image tile( int index ) {
-		Image img = new Image( instance.texture );
-		img.frame( instance.tileset.get( index ) );
-		return img;
 	}
 	
 	@Override

@@ -17,35 +17,41 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.HashSet;
-
-import com.wafitz.pixelspacebase.actors.buffs.Light;
-import com.wafitz.pixelspacebase.items.food.MysteryMeat;
-import com.wafitz.pixelspacebase.items.potions.PotionOfHealing;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Cripple;
+import com.wafitz.pixelspacebase.actors.buffs.Light;
 import com.wafitz.pixelspacebase.actors.buffs.Poison;
+import com.wafitz.pixelspacebase.items.food.MysteryMeat;
+import com.wafitz.pixelspacebase.items.potions.PotionOfHealing;
 import com.wafitz.pixelspacebase.items.weapon.enchantments.Leech;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.mechanics.Ballistica;
 import com.wafitz.pixelspacebase.sprites.ScorpioSprite;
 import com.watabou.utils.Random;
 
+import java.util.HashSet;
+
 public class Scorpio extends Mob {
+
+	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
+
+	static {
+		RESISTANCES.add(Leech.class);
+		RESISTANCES.add(Poison.class);
+	}
 	
 	{
 		name = "scorpio";
 		spriteClass = ScorpioSprite.class;
-		
+
 		HP = HT = 95;
 		defenseSkill = 24;
 		viewDistance = Light.DISTANCE;
-		
+
 		EXP = 14;
 		maxLvl = 25;
-		
+
 		loot = new PotionOfHealing();
 		lootChance = 0.125f;
 	}
@@ -67,7 +73,7 @@ public class Scorpio extends Mob {
 	
 	@Override
 	protected boolean canAttack( Char enemy ) {
-		return !Level.adjacent( pos, enemy.pos ) && Ballistica.cast( pos, enemy.pos, false, true ) == enemy.pos;
+		return !Dungeon.level.adjacent(pos, enemy.pos) && Ballistica.cast(pos, enemy.pos, false, true) == enemy.pos;
 	}
 	
 	@Override
@@ -75,7 +81,7 @@ public class Scorpio extends Mob {
 		if (Random.Int( 2 ) == 0) {
 			Buff.prolong( enemy, Cripple.class, Cripple.DURATION );
 		}
-		
+
 		return damage;
 	}
 	
@@ -96,18 +102,12 @@ public class Scorpio extends Mob {
 			Dungeon.level.drop( new MysteryMeat(), pos ).sprite.drop();
 		}
 	}
-	
+
 	@Override
 	public String description() {
 		return
 			"These huge arachnid-like demonic creatures avoid close combat by all means, " +
 			"firing crippling serrated spikes from long distances.";
-	}
-	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
-	static {
-		RESISTANCES.add( Leech.class );
-		RESISTANCES.add( Poison.class );
 	}
 	
 	@Override

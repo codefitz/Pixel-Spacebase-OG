@@ -21,8 +21,8 @@ import com.wafitz.pixelspacebase.actors.blobs.Foliage;
 import com.wafitz.pixelspacebase.items.Honeypot;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Room;
-import com.wafitz.pixelspacebase.plants.Sungrass;
 import com.wafitz.pixelspacebase.levels.Terrain;
+import com.wafitz.pixelspacebase.plants.Sungrass;
 import com.watabou.utils.Random;
 
 public class GardenPainter extends Painter {
@@ -36,11 +36,11 @@ public class GardenPainter extends Painter {
 		room.entrance().set( Room.Door.Type.REGULAR );
 		
 		if (Random.Int( 2 ) == 0) {
-			level.drop( new Honeypot(), room.random() );
+			level.drop(new Honeypot(), level.pointToCell(room.random()));
 		} else {
 			int bushes = (Random.Int( 5 ) == 0 ? 2 : 1);
 			for (int i=0; i < bushes; i++) {
-				int pos = room.random();
+				int pos = level.pointToCell(room.random());
 				set( level, pos, Terrain.GRASS );
 				level.plant( new Sungrass.Seed(), pos );
 			}
@@ -52,7 +52,7 @@ public class GardenPainter extends Painter {
 		}
 		for (int i=room.top + 1; i < room.bottom; i++) {
 			for (int j=room.left + 1; j < room.right; j++) {
-				light.seed( j + Level.WIDTH * i, 1 );
+				light.seed(j + level.width() * i, 1);
 			}
 		}
 		level.blobs.put( Foliage.class, light );

@@ -17,12 +17,6 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
@@ -36,22 +30,77 @@ import com.wafitz.pixelspacebase.items.scrolls.ScrollOfPsionicBlast;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.sprites.MimicSprite;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
 public class Mimic extends Mob {
-	
+
+	private static final String LEVEL = "level";
+	private static final String ITEMS = "items";
+	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+
+	static {
+		IMMUNITIES.add(ScrollOfPsionicBlast.class);
+	}
+
+	public ArrayList<Item> items;
 	private int level;
 	
 	{
 		name = "mimic";
 		spriteClass = MimicSprite.class;
 	}
-	
-	public ArrayList<Item> items;
-	
-	private static final String LEVEL	= "level";
-	private static final String ITEMS	= "items";
+
+	public static Mimic spawnAt(int pos, List<Item> items) {
+		Char ch = Actor.findChar(pos);
+		if (ch != null) {
+			ArrayList<Integer> candidates = new ArrayList<Integer>();
+			for (int n : PathFinder.NEIGHBOURS8) {
+				int cell = pos + n;
+				if ((Level.passable[cell] || Level.avoid[cell]) && Actor.findChar(cell) == null) {
+					candidates.add(cell);
+				}
+			}
+			if (candidates.size() > 0) {
+				int newPos = Random.element(candidates);
+				Actor.addDelayed(new Pushing(ch, ch.pos, newPos), -1);
+
+				ch.pos = newPos;
+				// FIXME
+				if (ch instanceof Mob) {
+					Dungeon.level.mobPress((Mob) ch);
+				} else {
+					Dungeon.level.press(newPos, ch);
+				}
+			} else {
+				return null;
+			}
+		}
+
+		Mimic m = new Mimic();
+		m.items = new ArrayList<Item>(items);
+		m.adjustStats(Dungeon.depth);
+		m.HP = m.HT;
+		m.pos = pos;
+		m.state = m.HUNTING;
+		GameScene.add(m, 1);
+
+		m.sprite.turnTo(pos, Dungeon.hero.pos);
+
+		if (Dungeon.visible[m.pos]) {
+			CellEmitter.get(pos).burst(Speck.factory(Speck.STAR), 10);
+			Sample.INSTANCE.play(Assets.SND_MIMIC);
+		}
+
+		return m;
+	}
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -89,14 +138,14 @@ public class Mimic extends Mob {
 		}
 		return super.attackProc( enemy, damage );
 	}
-	
+
 	public void adjustStats( int level ) {
 		this.level = level;
-		
+
 		HT = (3 + level) * 4;
 		EXP = 2 + 2 * (level - 1) / 5;
 		defenseSkill = attackSkill( null ) / 2;
-		
+
 		enemySeen = true;
 	}
 	
@@ -104,7 +153,7 @@ public class Mimic extends Mob {
 	public void die( Object cause ) {
 
 		super.die( cause );
-		
+
 		if (items != null) {
 			for (Item item : items) {
 				Dungeon.level.drop( item, pos ).sprite.drop();
@@ -123,55 +172,6 @@ public class Mimic extends Mob {
 		return
 			"Mimics are magical creatures which can take any shape they wish. In dungeons they almost always " +
 			"choose a shape of a treasure chest, because they know how to beckon an adventurer.";
-	}
-	
-	public static Mimic spawnAt( int pos, List<Item> items ) {
-		Char ch = Actor.findChar( pos ); 
-		if (ch != null) {
-			ArrayList<Integer> candidates = new ArrayList<Integer>();
-			for (int n : Level.NEIGHBOURS8) {
-				int cell = pos + n;
-				if ((Level.passable[cell] || Level.avoid[cell]) && Actor.findChar( cell ) == null) {
-					candidates.add( cell );
-				}
-			}
-			if (candidates.size() > 0) {
-				int newPos = Random.element( candidates );
-				Actor.addDelayed( new Pushing( ch, ch.pos, newPos ), -1 );
-				
-				ch.pos = newPos;
-				// FIXME
-				if (ch instanceof Mob) {
-					Dungeon.level.mobPress( (Mob)ch );
-				} else {
-					Dungeon.level.press( newPos, ch );
-				}
-			} else {
-				return null;
-			}
-		}
-		
-		Mimic m = new Mimic();
-		m.items = new ArrayList<Item>( items );
-		m.adjustStats( Dungeon.depth );
-		m.HP = m.HT;
-		m.pos = pos;
-		m.state = m.HUNTING;
-		GameScene.add( m, 1 );
-		
-		m.sprite.turnTo( pos, Dungeon.hero.pos );
-		
-		if (Dungeon.visible[m.pos]) {
-			CellEmitter.get( pos ).burst( Speck.factory( Speck.STAR ), 10 );
-			Sample.INSTANCE.play( Assets.SND_MIMIC );
-		}
-		
-		return m;
-	}
-	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
-	static {
-		IMMUNITIES.add( ScrollOfPsionicBlast.class );
 	}
 	
 	@Override

@@ -24,7 +24,6 @@ import com.wafitz.pixelspacebase.actors.buffs.Shadows;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
 import com.wafitz.pixelspacebase.effects.particles.ShaftParticle;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 
@@ -34,7 +33,7 @@ public class Foliage extends Blob {
 	protected void evolve() {
 
 		int from = WIDTH + 1;
-		int to = Level.LENGTH - WIDTH - 1;
+		int to = Dungeon.level.length() - WIDTH - 1;
 		
 		int[] map = Dungeon.level.map;
 		boolean regrowth = false;

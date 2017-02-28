@@ -17,14 +17,15 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.RatKing;
+import com.wafitz.pixelspacebase.items.Generator;
+import com.wafitz.pixelspacebase.items.Gold;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.weapon.missiles.MissileWeapon;
-import com.wafitz.pixelspacebase.levels.Room;
-import com.wafitz.pixelspacebase.items.Generator;
-import com.wafitz.pixelspacebase.items.Gold;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Random;
 
@@ -37,20 +38,20 @@ public class RatKingPainter extends Painter {
 		
 		Room.Door entrance = room.entrance();
 		entrance.set( Room.Door.Type.HIDDEN );
-		int door = entrance.x + entrance.y * Level.WIDTH;
+		int door = entrance.x + entrance.y * Dungeon.level.width();
 		
 		for (int i=room.left + 1; i < room.right; i++) {
-			addChest( level, (room.top + 1) * Level.WIDTH + i, door );
-			addChest( level, (room.bottom - 1) * Level.WIDTH + i, door );
+			addChest(level, (room.top + 1) * Dungeon.level.width() + i, door);
+			addChest(level, (room.bottom - 1) * Dungeon.level.width() + i, door);
 		}
 		
 		for (int i=room.top + 2; i < room.bottom - 1; i++) {
-			addChest( level, i * Level.WIDTH + room.left + 1, door );
-			addChest( level, i * Level.WIDTH + room.right - 1, door );
+			addChest(level, i * Dungeon.level.width() + room.left + 1, door);
+			addChest(level, i * Dungeon.level.width() + room.right - 1, door);
 		}
 		
 		while (true) {
-			Heap chest = level.heaps.get( room.random() );
+			Heap chest = level.heaps.get(level.pointToCell(room.random()));
 			if (chest != null) {
 				chest.type = Heap.Type.MIMIC;
 				break;
@@ -58,16 +59,16 @@ public class RatKingPainter extends Painter {
 		}
 		
 		RatKing king = new RatKing();
-		king.pos = room.random( 1 );
+		king.pos = level.pointToCell(room.random(1));
 		level.mobs.add( king );
 	}
 	
 	private static void addChest( Level level, int pos, int door ) {
-		
-		if (pos == door - 1 || 
-			pos == door + 1 || 
-			pos == door - Level.WIDTH || 
-			pos == door + Level.WIDTH) {
+
+		if (pos == door - 1 ||
+				pos == door + 1 ||
+				pos == door - Dungeon.level.width() ||
+				pos == door + Dungeon.level.width()) {
 			return;
 		}
 		

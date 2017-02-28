@@ -17,43 +17,41 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.ArrayList;
-
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Burning;
 import com.wafitz.pixelspacebase.actors.buffs.Poison;
 import com.wafitz.pixelspacebase.effects.Pushing;
 import com.wafitz.pixelspacebase.items.potions.PotionOfHealing;
 import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.scenes.GameScene;
-import com.wafitz.pixelspacebase.sprites.SwarmSprite;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.wafitz.pixelspacebase.levels.features.Door;
+import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.wafitz.pixelspacebase.sprites.SwarmSprite;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+
 public class Swarm extends Mob {
 
+	private static final float SPLIT_DELAY = 1f;
+	private static final String GENERATION = "generation";
+	int generation = 0;
+	
 	{
 		name = "swarm of flies";
 		spriteClass = SwarmSprite.class;
-		
+
 		HP = HT = 80;
 		defenseSkill = 5;
-		
+
 		maxLvl = 10;
-		
+
 		flying = true;
 	}
-	
-	private static final float SPLIT_DELAY	= 1f;
-	
-	int generation	= 0;
-	
-	private static final String GENERATION	= "generation";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -78,8 +76,8 @@ public class Swarm extends Mob {
 		if (HP >= damage + 2) {
 			ArrayList<Integer> candidates = new ArrayList<Integer>();
 			boolean[] passable = Level.passable;
-			
-			int[] neighbours = {pos + 1, pos - 1, pos + Level.WIDTH, pos - Level.WIDTH};
+
+			int[] neighbours = {pos + 1, pos - 1, pos + Dungeon.level.width(), pos - Dungeon.level.width()};
 			for (int n : neighbours) {
 				if (passable[n] && Actor.findChar( n ) == null) {
 					candidates.add( n );

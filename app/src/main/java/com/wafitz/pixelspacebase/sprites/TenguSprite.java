@@ -18,10 +18,11 @@
 package com.wafitz.pixelspacebase.sprites;
 
 import com.wafitz.pixelspacebase.Assets;
-import com.wafitz.pixelspacebase.scenes.GameScene;
-import com.watabou.noosa.TextureFilm;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.items.weapon.missiles.Shuriken;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.watabou.noosa.TextureFilm;
 import com.watabou.utils.Callback;
 
 public class TenguSprite extends MobSprite {
@@ -71,7 +72,7 @@ public class TenguSprite extends MobSprite {
 	
 	@Override
 	public void attack( int cell ) {
-		if (!Level.adjacent( cell, ch.pos )) {
+		if (!Dungeon.level.adjacent(cell, ch.pos)) {
 			
 			((MissileSprite)parent.recycle( MissileSprite.class )).
 				reset( ch.pos, cell, new Shuriken(), new Callback() {			

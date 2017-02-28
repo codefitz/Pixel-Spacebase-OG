@@ -19,17 +19,16 @@ package com.wafitz.pixelspacebase.items.scrolls;
 
 import com.wafitz.pixelspacebase.Assets;
 import com.wafitz.pixelspacebase.Dungeon;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
+import com.wafitz.pixelspacebase.actors.buffs.Invisibility;
 import com.wafitz.pixelspacebase.actors.buffs.Rage;
 import com.wafitz.pixelspacebase.actors.mobs.Mimic;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.utils.GLog;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
-import com.wafitz.pixelspacebase.actors.buffs.Invisibility;
 
 public class ScrollOfChallenge extends Scroll {
 
@@ -43,7 +42,7 @@ public class ScrollOfChallenge extends Scroll {
 		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
 			mob.beckon( Item.curUser.pos );
 			if (Dungeon.visible[mob.pos]) {
-				Buff.affect( mob, Rage.class, Level.distance( Item.curUser.pos, mob.pos ) );
+				Buff.affect(mob, Rage.class, Dungeon.level.distance(Item.curUser.pos, mob.pos));
 			}
 		}
 		

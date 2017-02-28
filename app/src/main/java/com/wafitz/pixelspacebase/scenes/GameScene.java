@@ -17,28 +17,44 @@
  */
 package com.wafitz.pixelspacebase.scenes;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Badges;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
 import com.wafitz.pixelspacebase.FogOfWar;
+import com.wafitz.pixelspacebase.PixelSpacebase;
 import com.wafitz.pixelspacebase.Statistics;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.blobs.Blob;
 import com.wafitz.pixelspacebase.actors.mobs.Mob;
 import com.wafitz.pixelspacebase.effects.BannerSprites;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
+import com.wafitz.pixelspacebase.effects.EmoIcon;
 import com.wafitz.pixelspacebase.effects.Flare;
+import com.wafitz.pixelspacebase.effects.FloatingText;
+import com.wafitz.pixelspacebase.effects.Ripple;
+import com.wafitz.pixelspacebase.effects.SpellSprite;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
+import com.wafitz.pixelspacebase.items.potions.Potion;
 import com.wafitz.pixelspacebase.items.wands.WandOfBlink;
+import com.wafitz.pixelspacebase.levels.RegularLevel;
+import com.wafitz.pixelspacebase.levels.features.Chasm;
+import com.wafitz.pixelspacebase.plants.Plant;
 import com.wafitz.pixelspacebase.sprites.CharSprite;
+import com.wafitz.pixelspacebase.sprites.DiscardedItemSprite;
+import com.wafitz.pixelspacebase.sprites.HeroSprite;
+import com.wafitz.pixelspacebase.sprites.ItemSprite;
 import com.wafitz.pixelspacebase.sprites.PlantSprite;
+import com.wafitz.pixelspacebase.ui.AttackIndicator;
 import com.wafitz.pixelspacebase.ui.Banner;
+import com.wafitz.pixelspacebase.ui.BusyIndicator;
+import com.wafitz.pixelspacebase.ui.GameLog;
+import com.wafitz.pixelspacebase.ui.HealthIndicator;
 import com.wafitz.pixelspacebase.ui.QuickSlot;
 import com.wafitz.pixelspacebase.ui.StatusPane;
 import com.wafitz.pixelspacebase.ui.Toast;
+import com.wafitz.pixelspacebase.ui.Toolbar;
 import com.wafitz.pixelspacebase.ui.Window;
 import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.windows.WndBag;
@@ -52,27 +68,10 @@ import com.watabou.noosa.Visual;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
-import com.wafitz.pixelspacebase.Badges;
-import com.wafitz.pixelspacebase.Dungeon;
-import com.wafitz.pixelspacebase.PixelSpacebase;
-import com.wafitz.pixelspacebase.effects.EmoIcon;
-import com.wafitz.pixelspacebase.effects.FloatingText;
-import com.wafitz.pixelspacebase.effects.Ripple;
-import com.wafitz.pixelspacebase.effects.SpellSprite;
-import com.wafitz.pixelspacebase.items.potions.Potion;
-import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.levels.RegularLevel;
-import com.wafitz.pixelspacebase.levels.features.Chasm;
-import com.wafitz.pixelspacebase.plants.Plant;
-import com.wafitz.pixelspacebase.sprites.DiscardedItemSprite;
-import com.wafitz.pixelspacebase.sprites.HeroSprite;
-import com.wafitz.pixelspacebase.sprites.ItemSprite;
-import com.wafitz.pixelspacebase.ui.AttackIndicator;
-import com.wafitz.pixelspacebase.ui.BusyIndicator;
-import com.wafitz.pixelspacebase.ui.GameLog;
-import com.wafitz.pixelspacebase.ui.HealthIndicator;
-import com.wafitz.pixelspacebase.ui.Toolbar;
 import com.watabou.utils.Random;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class GameScene extends PixelScene {
 	
@@ -84,20 +83,27 @@ public class GameScene extends PixelScene {
 	private static final String TXT_WATER	= "You hear the water splashing around you.";
 	private static final String TXT_GRASS	= "The smell of vegetation is thick in the air.";
 	private static final String TXT_SECRETS	= "The atmosphere hints that this floor hides many secrets.";
-	
+	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
+		@Override
+		public void onSelect(Integer cell) {
+			if (Dungeon.hero.handle(cell)) {
+				Dungeon.hero.next();
+			}
+		}
+
+		@Override
+		public String prompt() {
+			return null;
+		}
+	};
 	static GameScene scene;
-	
+	private static CellSelector cellSelector;
 	private SkinnedBlock water;
 	private DungeonTilemap tiles;
 	private FogOfWar fog;
 	private HeroSprite hero;
-	
 	private GameLog log;
-	
 	private BusyIndicator busy;
-	
-	private static CellSelector cellSelector;
-	
 	private Group terrain;
 	private Group ripples;
 	private Group plants;
@@ -109,50 +115,229 @@ public class GameScene extends PixelScene {
 	private Group spells;
 	private Group statuses;
 	private Group emoicons;
-	
 	private Toolbar toolbar;
 	private Toast prompt;
+
+	public static void add(Plant plant) {
+		if (scene != null) {
+			scene.addPlantSprite(plant);
+		}
+	}
+
+	public static void add(Blob gas) {
+		Actor.add(gas);
+		if (scene != null) {
+			scene.addBlobSprite(gas);
+		}
+	}
+
+	public static void add(Heap heap) {
+		if (scene != null) {
+			scene.addHeapSprite(heap);
+		}
+	}
+
+	public static void discard(Heap heap) {
+		if (scene != null) {
+			scene.addDiscardedSprite(heap);
+		}
+	}
+
+	public static void add(Mob mob) {
+		Dungeon.level.mobs.add(mob);
+		Actor.add(mob);
+		Actor.occupyCell(mob);
+		scene.addMobSprite(mob);
+	}
+
+	public static void add(Mob mob, float delay) {
+		Dungeon.level.mobs.add(mob);
+		Actor.addDelayed(mob, delay);
+		Actor.occupyCell(mob);
+		scene.addMobSprite(mob);
+	}
+
+	public static void add(EmoIcon icon) {
+		scene.emoicons.add(icon);
+	}
+
+	public static void effect(Visual effect) {
+		scene.effects.add(effect);
+	}
+
+	public static Ripple ripple(int pos) {
+		Ripple ripple = (Ripple) scene.ripples.recycle(Ripple.class);
+		ripple.reset(pos);
+		return ripple;
+	}
+
+	public static SpellSprite spellSprite() {
+		return (SpellSprite) scene.spells.recycle(SpellSprite.class);
+	}
+
+	public static Emitter emitter() {
+		if (scene != null) {
+			Emitter emitter = (Emitter) scene.emitters.recycle(Emitter.class);
+			emitter.revive();
+			return emitter;
+		} else {
+			return null;
+		}
+	}
+
+	public static FloatingText status() {
+		return scene != null ? (FloatingText) scene.statuses.recycle(FloatingText.class) : null;
+	}
+
+	public static void pickUp(Item item) {
+		scene.toolbar.pickup(item);
+	}
+
+	// -------------------------------------------------------
+
+	public static void updateMap() {
+		if (scene != null) {
+			scene.tiles.updated.set(0, 0, Dungeon.level.width(), Dungeon.level.height());
+		}
+	}
+
+	public static void updateMap(int cell) {
+		if (scene != null) {
+			scene.tiles.updated.union(cell % Dungeon.level.width(), cell / Dungeon.level.width());
+		}
+	}
+
+	public static void discoverTile(int pos, int oldValue) {
+		if (scene != null) {
+			scene.tiles.discover(pos, oldValue);
+		}
+	}
+
+	public static void show(Window wnd) {
+		cancelCellSelector();
+		scene.add(wnd);
+	}
+
+	public static void afterObserve() {
+		if (scene != null) {
+			scene.fog.updateVisibility(Dungeon.visible, Dungeon.level.visited, Dungeon.level.mapped);
+
+			for (Mob mob : Dungeon.level.mobs) {
+				mob.sprite.visible = Dungeon.visible[mob.pos];
+			}
+		}
+	}
+
+	public static void flash(int color) {
+		scene.fadeIn(0xFF000000 | color, true);
+	}
+
+	public static void gameOver() {
+		Banner gameOver = new Banner(BannerSprites.get(BannerSprites.Type.GAME_OVER));
+		gameOver.show(0x000000, 1f);
+		scene.showBanner(gameOver);
+
+		Sample.INSTANCE.play(Assets.SND_DEATH);
+	}
+
+	public static void bossSlain() {
+		if (Dungeon.hero.isAlive()) {
+			Banner bossSlain = new Banner(BannerSprites.get(BannerSprites.Type.BOSS_SLAIN));
+			bossSlain.show(0xFFFFFF, 0.3f, 5f);
+			scene.showBanner(bossSlain);
+
+			Sample.INSTANCE.play(Assets.SND_BOSS);
+		}
+	}
+
+	public static void handleCell(int cell) {
+		cellSelector.select(cell);
+	}
+
+	public static void selectCell(CellSelector.Listener listener) {
+		cellSelector.listener = listener;
+		scene.prompt(listener.prompt());
+	}
+
+	private static boolean cancelCellSelector() {
+		if (cellSelector.listener != null && cellSelector.listener != defaultCellListener) {
+			cellSelector.cancel();
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static WndBag selectItem(WndBag.Listener listener, WndBag.Mode mode, String title) {
+		cancelCellSelector();
+
+		WndBag wnd = mode == WndBag.Mode.SEED ?
+				WndBag.seedPouch(listener, mode, title) :
+				WndBag.lastBag(listener, mode, title);
+		scene.add(wnd);
+
+		return wnd;
+	}
+
+	static boolean cancel() {
+		if (Dungeon.hero.curAction != null || Dungeon.hero.restoreHealth) {
+
+			Dungeon.hero.curAction = null;
+			Dungeon.hero.restoreHealth = false;
+			return true;
+
+		} else {
+
+			return cancelCellSelector();
+
+		}
+	}
+
+	public static void ready() {
+		selectCell(defaultCellListener);
+		QuickSlot.cancel();
+	}
 	
 	@Override
 	public void create() {
 		Music.INSTANCE.play( Assets.TUNE, true );
 		Music.INSTANCE.volume( 1f );
-		
+
 		PixelSpacebase.lastClass( Dungeon.hero.heroClass.ordinal() );
-		
+
 		super.create();
 		Camera.main.zoom( defaultZoom + PixelSpacebase.zoom() );
-		
+
 		scene = this;
 
 		terrain = new Group();
 		add( terrain );
-		
-		water = new SkinnedBlock( 
-			Level.WIDTH * DungeonTilemap.SIZE, 
-			Level.HEIGHT * DungeonTilemap.SIZE,
+
+		water = new SkinnedBlock(
+				Dungeon.level.width() * DungeonTilemap.SIZE,
+				Dungeon.level.height() * DungeonTilemap.SIZE,
 			Dungeon.level.waterTex() );
 		terrain.add( water );
-		
+
 		ripples = new Group();
 		terrain.add( ripples );
-		
+
 		tiles = new DungeonTilemap();
 		terrain.add( tiles );
-		
+
 		Dungeon.level.addVisuals( this );
-		
+
 		plants = new Group();
 		add( plants );
-		
+
 		int size = Dungeon.level.plants.size();
 		for (int i=0; i < size; i++) {
 			addPlantSprite( Dungeon.level.plants.valueAt( i ) );
 		}
-		
+
 		heaps = new Group();
 		add( heaps );
-		
+
 		size = Dungeon.level.heaps.size();
 		for (int i=0; i < size; i++) {
 			addHeapSprite( Dungeon.level.heaps.valueAt( i ) );
@@ -164,76 +349,76 @@ public class GameScene extends PixelScene {
 
 		mobs = new Group();
 		add( mobs );
-		
+
 		for (Mob mob : Dungeon.level.mobs) {
 			addMobSprite( mob );
 			if (Statistics.amuletObtained) {
 				mob.beckon( Dungeon.hero.pos );
 			}
 		}
-		
+
 		add( emitters );
 		add( effects );
-		
+
 		gases = new Group();
 		add( gases );
-		
+
 		for (Blob blob : Dungeon.level.blobs.values()) {
 			blob.emitter = null;
 			addBlobSprite( blob );
 		}
-		
-		fog = new FogOfWar( Level.WIDTH, Level.HEIGHT );
+
+		fog = new FogOfWar(Dungeon.level.width(), Dungeon.level.height());
 		fog.updateVisibility( Dungeon.visible, Dungeon.level.visited, Dungeon.level.mapped );
 		add( fog );
-		
+
 		brightness( PixelSpacebase.brightness() );
-		
+
 		spells = new Group();
 		add( spells );
-		
+
 		statuses = new Group();
 		add( statuses );
-		
+
 		add( emoicons );
-		
+
 		hero = new HeroSprite();
 		hero.place( Dungeon.hero.pos );
 		hero.updateArmor();
 		mobs.add( hero );
 
 		add( new HealthIndicator() );
-		
+
 		add( cellSelector = new CellSelector( tiles ) );
-		
+
 		StatusPane sb = new StatusPane();
 		sb.camera = uiCamera;
 		sb.setSize( uiCamera.width, 0 );
 		add( sb );
-		
+
 		toolbar = new Toolbar();
 		toolbar.camera = uiCamera;
 		toolbar.setRect( 0,uiCamera.height - toolbar.height(), uiCamera.width, toolbar.height() );
 		add( toolbar );
-		
+
 		AttackIndicator attack = new AttackIndicator();
 		attack.camera = uiCamera;
-		attack.setPos( 
-			uiCamera.width - attack.width(), 
+		attack.setPos(
+				uiCamera.width - attack.width(),
 			toolbar.top() - attack.height() );
 		add( attack );
-		
+
 		log = new GameLog();
 		log.camera = uiCamera;
 		log.setRect( 0, toolbar.top(), attack.left(),  0 );
 		add( log );
-		
+
 		busy = new BusyIndicator();
 		busy.camera = uiCamera;
 		busy.x = 1;
 		busy.y = sb.bottom() + 1;
 		add( busy );
-		
+
 		switch (InterlevelScene.mode) {
 		case RESURRECT:
 			WandOfBlink.appear( Dungeon.hero, Dungeon.level.entrance );
@@ -269,7 +454,7 @@ public class GameScene extends PixelScene {
 			break;
 		default:
 		}
-		
+
 		ArrayList<Item> dropped = Dungeon.droppedItems.get( Dungeon.depth );
 		if (dropped != null) {
 			for (Item item : dropped) {
@@ -284,7 +469,7 @@ public class GameScene extends PixelScene {
 			}
 			Dungeon.droppedItems.remove( Dungeon.depth );
 		}
-		
+
 		Camera.main.target = hero;
 
 		if (InterlevelScene.mode != InterlevelScene.Mode.NONE) {
@@ -321,10 +506,10 @@ public class GameScene extends PixelScene {
 	}
 	
 	public void destroy() {
-		
+
 		scene = null;
 		Badges.saveGlobal();
-		
+
 		super.destroy();
 	}
 	
@@ -343,17 +528,17 @@ public class GameScene extends PixelScene {
 		if (Dungeon.hero == null) {
 			return;
 		}
-			
+
 		super.update();
-		
+
 		water.offset( 0, -5 * Game.elapsed );
-		
+
 		Actor.process();
-		
+
 		if (Dungeon.hero.ready && !Dungeon.hero.paralysed) {
 			log.newLine();
 		}
-		
+
 		cellSelector.enabled = Dungeon.hero.ready;
 	}
 	
@@ -372,8 +557,8 @@ public class GameScene extends PixelScene {
 	}
 	
 	public void brightness( boolean value ) {
-		water.rm = water.gm = water.bm = 
-		tiles.rm = tiles.gm = tiles.bm = 
+		water.rm = water.gm = water.bm =
+				tiles.rm = tiles.gm = tiles.bm =
 			value ? 1.5f : 1.0f;
 		if (value) {
 			fog.am = +2f;
@@ -407,7 +592,7 @@ public class GameScene extends PixelScene {
 			gases.add( new BlobEmitter( gas ) );
 		}
 	}
-	
+
 	private void addMobSprite( Mob mob ) {
 		CharSprite sprite = mob.sprite();
 		sprite.visible = Dungeon.visible[mob.pos];
@@ -416,12 +601,12 @@ public class GameScene extends PixelScene {
 	}
 	
 	private void prompt( String text ) {
-		
+
 		if (prompt != null) {
 			prompt.killAndErase();
 			prompt = null;
 		}
-		
+
 		if (text != null) {
 			prompt = new Toast( text ) {
 				@Override
@@ -441,197 +626,4 @@ public class GameScene extends PixelScene {
 		banner.y = align( uiCamera, (uiCamera.height - banner.height) / 3 );
 		add( banner );
 	}
-	
-	// -------------------------------------------------------
-	
-	public static void add( Plant plant ) {
-		if (scene != null) {
-			scene.addPlantSprite( plant );
-		}
-	}
-	
-	public static void add( Blob gas ) {
-		Actor.add( gas );
-		if (scene != null) {
-			scene.addBlobSprite( gas );
-		}
-	}
-	
-	public static void add( Heap heap ) {
-		if (scene != null) {
-			scene.addHeapSprite( heap );
-		}
-	}
-	
-	public static void discard( Heap heap ) {
-		if (scene != null) {
-			scene.addDiscardedSprite( heap );
-		}
-	}
-	
-	public static void add( Mob mob ) {
-		Dungeon.level.mobs.add( mob );
-		Actor.add( mob );
-		Actor.occupyCell( mob );
-		scene.addMobSprite( mob );
-	}
-	
-	public static void add( Mob mob, float delay ) {
-		Dungeon.level.mobs.add( mob );
-		Actor.addDelayed( mob, delay );
-		Actor.occupyCell( mob );
-		scene.addMobSprite( mob );
-	}
-	
-	public static void add( EmoIcon icon ) {
-		scene.emoicons.add( icon );
-	}
-	
-	public static void effect( Visual effect ) {
-		scene.effects.add( effect );
-	}
-	
-	public static Ripple ripple( int pos ) {
-		Ripple ripple = (Ripple)scene.ripples.recycle( Ripple.class );
-		ripple.reset( pos );
-		return ripple;
-	}
-	
-	public static SpellSprite spellSprite() {
-		return (SpellSprite)scene.spells.recycle( SpellSprite.class );
-	}
-	
-	public static Emitter emitter() {
-		if (scene != null) {
-			Emitter emitter = (Emitter)scene.emitters.recycle( Emitter.class );
-			emitter.revive();
-			return emitter;
-		} else {
-			return null;
-		}
-	}
-	
-	public static FloatingText status() {
-		return scene != null ? (FloatingText)scene.statuses.recycle( FloatingText.class ) : null;
-	}
-	
-	public static void pickUp( Item item ) {
-		scene.toolbar.pickup( item );
-	}
-	
-	public static void updateMap() {
-		if (scene != null) {
-			scene.tiles.updated.set( 0, 0, Level.WIDTH, Level.HEIGHT );
-		}
-	}
-	
-	public static void updateMap( int cell ) {
-		if (scene != null) {
-			scene.tiles.updated.union( cell % Level.WIDTH, cell / Level.WIDTH );
-		}
-	}
-	
-	public static void discoverTile( int pos, int oldValue ) {
-		if (scene != null) {
-			scene.tiles.discover( pos, oldValue );
-		}
-	}
-	
-	public static void show( Window wnd ) {
-		cancelCellSelector();
-		scene.add( wnd );
-	}
-	
-	public static void afterObserve() {
-		if (scene != null) {
-			scene.fog.updateVisibility( Dungeon.visible, Dungeon.level.visited, Dungeon.level.mapped );
-			
-			for (Mob mob : Dungeon.level.mobs) {
-				mob.sprite.visible = Dungeon.visible[mob.pos];
-			}
-		}
-	}
-	
-	public static void flash( int color ) {
-		scene.fadeIn( 0xFF000000 | color, true );
-	}
-	
-	public static void gameOver() {
-		Banner gameOver = new Banner( BannerSprites.get( BannerSprites.Type.GAME_OVER ) );
-		gameOver.show( 0x000000, 1f );
-		scene.showBanner( gameOver );
-		
-		Sample.INSTANCE.play( Assets.SND_DEATH );
-	}
-	
-	public static void bossSlain() {
-		if (Dungeon.hero.isAlive()) {
-			Banner bossSlain = new Banner( BannerSprites.get( BannerSprites.Type.BOSS_SLAIN ) );
-			bossSlain.show( 0xFFFFFF, 0.3f, 5f );
-			scene.showBanner( bossSlain );
-			
-			Sample.INSTANCE.play( Assets.SND_BOSS );
-		}
-	}
-	
-	public static void handleCell( int cell ) {
-		cellSelector.select( cell );
-	}
-	
-	public static void selectCell( CellSelector.Listener listener ) {
-		cellSelector.listener = listener;
-		scene.prompt( listener.prompt() );
-	}
-	
-	private static boolean cancelCellSelector() {
-		if (cellSelector.listener != null && cellSelector.listener != defaultCellListener) {
-			cellSelector.cancel();
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	public static WndBag selectItem( WndBag.Listener listener, WndBag.Mode mode, String title ) {
-		cancelCellSelector();
-		
-		WndBag wnd = mode == WndBag.Mode.SEED ?
-			WndBag.seedPouch( listener, mode, title ) :
-			WndBag.lastBag( listener, mode, title );
-		scene.add( wnd );
-		
-		return wnd;
-	}
-
-	static boolean cancel() {
-		if (Dungeon.hero.curAction != null || Dungeon.hero.restoreHealth) {
-			
-			Dungeon.hero.curAction = null;
-			Dungeon.hero.restoreHealth = false;
-			return true;
-			
-		} else {
-			
-			return cancelCellSelector();
-			
-		}
-	}
-	
-	public static void ready() {
-		selectCell( defaultCellListener );
-		QuickSlot.cancel();
-	}
-	
-	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
-		@Override
-		public void onSelect( Integer cell ) {
-			if (Dungeon.hero.handle( cell )) {
-				Dungeon.hero.next();
-			}
-		}
-		@Override
-		public String prompt() {
-			return null;
-		}
-	};
 }

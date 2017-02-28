@@ -25,6 +25,7 @@ import com.wafitz.pixelspacebase.effects.Pushing;
 import com.wafitz.pixelspacebase.items.armor.Armor;
 import com.wafitz.pixelspacebase.items.armor.Armor.Glyph;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 public class Bounce extends Glyph {
@@ -35,11 +36,11 @@ public class Bounce extends Glyph {
 	public int proc( Armor armor, Char attacker, Char defender, int damage) {
 
 		int level = Math.max( 0, armor.effectiveLevel() );
-		
-		if (Level.adjacent( attacker.pos, defender.pos ) && Random.Int( level + 5) >= 4) {
-			
-			for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
-				int ofs = Level.NEIGHBOURS8[i];
+
+		if (Dungeon.level.adjacent(attacker.pos, defender.pos) && Random.Int(level + 5) >= 4) {
+
+			for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+				int ofs = PathFinder.NEIGHBOURS8[i];
 				if (attacker.pos - defender.pos == ofs) {
 					int newPos = attacker.pos + ofs;
 					if ((Level.passable[newPos] || Level.avoid[newPos]) && Actor.findChar( newPos ) == null) {

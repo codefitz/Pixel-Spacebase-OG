@@ -22,15 +22,15 @@ import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.blobs.Blob;
 import com.wafitz.pixelspacebase.actors.blobs.ParalyticGas;
 import com.wafitz.pixelspacebase.actors.blobs.ToxicGas;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
+import com.wafitz.pixelspacebase.actors.buffs.GasesImmunity;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.effects.CellEmitter;
+import com.wafitz.pixelspacebase.effects.Speck;
+import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.utils.BArray;
 import com.wafitz.pixelspacebase.utils.GLog;
 import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
-import com.wafitz.pixelspacebase.actors.buffs.GasesImmunity;
-import com.wafitz.pixelspacebase.effects.Speck;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.watabou.utils.PathFinder;
 
 public class PotionOfPurity extends Potion {
@@ -62,8 +62,8 @@ public class PotionOfPurity extends Potion {
 			if (blob == null) {
 				continue;
 			}
-			
-			for (int i=0; i < Level.LENGTH; i++) {
+
+			for (int i = 0; i < Dungeon.level.length(); i++) {
 				if (PathFinder.distance[i] < Integer.MAX_VALUE) {
 					
 					int value = blob.cur[i]; 

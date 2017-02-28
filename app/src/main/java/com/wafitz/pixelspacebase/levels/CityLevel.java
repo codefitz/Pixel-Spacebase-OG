@@ -18,12 +18,12 @@
 package com.wafitz.pixelspacebase.levels;
 
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Imp;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.particles.PixelParticle;
-import com.wafitz.pixelspacebase.Dungeon;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Imp;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
@@ -32,6 +32,14 @@ public class CityLevel extends RegularLevel {
 	{
 		color1 = 0x4b6636;
 		color2 = 0xf2f2f2;
+	}
+
+	public static void addVisuals(Level level, Scene scene) {
+		for (int i = 0; i < level.length(); i++) {
+			if (level.map[i] == Terrain.WALL_DECO) {
+				scene.add(new Smoke(i));
+			}
+		}
 	}
 	
 	@Override
@@ -45,17 +53,17 @@ public class CityLevel extends RegularLevel {
 	}
 	
 	protected boolean[] water() {
-		return Patch.generate( feeling == Feeling.WATER ? 0.65f : 0.45f, 4 );
+		return Patch.generate(this, feeling == Feeling.WATER ? 0.65f : 0.45f, 4);
 	}
 	
 	protected boolean[] grass() {
-		return Patch.generate( feeling == Feeling.GRASS ? 0.60f : 0.40f, 3 );
+		return Patch.generate(this, feeling == Feeling.GRASS ? 0.60f : 0.40f, 3);
 	}
 	
 	@Override
 	protected void assignRoomType() {
 		super.assignRoomType();
-		
+
 		for (Room r : rooms) {
 			if (r.type == Room.Type.TUNNEL) {
 				r.type = Room.Type.PASSAGE;
@@ -65,17 +73,17 @@ public class CityLevel extends RegularLevel {
 	
 	@Override
 	protected void decorate() {
-		
-		for (int i=0; i < LENGTH; i++) {
-			if (map[i] == Terrain.EMPTY && Random.Int( 10 ) == 0) { 
+
+		for (int i = 0; i < length(); i++) {
+			if (map[i] == Terrain.EMPTY && Random.Int(10) == 0) {
 				map[i] = Terrain.EMPTY_DECO;
-			} else if (map[i] == Terrain.WALL && Random.Int( 8 ) == 0) { 
+			} else if (map[i] == Terrain.WALL && Random.Int(8) == 0) {
 				map[i] = Terrain.WALL_DECO;
 			}
 		}
-		
+
 		while (true) {
-			int pos = roomEntrance.random();
+			int pos = pointToCell(roomEntrance.random());
 			if (pos != entrance) {
 				map[pos] = Terrain.SIGN;
 				break;
@@ -86,7 +94,7 @@ public class CityLevel extends RegularLevel {
 	@Override
 	protected void createItems() {
 		super.createItems();
-		
+
 		Imp.Quest.spawn( this, roomEntrance );
 	}
 	
@@ -130,26 +138,17 @@ public class CityLevel extends RegularLevel {
 		addVisuals( this, scene );
 	}
 	
-	public static void addVisuals( Level level, Scene scene ) {
-		for (int i=0; i < LENGTH; i++) {
-			if (level.map[i] == Terrain.WALL_DECO) {
-				scene.add( new Smoke( i ) );
-			}
-		}
-	}
-	
 	private static class Smoke extends Emitter {
 		
-		private int pos;
-		
 		private static final Emitter.Factory factory = new Factory() {
-			
+
 			@Override
 			public void emit( Emitter emitter, int index, float x, float y ) {
 				SmokeParticle p = (SmokeParticle)emitter.recycle( SmokeParticle.class );
 				p.reset( x, y );
 			}
 		};
+		private int pos;
 		
 		public Smoke( int pos ) {
 			super();

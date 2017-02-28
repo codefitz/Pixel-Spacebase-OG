@@ -18,19 +18,19 @@
 package com.wafitz.pixelspacebase.items.wands;
 
 import com.wafitz.pixelspacebase.Assets;
-import com.wafitz.pixelspacebase.effects.CellEmitter;
-import com.wafitz.pixelspacebase.sprites.SheepSprite;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.NPC;
+import com.wafitz.pixelspacebase.effects.CellEmitter;
 import com.wafitz.pixelspacebase.effects.MagicMissile;
 import com.wafitz.pixelspacebase.effects.Speck;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.mechanics.Ballistica;
 import com.wafitz.pixelspacebase.scenes.GameScene;
+import com.wafitz.pixelspacebase.sprites.SheepSprite;
 import com.wafitz.pixelspacebase.utils.BArray;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
@@ -72,7 +72,7 @@ public class WandOfFlock extends Wand {
 	sheepLabel:
 		for (int i=0; i < n; i++) {
 			do {
-				for (int j=0; j < Level.LENGTH; j++) {
+				for (int j = 0; j < Dungeon.level.length(); j++) {
 					if (PathFinder.distance[j] == dist) {
 						
 						Sheep sheep = new Sheep();
@@ -107,15 +107,13 @@ public class WandOfFlock extends Wand {
 	public static class Sheep extends NPC {
 		
 		private static final String[] QUOTES = {"Baa!", "Baa?", "Baa.", "Baa..."};
+		public float lifespan;
+		private boolean initialized = false;
 		
 		{
 			name = "sheep";
 			spriteClass = SheepSprite.class;
 		}
-		
-		public float lifespan;
-		
-		private boolean initialized = false;
 		
 		@Override
 		protected boolean act() {

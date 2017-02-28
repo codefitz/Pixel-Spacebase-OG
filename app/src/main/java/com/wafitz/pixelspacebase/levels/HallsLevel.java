@@ -17,8 +17,6 @@
  */
 package com.wafitz.pixelspacebase.levels;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import android.opengl.GLES20;
 
 import com.wafitz.pixelspacebase.Assets;
@@ -29,8 +27,11 @@ import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.particles.PixelParticle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
+
+import javax.microedition.khronos.opengles.GL10;
 
 public class HallsLevel extends RegularLevel {
 
@@ -41,6 +42,14 @@ public class HallsLevel extends RegularLevel {
 		
 		color1 = 0x801500;
 		color2 = 0xa68521;
+	}
+
+	public static void addVisuals(Level level, Scene scene) {
+		for (int i = 0; i < level.length(); i++) {
+			if (level.map[i] == 63) {
+				scene.add(new Stream(i));
+			}
+		}
 	}
 	
 	@Override
@@ -60,47 +69,40 @@ public class HallsLevel extends RegularLevel {
 	}
 	
 	protected boolean[] water() {
-		return Patch.generate( feeling == Feeling.WATER ? 0.55f : 0.40f, 6 );
+		return Patch.generate(this, feeling == Feeling.WATER ? 0.55f : 0.40f, 6);
 	}
 	
 	protected boolean[] grass() {
-		return Patch.generate( feeling == Feeling.GRASS ? 0.55f : 0.30f, 3 );
+		return Patch.generate(this, feeling == Feeling.GRASS ? 0.55f : 0.30f, 3);
 	}
 	
 	@Override
 	protected void decorate() {
-		
-		for (int i=WIDTH + 1; i < LENGTH - WIDTH - 1; i++) {
-			if (map[i] == Terrain.EMPTY) { 
-				
+
+		for (int i = width() + 1; i < length() - width() - 1; i++) {
+			if (map[i] == Terrain.EMPTY) {
+
 				int count = 0;
-				for (int j=0; j < NEIGHBOURS8.length; j++) {
-					if ((Terrain.flags[map[i + NEIGHBOURS8[j]]] & Terrain.PASSABLE) > 0) {
+				for (int j = 0; j < PathFinder.NEIGHBOURS8.length; j++) {
+					if ((Terrain.flags[map[i + PathFinder.NEIGHBOURS8[j]]] & Terrain.PASSABLE) > 0) {
 						count++;
 					}
 				}
-				
+
 				if (Random.Int( 80 ) < count) {
 					map[i] = Terrain.EMPTY_DECO;
 				}
-				
-			} else
-			if (map[i] == Terrain.WALL && 
-				map[i-1] != Terrain.WALL_DECO && map[i-WIDTH] != Terrain.WALL_DECO && 
+
+			} else if (map[i] == Terrain.WALL &&
+					map[i - 1] != Terrain.WALL_DECO && map[i - width()] != Terrain.WALL_DECO &&
 				Random.Int( 20 ) == 0) {
-				
+
 				map[i] = Terrain.WALL_DECO;
-				
+
 			}
 		}
-		
-		while (true) {
-			int pos = roomEntrance.random();
-			if (pos != entrance) {
-				map[pos] = Terrain.SIGN;
-				break;
-			}
-		}
+
+		placeSign();
 	}
 	
 	@Override
@@ -127,7 +129,7 @@ public class HallsLevel extends RegularLevel {
 			return "It looks like lava, but it's cold and probably safe to touch.";
 		case Terrain.STATUE:
 		case Terrain.STATUE_SP:
-			return "The pillar is made of real humanoid skulls. Awesome."; 
+			return "The pillar is made of real humanoid skulls. Awesome.";
 		case Terrain.BOOKSHELF:
 			return "Books in ancient languages smoulder in the bookshelf.";
 		default:
@@ -139,14 +141,6 @@ public class HallsLevel extends RegularLevel {
 	public void addVisuals( Scene scene ) {
 		super.addVisuals( scene );
 		addVisuals( this, scene );
-	}
-	
-	public static void addVisuals( Level level, Scene scene ) {
-		for (int i=0; i < LENGTH; i++) {
-			if (level.map[i] == 63) {
-				scene.add( new Stream( i ) );
-			}
-		}
 	}
 	
 	private static class Stream extends Group {

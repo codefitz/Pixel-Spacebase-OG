@@ -18,35 +18,28 @@
 package com.wafitz.pixelspacebase.sprites;
 
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.DungeonTilemap;
+import com.wafitz.pixelspacebase.plants.Plant;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
-import com.wafitz.pixelspacebase.Dungeon;
-import com.wafitz.pixelspacebase.levels.Level;
-import com.wafitz.pixelspacebase.plants.Plant;
 
 public class PlantSprite extends Image {
 
 	private static final float DELAY = 0.2f;
-	
-	private static enum State {
-		GROWING, NORMAL, WITHERING
-	}
+	private static TextureFilm frames;
 	private State state = State.NORMAL;
 	private float time;
-	
-	private static TextureFilm frames;
-	
 	private int pos = -1;
 	
 	public PlantSprite() {
 		super( Assets.PLANTS );
-		
+
 		if (frames == null) {
 			frames = new TextureFilm( texture, 16, 16 );
 		}
-		
+
 		origin.set( 8, 12 );
 	}
 	
@@ -56,16 +49,16 @@ public class PlantSprite extends Image {
 	}
 	
 	public void reset( Plant plant ) {
-		
+
 		revive();
-		
+
 		reset( plant.image );
 		alpha( 1f );
-		
+
 		pos = plant.pos;
-		x = (pos % Level.WIDTH) * DungeonTilemap.SIZE;
-		y = (pos / Level.WIDTH) * DungeonTilemap.SIZE;
-		
+		x = (pos % Dungeon.level.width()) * DungeonTilemap.SIZE;
+		y = (pos / Dungeon.level.width()) * DungeonTilemap.SIZE;
+
 		state = State.GROWING;
 		time = DELAY;
 	}
@@ -77,9 +70,9 @@ public class PlantSprite extends Image {
 	@Override
 	public void update() {
 		super.update();
-		
+
 		visible = pos == -1 || Dungeon.visible[pos];
-		
+
 		switch (state) {
 		case GROWING:
 			if ((time -= Game.elapsed) <= 0) {
@@ -104,5 +97,9 @@ public class PlantSprite extends Image {
 	public void kill() {
 		state = State.WITHERING;
 		time = DELAY;
+	}
+
+	private enum State {
+		GROWING, NORMAL, WITHERING
 	}
 }

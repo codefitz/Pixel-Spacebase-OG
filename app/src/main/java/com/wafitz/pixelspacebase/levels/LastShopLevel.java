@@ -17,17 +17,17 @@
  */
 package com.wafitz.pixelspacebase.levels;
 
-import java.util.List;
-
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Bones;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.mobs.npcs.Imp;
 import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.Item;
 import com.watabou.noosa.Scene;
-import com.wafitz.pixelspacebase.Bones;
-import com.wafitz.pixelspacebase.actors.mobs.npcs.Imp;
 import com.watabou.utils.Graph;
 import com.watabou.utils.Random;
+
+import java.util.List;
 
 public class LastShopLevel extends RegularLevel {
 	
@@ -124,9 +124,9 @@ public class LastShopLevel extends RegularLevel {
 	}
 	
 	@Override
-	protected void decorate() {	
-		
-		for (int i=0; i < LENGTH; i++) {
+	protected void decorate() {
+
+		for (int i = 0; i < length(); i++) {
 			if (map[i] == Terrain.EMPTY && Random.Int( 10 ) == 0) { 
 				
 				map[i] = Terrain.EMPTY_DECO;
@@ -144,7 +144,7 @@ public class LastShopLevel extends RegularLevel {
 		
 		if (Imp.Quest.isCompleted()) {
 			while (true) {
-				int pos = roomEntrance.random();
+				int pos = pointToCell(roomEntrance.random());
 				if (pos != entrance) {
 					map[pos] = Terrain.SIGN;
 					break;
@@ -167,7 +167,7 @@ public class LastShopLevel extends RegularLevel {
 		if (item != null) {
 			int pos;
 			do {
-				pos = roomEntrance.random();
+				pos = pointToCell(roomEntrance.random());
 			} while (pos == entrance || map[pos] == Terrain.SIGN);
 			drop( item, pos ).type = Heap.Type.SKELETON;
 		}
@@ -209,12 +209,12 @@ public class LastShopLevel extends RegularLevel {
 
 	@Override
 	protected boolean[] water() {
-		return Patch.generate( 0.35f, 4 );
+		return Patch.generate(this, 0.35f, 4);
 	}
 
 	@Override
 	protected boolean[] grass() {
-		return Patch.generate( 0.30f, 3 );
+		return Patch.generate(this, 0.30f, 3);
 	}
 	
 	@Override

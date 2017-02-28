@@ -17,57 +17,50 @@
  */
 package com.wafitz.pixelspacebase.items;
 
-import java.util.ArrayList;
-
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.hero.Hero;
 import com.wafitz.pixelspacebase.items.wands.WandOfBlink;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.audio.Sample;
-import com.wafitz.pixelspacebase.Dungeon;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.scenes.InterlevelScene;
 import com.wafitz.pixelspacebase.sprites.ItemSprite.Glowing;
 import com.wafitz.pixelspacebase.sprites.ItemSpriteSheet;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
+
+import java.util.ArrayList;
 
 public class LloydsBeacon extends Item {
 
-	private static final String TXT_PREVENTING = 
+	public static final float TIME_TO_USE = 1;
+	public static final String AC_SET = "SET";
+	public static final String AC_RETURN = "RETURN";
+	private static final String TXT_PREVENTING =
 		"Strong magic aura of this place prevents you from using the lloyd's beacon!";
-	
-	private static final String TXT_CREATURES = 
+	private static final String TXT_CREATURES =
 		"Psychic aura of neighbouring creatures doesn't allow you to use the lloyd's beacon at this moment.";
-	
-	private static final String TXT_RETURN = 
+	private static final String TXT_RETURN =
 		"The lloyd's beacon is successfully set at your current location, now you can return here anytime.";
-			
 	private static final String TXT_INFO =
 		"Lloyd's beacon is an intricate magic device, that allows you to return to a place you have already been.";
-	
-	private static final String TXT_SET = 
+	private static final String TXT_SET =
 		"\n\nThis beacon was set somewhere on the level %d of Pixel Spacebase.";
-	
-	public static final float TIME_TO_USE = 1;
-	
-	public static final String AC_SET		= "SET";
-	public static final String AC_RETURN	= "RETURN";
-	
+	private static final String DEPTH = "depth";
+	private static final String POS = "pos";
+	private static final Glowing WHITE = new Glowing(0xFFFFFF);
 	private int returnDepth	= -1;
 	private int returnPos;
 	
 	{
 		name = "lloyd's beacon";
 		image = ItemSpriteSheet.BEACON;
-		
+
 		unique = true;
 	}
-	
-	private static final String DEPTH	= "depth";
-	private static final String POS		= "pos";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -97,38 +90,38 @@ public class LloydsBeacon extends Item {
 	
 	@Override
 	public void execute( Hero hero, String action ) {
-		
+
 		if (action == AC_SET || action == AC_RETURN) {
-			
+
 			if (Dungeon.bossLevel()) {
 				hero.spend( LloydsBeacon.TIME_TO_USE );
 				GLog.w( TXT_PREVENTING );
 				return;
 			}
-			
-			for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
-				if (Actor.findChar( hero.pos + Level.NEIGHBOURS8[i] ) != null) {
+
+			for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+				if (Actor.findChar(hero.pos + PathFinder.NEIGHBOURS8[i]) != null) {
 					GLog.w( TXT_CREATURES );
 					return;
 				}
 			}
 		}
-		
+
 		if (action == AC_SET) {
-			
+
 			returnDepth = Dungeon.depth;
 			returnPos = hero.pos;
-			
+
 			hero.spend( LloydsBeacon.TIME_TO_USE );
 			hero.busy();
-			
+
 			hero.sprite.operate( hero.pos );
 			Sample.INSTANCE.play( Assets.SND_BEACON );
-			
+
 			GLog.i( TXT_RETURN );
-			
+
 		} else if (action == AC_RETURN) {
-			
+
 			if (returnDepth == Dungeon.depth) {
 				reset();
 				WandOfBlink.appear( hero, returnPos );
@@ -141,12 +134,12 @@ public class LloydsBeacon extends Item {
 				reset();
 				Game.switchScene( InterlevelScene.class );
 			}
-			
-			
+
+
 		} else {
-			
+
 			super.execute( hero, action );
-			
+
 		}
 	}
 	
@@ -163,8 +156,6 @@ public class LloydsBeacon extends Item {
 	public boolean isIdentified() {
 		return true;
 	}
-	
-	private static final Glowing WHITE = new Glowing( 0xFFFFFF );
 	
 	@Override
 	public Glowing glowing() {

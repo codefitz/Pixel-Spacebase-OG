@@ -17,12 +17,13 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Item;
+import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.items.scrolls.Scroll;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Room;
-import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
@@ -55,10 +56,10 @@ public class LibraryPainter extends Painter {
 			b = new Point( entrance.x-1, room.bottom-1 );
 			fill( level, room.left + 1, room.top+1, room.width() - 1, 1 , Terrain.BOOKSHELF );
 		}
-		if (a != null && level.map[a.x + a.y * Level.WIDTH] == Terrain.EMPTY) {
+		if (a != null && level.map[a.x + a.y * Dungeon.level.width()] == Terrain.EMPTY) {
 			set( level, a, Terrain.STATUE );
 		}
-		if (b != null && level.map[b.x + b.y * Level.WIDTH] == Terrain.EMPTY) {
+		if (b != null && level.map[b.x + b.y * Dungeon.level.width()] == Terrain.EMPTY) {
 			set( level, b, Terrain.STATUE );
 		}
 		
@@ -66,7 +67,7 @@ public class LibraryPainter extends Painter {
 		for (int i=0; i < n; i++) {
 			int pos;
 			do {
-				pos = room.random();
+				pos = level.pointToCell(room.random());
 			} while (level.map[pos] != Terrain.EMPTY || level.heaps.get( pos ) != null);
 			level.drop( prize( level), pos );
 		}

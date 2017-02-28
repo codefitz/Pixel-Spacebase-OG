@@ -17,11 +17,11 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import com.wafitz.pixelspacebase.items.Heap;
-import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.items.Gold;
+import com.wafitz.pixelspacebase.items.Heap;
 import com.wafitz.pixelspacebase.items.keys.IronKey;
 import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
 import com.watabou.utils.Random;
 
@@ -40,7 +40,7 @@ public class TreasuryPainter extends Painter {
 		for (int i=0; i < n; i++) {
 			int pos;
 			do {
-				pos = room.random();
+				pos = level.pointToCell(room.random());
 			} while (level.map[pos] != Terrain.EMPTY || level.heaps.get( pos ) != null);
 			level.drop( new Gold().random(), pos ).type = (i == 0 && heapType == Heap.Type.CHEST ? Heap.Type.MIMIC : heapType);
 		}
@@ -49,7 +49,7 @@ public class TreasuryPainter extends Painter {
 			for (int i=0; i < 6; i++) {
 				int pos;
 				do {
-					pos = room.random();
+					pos = level.pointToCell(room.random());
 				} while (level.map[pos] != Terrain.EMPTY);
 				level.drop( new Gold( Random.IntRange( 1, 3 ) ), pos );
 			}

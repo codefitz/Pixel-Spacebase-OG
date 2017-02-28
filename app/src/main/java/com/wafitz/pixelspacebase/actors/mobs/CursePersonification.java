@@ -17,33 +17,43 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.HashSet;
-
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
-import com.wafitz.pixelspacebase.actors.buffs.Roots;
-import com.wafitz.pixelspacebase.actors.buffs.Terror;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Paralysis;
+import com.wafitz.pixelspacebase.actors.buffs.Roots;
+import com.wafitz.pixelspacebase.actors.buffs.Terror;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.Ghost;
 import com.wafitz.pixelspacebase.effects.Pushing;
 import com.wafitz.pixelspacebase.items.weapon.enchantments.Death;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.sprites.CursePersonificationSprite;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public class CursePersonification extends Mob {
 
+	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+
+	static {
+		IMMUNITIES.add(Death.class);
+		IMMUNITIES.add(Terror.class);
+		IMMUNITIES.add(Paralysis.class);
+		IMMUNITIES.add(Roots.class);
+	}
+	
 	{
 		name = "curse personification";
 		spriteClass = CursePersonificationSprite.class;
-		
+
 		HP = HT = 10 + Dungeon.depth * 3;
 		defenseSkill = 10 + Dungeon.depth;
-		
+
 		EXP = 3;
-		maxLvl = 5;	
-		
+		maxLvl = 5;
+
 		state = HUNTING;
 		baseSpeed = 0.5f;
 		flying = true;
@@ -67,14 +77,14 @@ public class CursePersonification extends Mob {
 	@Override
 	public int attackProc(Char enemy, int damage) {
 
-		for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
-			int ofs = Level.NEIGHBOURS8[i];
+		for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+			int ofs = PathFinder.NEIGHBOURS8[i];
 			if (enemy.pos - pos == ofs) {
 				int newPos = enemy.pos + ofs;
 				if ((Level.passable[newPos] || Level.avoid[newPos]) && Actor.findChar( newPos ) == null) {
-					
+
 					Actor.addDelayed( new Pushing( enemy, enemy.pos, newPos ), -1 );
-					
+
 					enemy.pos = newPos;
 					// FIXME
 					if (enemy instanceof Mob) {
@@ -82,12 +92,12 @@ public class CursePersonification extends Mob {
 					} else {
 						Dungeon.level.press( newPos, enemy );
 					}
-					
+
 				}
 				break;
 			}
 		}
-		
+
 		return super.attackProc( enemy, damage );
 	}
 	
@@ -105,20 +115,12 @@ public class CursePersonification extends Mob {
 		ghost.state = ghost.PASSIVE;
 		Ghost.replace( this, ghost );
 	}
-	
+
 	@Override
 	public String description() {
 		return
 			"This creature resembles the sad ghost, but it swirls with darkness. " +
 			"Its face bears an expression of despair.";
-	}
-	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
-	static {
-		IMMUNITIES.add( Death.class );
-		IMMUNITIES.add( Terror.class );
-		IMMUNITIES.add( Paralysis.class );
-		IMMUNITIES.add( Roots.class );
 	}
 	
 	@Override

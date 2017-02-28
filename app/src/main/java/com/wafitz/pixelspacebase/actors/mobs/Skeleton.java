@@ -17,33 +17,38 @@
  */
 package com.wafitz.pixelspacebase.actors.mobs;
 
-import java.util.HashSet;
-
 import com.wafitz.pixelspacebase.Assets;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.audio.Sample;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.weapon.enchantments.Death;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.sprites.SkeletonSprite;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public class Skeleton extends Mob {
 
 	private static final String TXT_HERO_KILLED = "You were killed by the explosion of bones...";
+	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
+
+	static {
+		IMMUNITIES.add(Death.class);
+	}
 	
 	{
 		name = "skeleton";
 		spriteClass = SkeletonSprite.class;
-		
+
 		HP = HT = 25;
 		defenseSkill = 9;
-		
+
 		EXP = 5;
 		maxLvl = 10;
 	}
@@ -55,12 +60,12 @@ public class Skeleton extends Mob {
 	
 	@Override
 	public void die( Object cause ) {
-		
+
 		super.die( cause );
-		
+
 		boolean heroKilled = false;
-		for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
-			Char ch = findChar( pos + Level.NEIGHBOURS8[i] );
+		for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+			Char ch = findChar(pos + PathFinder.NEIGHBOURS8[i]);
 			if (ch != null && ch.isAlive()) {
 				int damage = Math.max( 0,  damageRoll() - Random.IntRange( 0, ch.dr() / 2 ) );
 				ch.damage( damage, this );
@@ -69,11 +74,11 @@ public class Skeleton extends Mob {
 				}
 			}
 		}
-		
+
 		if (Dungeon.visible[pos]) {
 			Sample.INSTANCE.play( Assets.SND_BONES );
 		}
-		
+
 		if (heroKilled) {
 			Dungeon.fail( Utils.format( ResultDescriptions.MOB, Utils.indefinite( name ), Dungeon.depth ) );
 			GLog.n( TXT_HERO_KILLED );
@@ -103,23 +108,18 @@ public class Skeleton extends Mob {
 	public int dr() {
 		return 5;
 	}
-	
+
 	@Override
 	public String defenseVerb() {
 		return "blocked";
 	}
-	
+
 	@Override
 	public String description() {
 		return
 			"Skeletons are composed of corpses bones from unlucky adventurers and inhabitants of the dungeon, " +
 			"animated by emanations of evil magic from the depths below. After they have been " +
 			"damaged enough, they disintegrate in an explosion of bones.";
-	}
-	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
-	static {
-		IMMUNITIES.add( Death.class );
 	}
 	
 	@Override

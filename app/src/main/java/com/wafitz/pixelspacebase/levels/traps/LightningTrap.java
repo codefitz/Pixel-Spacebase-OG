@@ -17,33 +17,33 @@
  */
 package com.wafitz.pixelspacebase.levels.traps;
 
-import com.wafitz.pixelspacebase.actors.hero.Hero;
-import com.wafitz.pixelspacebase.effects.CellEmitter;
-import com.wafitz.pixelspacebase.utils.GLog;
-import com.watabou.noosa.Camera;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.ResultDescriptions;
 import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.hero.Hero;
+import com.wafitz.pixelspacebase.effects.CellEmitter;
 import com.wafitz.pixelspacebase.effects.Lightning;
 import com.wafitz.pixelspacebase.effects.particles.SparkParticle;
-import com.wafitz.pixelspacebase.levels.Level;
+import com.wafitz.pixelspacebase.utils.GLog;
 import com.wafitz.pixelspacebase.utils.Utils;
+import com.watabou.noosa.Camera;
 import com.watabou.utils.Random;
 
 public class LightningTrap {
 
-	private static final String name	= "lightning trap";
+	public static final Electricity LIGHTNING = new Electricity();
 	
 	// 00x66CCEE
+	private static final String name = "lightning trap";
 	
 	public static void trigger( int pos, Char ch ) {
-		
+
 		if (ch != null) {
 			ch.damage( Math.max( 1, Random.Int( ch.HP / 3, 2 * ch.HP / 3 ) ), LIGHTNING );
 			if (ch == Dungeon.hero) {
-				
+
 				Camera.main.shake( 2, 0.3f );
-				
+
 				if (!ch.isAlive()) {
 					Dungeon.fail( Utils.format( ResultDescriptions.TRAP, name, Dungeon.depth ) );
 					GLog.n( "You were killed by a discharge of a lightning trap..." );
@@ -51,23 +51,22 @@ public class LightningTrap {
 					((Hero)ch).belongings.charge( false );
 				}
 			}
-			
+
 			int[] points = new int[2];
-			
-			points[0] = pos - Level.WIDTH;
-			points[1] = pos + Level.WIDTH;
+
+			points[0] = pos - Dungeon.level.width();
+			points[1] = pos + Dungeon.level.width();
 			ch.sprite.parent.add( new Lightning( points, 2, null ) );
-			
+
 			points[0] = pos - 1;
 			points[1] = pos + 1;
 			ch.sprite.parent.add( new Lightning( points, 2, null ) );
 		}
-		
+
 		CellEmitter.center( pos ).burst( SparkParticle.FACTORY, Random.IntRange( 3, 4 ) );
-		
+
 	}
-	
-	public static final Electricity LIGHTNING = new Electricity();
-	public static class Electricity {	
+
+	public static class Electricity {
 	}
 }

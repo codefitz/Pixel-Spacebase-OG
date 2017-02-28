@@ -18,9 +18,9 @@
 package com.wafitz.pixelspacebase.sprites;
 
 import com.wafitz.pixelspacebase.Assets;
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.items.weapon.missiles.Dart;
 import com.watabou.noosa.TextureFilm;
-import com.wafitz.pixelspacebase.levels.Level;
 import com.watabou.utils.Callback;
 
 public class ScorpioSprite extends MobSprite {
@@ -58,7 +58,7 @@ public class ScorpioSprite extends MobSprite {
 	
 	@Override
 	public void attack( int cell ) {
-		if (!Level.adjacent( cell, ch.pos )) {
+		if (!Dungeon.level.adjacent(cell, ch.pos)) {
 			
 			cellToAttack = cell;
 			turnTo( ch.pos , cell );
