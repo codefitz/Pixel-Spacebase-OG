@@ -107,7 +107,7 @@ public class StandardPainter extends Painter {
 					t = Terrain.INACTIVE_TRAP;
 					break;
 				}
-				level.map[i * Dungeon.level.width() + j] = t;
+				level.map[i * level.width() + j] = t;
 			}
 		}
 	}

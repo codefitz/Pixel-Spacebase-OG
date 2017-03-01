@@ -17,7 +17,6 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Item;
 import com.wafitz.pixelspacebase.items.keys.IronKey;
@@ -56,10 +55,10 @@ public class LibraryPainter extends Painter {
 			b = new Point( entrance.x-1, room.bottom-1 );
 			fill( level, room.left + 1, room.top+1, room.width() - 1, 1 , Terrain.BOOKSHELF );
 		}
-		if (a != null && level.map[a.x + a.y * Dungeon.level.width()] == Terrain.EMPTY) {
+		if (a != null && level.map[a.x + a.y * level.width()] == Terrain.EMPTY) {
 			set( level, a, Terrain.STATUE );
 		}
-		if (b != null && level.map[b.x + b.y * Dungeon.level.width()] == Terrain.EMPTY) {
+		if (b != null && level.map[b.x + b.y * level.width()] == Terrain.EMPTY) {
 			set( level, b, Terrain.STATUE );
 		}
 		

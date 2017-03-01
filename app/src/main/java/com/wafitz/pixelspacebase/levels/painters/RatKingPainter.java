@@ -17,7 +17,6 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.mobs.npcs.RatKing;
 import com.wafitz.pixelspacebase.items.Generator;
 import com.wafitz.pixelspacebase.items.Gold;
@@ -38,16 +37,16 @@ public class RatKingPainter extends Painter {
 		
 		Room.Door entrance = room.entrance();
 		entrance.set( Room.Door.Type.HIDDEN );
-		int door = entrance.x + entrance.y * Dungeon.level.width();
+		int door = entrance.x + entrance.y * level.width();
 		
 		for (int i=room.left + 1; i < room.right; i++) {
-			addChest(level, (room.top + 1) * Dungeon.level.width() + i, door);
-			addChest(level, (room.bottom - 1) * Dungeon.level.width() + i, door);
+			addChest(level, (room.top + 1) * level.width() + i, door);
+			addChest(level, (room.bottom - 1) * level.width() + i, door);
 		}
 		
 		for (int i=room.top + 2; i < room.bottom - 1; i++) {
-			addChest(level, i * Dungeon.level.width() + room.left + 1, door);
-			addChest(level, i * Dungeon.level.width() + room.right - 1, door);
+			addChest(level, i * level.width() + room.left + 1, door);
+			addChest(level, i * level.width() + room.right - 1, door);
 		}
 		
 		while (true) {
@@ -67,8 +66,8 @@ public class RatKingPainter extends Painter {
 
 		if (pos == door - 1 ||
 				pos == door + 1 ||
-				pos == door - Dungeon.level.width() ||
-				pos == door + Dungeon.level.width()) {
+				pos == door - level.width() ||
+				pos == door + level.width()) {
 			return;
 		}
 		

@@ -17,11 +17,11 @@
  */
 package com.wafitz.pixelspacebase.actors.blobs;
 
-import com.wafitz.pixelspacebase.actors.buffs.Roots;
 import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
+import com.wafitz.pixelspacebase.actors.buffs.Roots;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
 import com.wafitz.pixelspacebase.effects.particles.LeafParticle;
 import com.wafitz.pixelspacebase.levels.Level;
@@ -37,8 +37,8 @@ public class Regrowth extends Blob {
 		if (volume > 0) {
 			
 			boolean mapUpdated = false;
-			
-			for (int i=0; i < LENGTH; i++) {
+
+			for (int i = 0; i < Dungeon.level.length(); i++) {
 				if (off[i] > 0) {
 					int c = Dungeon.level.map[i];
 					int c1 = c;

@@ -17,19 +17,21 @@
  */
 package com.wafitz.pixelspacebase.actors.blobs;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
+import com.wafitz.pixelspacebase.actors.Char;
+import com.wafitz.pixelspacebase.actors.buffs.Buff;
 import com.wafitz.pixelspacebase.actors.buffs.Roots;
 import com.wafitz.pixelspacebase.effects.BlobEmitter;
 import com.wafitz.pixelspacebase.effects.particles.WebParticle;
-import com.wafitz.pixelspacebase.actors.Char;
-import com.wafitz.pixelspacebase.actors.buffs.Buff;
+import com.wafitz.pixelspacebase.levels.Level;
 
 public class Web extends Blob {
 	
 	@Override
 	protected void evolve() {
-		
-		for (int i=0; i < LENGTH; i++) {
+
+		for (int i = 0; i < Dungeon.level.length(); i++) {
 			
 			int offv = cur[i] > 0 ? cur[i] - 1 : 0;
 			off[i] = offv;
@@ -52,8 +54,8 @@ public class Web extends Blob {
 		
 		emitter.pour( WebParticle.FACTORY, 0.4f );
 	}
-	
-	public void seed( int cell, int amount ) {
+
+	public void seed(Level level, int cell, int amount) {
 		int diff = amount - cur[cell];
 		if (diff > 0) {
 			cur[cell] = amount;

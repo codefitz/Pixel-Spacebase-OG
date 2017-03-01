@@ -17,6 +17,7 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.blobs.Foliage;
 import com.wafitz.pixelspacebase.items.Honeypot;
 import com.wafitz.pixelspacebase.levels.Level;
@@ -52,7 +53,7 @@ public class GardenPainter extends Painter {
 		}
 		for (int i=room.top + 1; i < room.bottom; i++) {
 			for (int j=room.left + 1; j < room.right; j++) {
-				light.seed(j + level.width() * i, 1);
+				light.seed(Dungeon.level, j + level.width() * i, 1);
 			}
 		}
 		level.blobs.put( Foliage.class, light );

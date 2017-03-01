@@ -63,7 +63,7 @@ public class TrapsPainter extends Painter {
 			fill( level, room.left + 1, y, room.width() - 1, 1 , lastRow );
 		}
 
-		int pos = x + y * Dungeon.level.width();
+		int pos = x + y * level.width();
 		if (Random.Int( 3 ) == 0) {
 			if (lastRow == Terrain.CHASM) {
 				set( level, pos, Terrain.EMPTY );

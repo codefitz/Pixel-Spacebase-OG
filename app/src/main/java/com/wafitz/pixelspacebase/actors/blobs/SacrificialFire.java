@@ -32,6 +32,7 @@ import com.wafitz.pixelspacebase.effects.BlobEmitter;
 import com.wafitz.pixelspacebase.effects.Flare;
 import com.wafitz.pixelspacebase.effects.Wound;
 import com.wafitz.pixelspacebase.effects.particles.SacrificialParticle;
+import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.scenes.GameScene;
 import com.wafitz.pixelspacebase.sprites.CharSprite;
 import com.wafitz.pixelspacebase.ui.BuffIndicator;
@@ -53,8 +54,8 @@ public class SacrificialFire extends Blob {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		
-		for (int i=0; i < LENGTH; i++) {
+
+		for (int i = 0; i < Dungeon.level.length(); i++) {
 			if (cur[i] > 0) {
 				pos = i;
 				break;
@@ -79,7 +80,7 @@ public class SacrificialFire extends Blob {
 	}
 	
 	@Override
-	public void seed( int cell, int amount ) {
+	public void seed(Level level, int cell, int amount) {
 		cur[pos] = 0;
 		pos = cell;
 		volume = cur[pos] = amount;
@@ -110,10 +111,10 @@ public class SacrificialFire extends Blob {
 				
 				int volume = fire.volume - exp;
 				if (volume > 0) {
-					fire.seed( fire.pos, volume );
+					fire.seed(Dungeon.level, fire.pos, volume);
 					GLog.w( TXT_WORTHY );
 				} else {
-					fire.seed( fire.pos, 0 );
+					fire.seed(Dungeon.level, fire.pos, 0);
 					Journal.remove( Feature.SACRIFICIAL_FIRE );
 					
 					GLog.w( TXT_REWARD );

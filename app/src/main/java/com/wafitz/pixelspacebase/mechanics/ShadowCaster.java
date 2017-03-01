@@ -57,7 +57,7 @@ public final class ShadowCaster {
 		
 		ShadowCaster.fieldOfView = fieldOfView;
 		Arrays.fill( fieldOfView, false );
-		fieldOfView[y * WIDTH + x] = true;
+		fieldOfView[y * Dungeon.level.width() + x] = true;
 		
 		scanSector( x, y, +1, +1, 0, 0 );
 		scanSector( x, y, -1, +1, 0, 0 );
@@ -82,14 +82,14 @@ public final class ShadowCaster {
 				
 				int x = cx + q * m1 + p * m3;
 				int y = cy + p * m2 + q * m4;
-				
-				if (y >= 0 && y < HEIGHT && x >= 0 && x < WIDTH) {
+
+				if (y >= 0 && y < Dungeon.level.height() && x >= 0 && x < Dungeon.level.width()) {
 					
 					float a0 = (float)q / p;
 					float a1 = a0 - dq2;
 					float a2 = a0 + dq2;
-					
-					int pos = y * WIDTH + x;
+
+					int pos = y * Dungeon.level.width() + x;
 	
 					if (obs.isBlocked( a0 ) && obs.isBlocked( a1 ) && obs.isBlocked( a2 )) {
 						// Do nothing					

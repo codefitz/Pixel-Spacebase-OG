@@ -17,7 +17,6 @@
  */
 package com.wafitz.pixelspacebase.actors;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.wafitz.pixelspacebase.Dungeon;
@@ -146,7 +145,6 @@ public abstract class Actor implements Bundlable {
 	}
 
 	public static void addDelayed( Actor actor, float delay ) {
-		Log.d("WAFITZ", "Setting delay... " );
 		add( actor, now + delay );
 	}
 
@@ -156,9 +154,7 @@ public abstract class Actor implements Bundlable {
 			return;
 		}
 
-		if (actor.id > 0) {
-			ids.put( actor.id,  actor );
-		}
+		ids.put(actor.id(), actor);
 
 		all.add( actor );
 		actor.time += time;
@@ -178,6 +174,7 @@ public abstract class Actor implements Bundlable {
 
 		if (actor != null) {
 			all.remove( actor );
+			chars.remove(actor);
 			actor.onRemove();
 
 			if (actor.id > 0) {

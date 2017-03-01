@@ -17,7 +17,6 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.levels.Level;
 import com.wafitz.pixelspacebase.levels.Room;
 import com.wafitz.pixelspacebase.levels.Terrain;
@@ -33,7 +32,7 @@ public class BossExitPainter extends Painter {
 			door.set( Room.Door.Type.REGULAR );
 		}
 
-		level.exit = room.top * Dungeon.level.width() + (room.left + room.right) / 2;
+		level.exit = room.top * level.width() + (room.left + room.right) / 2;
 		set( level, level.exit, Terrain.LOCKED_EXIT );
 	}
 	

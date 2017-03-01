@@ -17,6 +17,7 @@
  */
 package com.wafitz.pixelspacebase.actors.blobs;
 
+import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.Char;
 import com.wafitz.pixelspacebase.actors.buffs.Buff;
@@ -31,7 +32,7 @@ public class ConfusionGas extends Blob {
 		super.evolve();
 		
 		Char ch;
-		for (int i=0; i < LENGTH; i++) {
+		for (int i = 0; i < Dungeon.level.length(); i++) {
 			if (cur[i] > 0 && (ch = Actor.findChar( i )) != null) {
 				Buff.prolong( ch, Vertigo.class, Vertigo.duration( ch ) );
 			}

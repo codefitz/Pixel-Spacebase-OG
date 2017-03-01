@@ -57,7 +57,7 @@ public class WellWater extends Blob {
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 
-		for (int i=0; i < LENGTH; i++) {
+		for (int i = 0; i < Dungeon.level.length(); i++) {
 			if (cur[i] > 0) {
 				pos = i;
 				break;
@@ -140,7 +140,7 @@ public class WellWater extends Blob {
 	}
 	
 	@Override
-	public void seed( int cell, int amount ) {
+	public void seed(Level level, int cell, int amount) {
 		cur[pos] = 0;
 		pos = cell;
 		volume = cur[pos] = amount;
