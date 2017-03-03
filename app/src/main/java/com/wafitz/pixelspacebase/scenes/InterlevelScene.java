@@ -288,6 +288,7 @@ public class InterlevelScene extends PixelScene {
 
         GameLog.wipe();
 
+        Dungeon.saveLevel();
         Dungeon.loadGame( StartScene.curClass );
         if (Dungeon.depth == -1) {
             Dungeon.depth = Statistics.deepestFloor;
