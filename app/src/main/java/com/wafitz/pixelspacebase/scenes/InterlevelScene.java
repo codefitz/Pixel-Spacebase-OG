@@ -34,9 +34,9 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
-import com.watabou.utils.PathFinder;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import static com.wafitz.pixelspacebase.Dungeon.bossLevel;
 
@@ -127,7 +127,6 @@ public class InterlevelScene extends PixelScene {
                         case FALL:
                             fall();
                             break;
-                        default:
                     }
 
                     if ((Dungeon.depth % 5) == 0) {
@@ -140,12 +139,7 @@ public class InterlevelScene extends PixelScene {
 
                 } catch (Exception e ) {
 
-                    //error = ERR_GENERIC;
-                    try {
-                        messed_up();
-                    } catch (Exception e1) {
-                        error = ERR_GENERIC;
-                    }
+                    PixelSpacebase.reportException(e);
 
                 }
 
@@ -202,55 +196,36 @@ public class InterlevelScene extends PixelScene {
         }
     }
 
-    private void descend() throws Exception {
+    private void descend() throws IOException {
 
         Actor.fixTime();
         GameLog.wipe();
 
         if (Dungeon.hero == null) {
 
-            /*int width = Random.Int(16,52);
-            int height = width >= 44 ? Random.Int(16,36) : Random.Int(30,52);
-            //int width = 50;
-            //int height = 16;
-            int length = width * height;
-            PixelSpacebase.level_width( width );
-            PixelSpacebase.level_height( height );
-            PixelSpacebase.level_length( length );*/
-
-            Log.d("WAFITZ", "Running Dungeon.init()");
-
             Dungeon.init();
-            Log.d("WAFITZ", "Dungeon initialised! noStory: " + noStory );
             if (noStory) {
-                Log.d("WAFITZ", "Loading Dungeon.chapters.add(WndStory.ID_SEWERS)" );
                 Dungeon.chapters.add( WndStory.ID_SEWERS );
                 noStory = false;
             }
         } else {
-            Log.d("WAFITZ", "Saving Level." );
-            Dungeon.saveLevel();
+            Dungeon.saveAll();
         }
-
-        Log.d("WAFITZ", "Dungeon depth = " + Dungeon.depth + ", Deepest floor: " + Statistics.deepestFloor );
 
         Level level;
         if (Dungeon.depth >= Statistics.deepestFloor) {
-            Log.d("WAFITZ", "Starting newLevel()..." );
             level = Dungeon.newLevel();
         } else {
             Dungeon.depth++;
-            Log.d("WAFITZ", "Set depth to " + Dungeon.depth + ", Loading level..." );
             level = Dungeon.loadLevel( Dungeon.hero.heroClass );
         }
-        Log.d("WAFITZ", "Dungeon load finished - switching to entrance." );
         Dungeon.switchLevel( level, level.entrance );
     }
 
-    private void fall() throws Exception {
+    private void fall() throws IOException {
 
         Actor.fixTime();
-        Dungeon.saveLevel();
+        Dungeon.saveAll();
 
         Level level;
         if (Dungeon.depth >= Statistics.deepestFloor) {
@@ -262,33 +237,32 @@ public class InterlevelScene extends PixelScene {
         Dungeon.switchLevel( level, fallIntoPit ? level.pitCell() : level.randomRespawnCell() );
     }
 
-    private void ascend() throws Exception {
+    private void ascend() throws IOException {
         Actor.fixTime();
 
-        Dungeon.saveLevel();
+        Dungeon.saveAll();
         Dungeon.depth--;
         Level level = Dungeon.loadLevel( Dungeon.hero.heroClass );
         Dungeon.switchLevel( level, level.exit );
     }
 
-    private void returnTo() throws Exception {
+    private void returnTo() throws IOException {
 
         Actor.fixTime();
 
-        Dungeon.saveLevel();
+        Dungeon.saveAll();
         Dungeon.depth = returnDepth;
         Level level = Dungeon.loadLevel( Dungeon.hero.heroClass );
         //Dungeon.switchLevel( level, Level.resizingNeeded ? level.adjustPos( returnPos ) : returnPos );
         Dungeon.switchLevel( level, returnPos );
     }
 
-    private void restore() throws Exception {
+    private void restore() throws IOException {
 
         Actor.fixTime();
 
         GameLog.wipe();
 
-        Dungeon.saveLevel();
         Dungeon.loadGame( StartScene.curClass );
         if (Dungeon.depth == -1) {
             Dungeon.depth = Statistics.deepestFloor;
@@ -300,7 +274,7 @@ public class InterlevelScene extends PixelScene {
         }
     }
 
-    private void resurrect() throws Exception {
+    private void resurrect() throws IOException {
 
         Actor.fixTime();
 
@@ -315,7 +289,7 @@ public class InterlevelScene extends PixelScene {
         }
     }
 
-    private void messed_up() throws Exception {
+    private void messed_up() throws IOException {
 
         // This is an attempt to do full dungeon recreation on app crash
         // due to the random w*h regenerating on new app instance that I can't get to
@@ -335,7 +309,7 @@ public class InterlevelScene extends PixelScene {
 
         Log.d("WAFITZ", "Messed Up - Invoked!");
 
-        Level level;
+        /*Level level;
         int pos;
 
         switch (mode) {
@@ -422,7 +396,7 @@ public class InterlevelScene extends PixelScene {
                 Dungeon.switchLevel( level, level.entrance );
                 break;
 
-        }
+        }*/
 
 		/*String MESSED_UP = "An anomaly from the 4th dimension caused the spacebase to reboot itself." +
 		"Returning to the spacebase... game may require restart.";

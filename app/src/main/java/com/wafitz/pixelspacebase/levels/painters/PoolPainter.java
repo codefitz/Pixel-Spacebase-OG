@@ -17,7 +17,6 @@
  */
 package com.wafitz.pixelspacebase.levels.painters;
 
-import com.wafitz.pixelspacebase.Dungeon;
 import com.wafitz.pixelspacebase.actors.Actor;
 import com.wafitz.pixelspacebase.actors.mobs.Piranha;
 import com.wafitz.pixelspacebase.items.Generator;
@@ -65,8 +64,8 @@ public class PoolPainter extends Painter {
 			
 		}
 
-		int pos = x + y * Dungeon.level.width();
-		level.drop( prize( level ), pos ).type = 
+        int pos = x + y * level.width();
+        level.drop( prize( level ), pos ).type =
 			Random.Int( 3 ) == 0 ? Heap.Type.CHEST : Heap.Type.HEAP;
 		set( level, pos, Terrain.PEDESTAL );
 		

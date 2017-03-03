@@ -124,8 +124,8 @@ public class StandardPainter extends Painter {
 		int shift = Random.Int( 2 );
 		for (int i=0; i < nGraves; i++) {
 			int pos = w > h ?
-					room.left + 1 + shift + i * 2 + (room.top + 2 + Random.Int(h - 2)) * Dungeon.level.width() :
-					(room.left + 2 + Random.Int(w - 2)) + (room.top + 1 + shift + i * 2) * Dungeon.level.width();
+					room.left + 1 + shift + i * 2 + (room.top + 2 + Random.Int(h - 2)) * level.width() :
+					(room.left + 2 + Random.Int(w - 2)) + (room.top + 1 + shift + i * 2) * level.width();
 			level.drop( i == index ? Generator.random() : new Gold(), pos ).type = Heap.Type.TOMB;
 		}
 	}
