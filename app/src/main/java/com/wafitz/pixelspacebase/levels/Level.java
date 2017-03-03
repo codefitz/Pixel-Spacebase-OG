@@ -97,7 +97,7 @@ public abstract class Level implements Bundlable {
 	private static final String PLANTS		= "plants";
 	private static final String MOBS		= "mobs";
 	private static final String BLOBS		= "blobs";
-    //FIXME should not be static!
+
     public static boolean[] fieldOfView;
     public static boolean[] passable;
     public static boolean[] losBlocking;

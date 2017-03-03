@@ -918,12 +918,6 @@ public class Hero extends Char {
         ArrayList<Mob> visible = new ArrayList<>();
 
         boolean newMob = false;
-        // Added PickUp Action here to ensure Hero always grabs item
-        if (curAction != null) {
-            if (curAction instanceof HeroAction.PickUp) {
-                actPickUp((HeroAction.PickUp) curAction);
-            }
-        }
 
 		for (Mob m : Dungeon.level.mobs) {
 			if (Level.fieldOfView[ m.pos ] && m.hostile) {
@@ -935,7 +929,13 @@ public class Hero extends Char {
 		}
 
 		if (newMob) {
-			interrupt();
+            // Added PickUp Action here to ensure Hero always grabs item
+            if (curAction != null) {
+                if (curAction instanceof HeroAction.PickUp) {
+                    actPickUp((HeroAction.PickUp) curAction);
+                }
+            }
+            interrupt();
 			restoreHealth = false;
 		}
 
