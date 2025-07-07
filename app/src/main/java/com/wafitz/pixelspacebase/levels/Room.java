@@ -64,7 +64,12 @@ public class Room extends Rect implements Graph.Node, Bundlable {
 			Type.ARMORY, Type.WEAK_FLOOR, Type.MAGIC_WELL, Type.CRYPT, Type.POOL, Type.GARDEN, Type.LIBRARY,
 			Type.TREASURY, Type.TRAPS, Type.STORAGE, Type.STATUE, Type.LABORATORY, Type.VAULT, Type.ALTAR
 	));
-	private static final String ROOMS = "rooms";
+       private static final String ROOMS   = "rooms";
+       private static final String LEFT    = "left";
+       private static final String TOP     = "top";
+       private static final String RIGHT   = "right";
+       private static final String BOTTOM  = "bottom";
+       private static final String TYPE    = "type";
 	public HashSet<Room> neigbours = new HashSet<Room>();
 	public HashMap<Room, Door> connected = new HashMap<Room, Door>();
 	public int distance;
@@ -180,23 +185,23 @@ public class Room extends Rect implements Graph.Node, Bundlable {
 		return neigbours;
 	}
 	
-	@Override
-	public void storeInBundle(Bundle bundle) {
-		bundle.put( "left", left );
-		bundle.put( "top", top );
-		bundle.put( "right", right );
-		bundle.put( "bottom", bottom );
-		bundle.put( "type", type.toString() );
-	}
+       @Override
+       public void storeInBundle(Bundle bundle) {
+               bundle.put( LEFT, left );
+               bundle.put( TOP, top );
+               bundle.put( RIGHT, right );
+               bundle.put( BOTTOM, bottom );
+               bundle.put( TYPE, type.toString() );
+       }
 	
-	@Override
-	public void restoreFromBundle( Bundle bundle ) {
-		left = bundle.getInt( "left" );
-		top = bundle.getInt( "top" );
-		right = bundle.getInt( "right" );
-		bottom = bundle.getInt("bottom");
-		type = Type.valueOf( bundle.getString( "type" ) );
-	}
+       @Override
+       public void restoreFromBundle( Bundle bundle ) {
+               left = bundle.getInt( LEFT );
+               top = bundle.getInt( TOP );
+               right = bundle.getInt( RIGHT );
+               bottom = bundle.getInt( BOTTOM );
+               type = Type.valueOf( bundle.getString( TYPE ) );
+       }
 
 	public enum Type {
 		NULL(null),
