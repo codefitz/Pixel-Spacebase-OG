@@ -1,16 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '25.0.0'
-    dexOptions {
-        javaMaxHeapSize "4g"
-    }
+    namespace 'com.wafitz.pixelspacebase'
+    compileSdkVersion 34
+    buildToolsVersion '34.0.0'
 
     defaultConfig {
         applicationId "com.wafitz.pixelspacebase"
-        minSdkVersion 9
-        targetSdkVersion 24
+        minSdkVersion 21
+        targetSdkVersion 34
     }
 
     buildTypes {
