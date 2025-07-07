@@ -206,26 +206,30 @@ public class PixelSpacebase extends Game {
 
 	// *** IMMERSIVE MODE ****
 	
-	@SuppressLint("NewApi")
-	public static void updateImmersiveMode() {
-		if (android.os.Build.VERSION.SDK_INT >= 19) {
-			try {
-				// Sometime NullPointerException happens here
-				instance.getWindow().getDecorView().setSystemUiVisibility(
-					immersed() ?
-							View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-									View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-									View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-									View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-									View.SYSTEM_UI_FLAG_FULLSCREEN |
-									View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-					:
-					0 );
-			} catch (Exception e) {
-				reportException( e );
-			}
-		}
-	}
+       @SuppressLint("NewApi")
+       public static void updateImmersiveMode() {
+               if (android.os.Build.VERSION.SDK_INT >= 19) {
+                       if (instance != null && instance.getWindow() != null) {
+                               View decorView = instance.getWindow().getDecorView();
+                               if (decorView != null) {
+                                       decorView.setSystemUiVisibility(
+                                                       immersed() ?
+                                                                       View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                                                                       View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                                                                       View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                                                                       View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                                                                       View.SYSTEM_UI_FLAG_FULLSCREEN |
+                                                                       View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                                       :
+                                                       0 );
+                               } else {
+                                       Log.w("PD", "Decor view not available for immersive mode");
+                               }
+                       } else {
+                               Log.w("PD", "Activity window not available for immersive mode");
+                       }
+               }
+       }
 	
 	public static boolean immersed() {
 		return Preferences.INSTANCE.getBoolean( Preferences.KEY_IMMERSIVE, false );
