@@ -552,21 +552,19 @@ public class Item implements Bundlable {
 		Char enemy = Actor.findChar( cell );
 		QuickSlot.target( this, enemy );
 		
-		// FIXME!!!
-		float delay = TIME_TO_THROW;
-		if (this instanceof MissileWeapon) {
-			delay *= ((MissileWeapon)this).speedFactor( user );
-			if (enemy != null) {
-				SnipersMark mark = user.buff( SnipersMark.class );
-				if (mark != null) {
-					if (mark.object == enemy.id()) {
-						delay *= 0.5f;
-					}
-					user.remove( mark );
-				}
-			}
-		}
-		final float finalDelay = delay;
+               float delay = TIME_TO_THROW;
+               if (this instanceof MissileWeapon) {
+                       delay *= ((MissileWeapon)this).speedFactor( user );
+               }
+
+               SnipersMark mark = user.buff( SnipersMark.class );
+               if (mark != null) {
+                       if (enemy != null && mark.object == enemy.id()) {
+                               delay *= 0.5f;
+                       }
+                       user.remove( mark );
+               }
+               final float finalDelay = delay;
 		
 		((MissileSprite)user.sprite.parent.recycle( MissileSprite.class )).
 			reset( user.pos, cell, this, new Callback() {			
