@@ -72,13 +72,12 @@ public class Mimic extends Mob {
 				int newPos = Random.element(candidates);
 				Actor.addDelayed(new Pushing(ch, ch.pos, newPos), -1);
 
-				ch.pos = newPos;
-				// FIXME
-				if (ch instanceof Mob) {
-					Dungeon.level.mobPress((Mob) ch);
-				} else {
-					Dungeon.level.press(newPos, ch);
-				}
+                                ch.pos = newPos;
+                                if (ch instanceof Mob) {
+                                        Dungeon.level.mobPress( (Mob)ch );
+                                } else {
+                                        Dungeon.level.press( ch.pos, ch );
+                                }
 			} else {
 				return null;
 			}
